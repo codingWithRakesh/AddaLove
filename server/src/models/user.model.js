@@ -10,13 +10,32 @@ const userSchema = new mongoose.Schema({
         require: true,
         unique: true
     },
-    phoneNo: {
-        type: String,
-        require: true,
-    },
     age: {
         type: String,
         require: true,
     },
-    
-})
+    imageUrl: {
+        type: String,
+        require: true,
+        default:'https://ik.imagekit.io/ufopzzlbh/p.jpeg'
+    },
+    role: {
+        type: String,
+        required: true,
+        enum: ['User', 'Admin'],
+        default:'User'
+    },
+    walletBlance:{
+        type:Number,
+        require:true,
+        default:0
+    },
+    password:{
+        type: String,
+        require: true,
+
+    }
+},{ timestamps: true })
+
+const User = mongoose.model("User", userSchema);
+export default User;
