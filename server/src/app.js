@@ -19,8 +19,11 @@ app.use(express.static("public"))
 import errorHandler from "./middlewares/error.middleware.js";
 import AuthRoute from "./routes/auth.route.js";
 
-app.use(errorHandler)
 app.use('/api/auth/v1',AuthRoute)
+
+
+
+app.use(errorHandler)
 
 app.get("/", (req, res) => {
     res.json({
