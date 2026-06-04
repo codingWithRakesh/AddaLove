@@ -2,28 +2,22 @@ import mongoose from "mongoose"
 const userSchema = new mongoose.Schema({
     fullName: {
         type: String,
-        require: true,
+        required: true,
         trim: true
     },
     email: {
         type: String,
-        require: true,
+        required: true,
         unique: true
     },
     age: {
         type: String,
-        require: true,
+        required: true,
     },
     imageUrl: {
         type: String,
-        require: true,
-        default:'https://ik.imagekit.io/ufopzzlbh/p.jpeg'
-    },
-    role: {
-        type: String,
         required: true,
-        enum: ['User', 'Admin'],
-        default:'User'
+        default:'https://ik.imagekit.io/ufopzzlbh/p.jpeg'
     },
     walletBlance:{
         type:Number,
@@ -32,7 +26,7 @@ const userSchema = new mongoose.Schema({
     },
     password:{
         type: String,
-        require: true,
+        required: true,
 
     }
 },{ timestamps: true })

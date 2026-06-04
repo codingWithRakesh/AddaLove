@@ -2,26 +2,26 @@ import mongoose, { model } from "mongoose"
 const girlsSchema = new mongoose.Schema({
     fullName: {
         type: String,
-        require: true,
+        required: true,
         trim: true
     },
     email: {
         type: String,
-        require: true,
+        required: true,
         unique: true
     },
     age: {
         type: String,
-        require: true,
+        required: true,
     },
     imageUrl: {
         type: String,
-        require: true,
+        required: true,
         default: 'https://ik.imagekit.io/ufopzzlbh/p.jpeg'
     },
     vedioUrl: {
         type: String,
-        require: true,
+        required: true,
     },
     applicationStatus: {
         type: String,
@@ -31,12 +31,12 @@ const girlsSchema = new mongoose.Schema({
     },
     walletBlance: {
         type: Number,
-        require: true,
+        required: true,
         default: 0
     },
     password: {
         type: String,
-        require: true,
+        required: true,
 
     }
 },{ timestamps: true });
