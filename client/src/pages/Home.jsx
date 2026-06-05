@@ -328,7 +328,7 @@ export default function Home() {
 
       {/* DYNAMIC SYSTEM ALERTS & TOASTS */}
       {systemMessage && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-gradient-to-r from-[#6C3BFF] to-[#FF4D8D] text-white py-2.5 px-6 rounded-2xl shadow-2xl text-xs md:text-sm font-bold flex items-center gap-3 border border-white/20 animate-bounce">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] text-white py-2.5 px-6 rounded-2xl shadow-2xl text-xs md:text-sm font-bold flex items-center gap-3 border border-white/20 animate-bounce">
           <span>🔔 {systemMessage}</span>
           <button onClick={() => setSystemMessage('')} className="hover:opacity-80 font-bold ml-2">×</button>
         </div>
@@ -350,15 +350,15 @@ export default function Home() {
                 <path d="M52 32C52 43.0457 43.0457 52 32 52C20.9543 52 12 43.0457 12 32C12 20.9543 20.9543 12 32 12C43.0457 12 52 20.9543 52 32Z" fill="url(#logoGradDesktop)" fillOpacity="0.85"/>
                 <path d="M32 40C32 40 25 36 25 31C25 28.5 27 26.5 29.5 26.5C30.9 26.5 31.6 27.2 32 27.8C32.4 27.2 33.1 26.5 34.5 26.5C37 26.5 39 28.5 39 31C39 36 32 40 32 40Z" fill="#FFFFFF"/>
                 <defs>
-                  <linearGradient id="logoGradDesktop" x1="12" y1="12" x2="52" y2="52" gradientUnits="userSpaceOnUse">
+                  <linearlinear id="logoGradDesktop" x1="12" y1="12" x2="52" y2="52" linearUnits="userSpaceOnUse">
                     <stop stopColor="#6C3BFF"/>
                     <stop offset="1" stopColor="#FF4D8D"/>
-                  </linearGradient>
+                  </linearlinear>
                 </defs>
               </svg>
               <div>
                 <div className="flex items-baseline leading-none">
-                  <span className="text-2xl font-black italic tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D8D] to-[#6C3BFF]">Adda</span>
+                  <span className="text-2xl font-black italic tracking-wide text-transparent bg-clip-text bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF]">Adda</span>
                   <span className="text-2xl font-black italic tracking-wide text-[#FF4D8D]">Love</span>
                 </div>
                 <span className="text-[8px] tracking-widest text-[#4DA6FF] uppercase font-bold">Where Voices Connect</span>
@@ -378,7 +378,7 @@ export default function Home() {
               </div>
               <button 
                 onClick={() => setShowRechargeModal(true)}
-                className="w-full mt-3 bg-gradient-to-r from-[#6C3BFF] to-[#FF4D8D] hover:opacity-90 py-2 rounded-xl text-xs font-bold text-white transition-all shadow-md active:scale-95"
+                className="w-full mt-3 bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] hover:opacity-90 py-2 rounded-xl text-xs font-bold text-white transition-all shadow-md active:scale-95"
               >
                 + Instant Recharge
               </button>
@@ -404,7 +404,7 @@ export default function Home() {
                   }}
                   className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${
                     activeTab === item.id 
-                      ? 'bg-gradient-to-r from-[#6C3BFF]/20 to-[#FF4D8D]/10 text-white border-l-4 border-[#FF4D8D]' 
+                      ? 'bg-linear-to-r from-[#6C3BFF]/20 to-[#FF4D8D]/10 text-white border-l-4 border-[#FF4D8D]' 
                       : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200'
                   }`}
                 >
@@ -425,7 +425,7 @@ export default function Home() {
           {/* Sidebar Footer Profile */}
           <div className="border-t border-slate-800 pt-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6C3BFF] to-[#4DA6FF] flex items-center justify-center text-lg shadow-md">
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#6C3BFF] to-[#4DA6FF] flex items-center justify-center text-lg shadow-md">
                 🤵
               </div>
               <div>
@@ -479,8 +479,8 @@ export default function Home() {
               {/* Logo specifically for Mobile Viewport header */}
               <div className="flex md:hidden items-center gap-1.5">
                 <div className="relative flex items-center">
-                  <span className="text-lg font-black italic text-transparent bg-clip-text bg-gradient-to-r from-[#FF4D8D] to-[#6C3BFF]">Adda</span>
-                  <span className="text-lg font-black italic text-[#FF4D8D] ml-[1px]">Love</span>
+                  <span className="text-lg font-black italic text-transparent bg-clip-text bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF]">Adda</span>
+                  <span className="text-lg font-black italic text-[#FF4D8D] ml-px">Love</span>
                 </div>
               </div>
             </div>
@@ -515,9 +515,9 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
               
               {/* Interactive Banner Area */}
-              <div className="lg:col-span-2 relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#2E1065] via-[#1E1B4B] to-[#0F172A] p-6 md:p-8 border border-[#6C3BFF]/40 shadow-2xl">
+              <div className="lg:col-span-2 relative rounded-3xl overflow-hidden bg-linear-to-br from-[#2E1065] via-[#1E1B4B] to-[#0F172A] p-6 md:p-8 border border-[#6C3BFF]/40 shadow-2xl">
                 {/* Visual Glow elements */}
-                <div className="absolute right-[-20px] top-[-20px] w-48 h-48 bg-[#FF4D8D]/20 rounded-full blur-3xl"></div>
+                <div className="absolute -right-5 -top-5 w-48 h-48 bg-[#FF4D8D]/20 rounded-full blur-3xl"></div>
                 <div className="absolute left-1/4 bottom-0 w-32 h-32 bg-[#4DA6FF]/15 rounded-full blur-2xl"></div>
                 
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
@@ -637,13 +637,13 @@ export default function Home() {
                   >
                     <div className="relative">
                       {/* Interactive dynamic glowing frame */}
-                      <div className={`p-[3px] rounded-full transition-all duration-300 ${
+                      <div className={`p-0.75 rounded-full transition-all duration-300 ${
                         host.online 
-                          ? 'bg-gradient-to-tr from-[#6C3BFF] via-[#FF4D8D] to-[#4DA6FF] group-hover:scale-105' 
+                          ? 'bg-linear-to-tr from-[#6C3BFF] via-[#FF4D8D] to-[#4DA6FF] group-hover:scale-105' 
                           : 'bg-slate-700'
                       }`}>
                         <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#0F172A] flex items-center justify-center overflow-hidden relative">
-                          <div className={`w-full h-full bg-gradient-to-br ${host.color} flex items-center justify-center text-3xl md:text-4xl shadow-inner`}>
+                          <div className={`w-full h-full bg-linear-to-br ${host.color} flex items-center justify-center text-3xl md:text-4xl shadow-inner`}>
                             {host.avatarText}
                           </div>
                         </div>
@@ -699,7 +699,7 @@ export default function Home() {
                     <div className="flex items-start gap-3.5">
                       {/* Custom Avatar container */}
                       <div className="relative shrink-0">
-                        <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${girl.color} flex items-center justify-center text-2xl shadow-md`}>
+                        <div className={`w-14 h-14 rounded-xl bg-linear-to-br ${girl.color} flex items-center justify-center text-2xl shadow-md`}>
                           {girl.avatarText}
                         </div>
                         {girl.online && (
@@ -746,7 +746,7 @@ export default function Home() {
                         </button>
                         <button 
                           onClick={() => handleStartCall(girl)}
-                          className="bg-gradient-to-r from-[#6C3BFF] to-[#FF4D8D] hover:opacity-90 text-white text-xs font-black px-4 py-2 rounded-xl shadow-md transition-all flex items-center gap-1 active:scale-95"
+                          className="bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] hover:opacity-90 text-white text-xs font-black px-4 py-2 rounded-xl shadow-md transition-all flex items-center gap-1 active:scale-95"
                         >
                           <span>Join</span>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -770,7 +770,7 @@ export default function Home() {
             <section className="bg-[#1E293B] rounded-3xl p-5 border border-slate-800/80 shadow-md">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-900 to-[#1E1B4B] flex items-center justify-center text-2xl shadow-inner border border-purple-500/20">
+                  <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-indigo-900 to-[#1E1B4B] flex items-center justify-center text-2xl shadow-inner border border-purple-500/20">
                     🎸
                   </div>
                   <div>
@@ -840,7 +840,7 @@ export default function Home() {
                 triggerToast(`Quick Match: Connecting with ${randomGirl.name}!`);
               }
             }}
-            className="w-14 h-14 rounded-full bg-gradient-to-r from-[#FF4D8D] to-[#6C3BFF] flex items-center justify-center shadow-[0_4px_20px_rgba(255,77,141,0.6)] border-4 border-slate-950 active:scale-95 transform transition-all group animate-pulse-glow"
+            className="w-14 h-14 rounded-full bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] flex items-center justify-center shadow-[0_4px_20px_rgba(255,77,141,0.6)] border-4 border-slate-950 active:scale-95 transform transition-all group animate-pulse-glow"
           >
             <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z" />
@@ -877,14 +877,14 @@ export default function Home() {
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center md:items-end justify-center select-none p-4">
           <div className="absolute inset-0" onClick={() => setSelectedHost(null)}></div>
           
-          <div className="relative w-full max-w-lg bg-[#1E293B] rounded-2xl md:rounded-t-[32px] md:rounded-b-none p-6 border border-slate-700/60 max-h-[90%] md:max-h-[85%] overflow-y-auto z-10 animate-slide-up space-y-6">
+          <div className="relative w-full max-w-lg bg-[#1E293B] rounded-2xl md:rounded-t-4xl md:rounded-b-none p-6 border border-slate-700/60 max-h-[90%] md:max-h-[85%] overflow-y-auto z-10 animate-slide-up space-y-6">
             
             {/* Drag Handle block */}
             <div className="hidden md:block w-12 h-1.5 bg-slate-700 rounded-full mx-auto mb-2"></div>
             
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-4">
-                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${selectedHost.color} flex items-center justify-center text-3xl shadow-lg relative`}>
+                <div className={`w-16 h-16 rounded-2xl bg-linear-to-br ${selectedHost.color} flex items-center justify-center text-3xl shadow-lg relative`}>
                   {selectedHost.avatarText}
                   {selectedHost.online && (
                     <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-[#1E293B]"></span>
@@ -980,7 +980,7 @@ export default function Home() {
               </button>
               <button 
                 onClick={() => handleStartCall(selectedHost)}
-                className="flex-[2] bg-gradient-to-r from-[#6C3BFF] to-[#FF4D8D] text-white font-black py-3 rounded-xl text-xs shadow-lg shadow-purple-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                className="flex-2 bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] text-white font-black py-3 rounded-xl text-xs shadow-lg shadow-purple-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
                 <span>Call Voice Room</span>
                 <span className="bg-white/20 text-[10px] font-bold px-2 py-0.5 rounded-full">₹10/hr</span>
@@ -1037,8 +1037,8 @@ export default function Home() {
             {/* Visual Wave pulses */}
             <div className="relative mb-6">
               <div className="absolute inset-0 rounded-full bg-[#6C3BFF]/30 blur-2xl opacity-60 animate-pulse"></div>
-              <div className="w-36 h-36 md:w-44 md:h-44 rounded-full p-2 bg-gradient-to-tr from-[#6C3BFF] via-[#FF4D8D] to-[#4DA6FF] relative z-10">
-                <div className={`w-full h-full rounded-full bg-gradient-to-br ${activeCall.color} flex items-center justify-center text-7xl shadow-2xl`}>
+              <div className="w-36 h-36 md:w-44 md:h-44 rounded-full p-2 bg-linear-to-tr from-[#6C3BFF] via-[#FF4D8D] to-[#4DA6FF] relative z-10">
+                <div className={`w-full h-full rounded-full bg-linear-to-br ${activeCall.color} flex items-center justify-center text-7xl shadow-2xl`}>
                   {activeCall.avatarText}
                 </div>
               </div>
@@ -1066,7 +1066,7 @@ export default function Home() {
           </div>
 
           {/* Subtitle dialogue captions */}
-          <div className="max-w-xl w-full mx-auto bg-slate-950/80 border border-slate-800/80 p-5 rounded-2xl mb-8 min-h-[96px] flex flex-col justify-center relative z-10 backdrop-blur-md shadow-2xl">
+          <div className="max-w-xl w-full mx-auto bg-slate-950/80 border border-slate-800/80 p-5 rounded-2xl mb-8 min-h-24 flex flex-col justify-center relative z-10 backdrop-blur-md shadow-2xl">
             <span className="absolute top-2 left-4 text-[9px] uppercase tracking-wider font-extrabold text-[#FF4D8D]">
               Speech Subtitle Transcript
             </span>
@@ -1138,7 +1138,7 @@ export default function Home() {
       {/* ========================================================= */}
       {showRechargeModal && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 select-none">
-          <div className="w-full max-w-sm bg-[#1E293B] rounded-[32px] p-6 border border-slate-700 shadow-2xl relative animate-scale-up space-y-6">
+          <div className="w-full max-w-sm bg-[#1E293B] rounded-4xl p-6 border border-slate-700 shadow-2xl relative animate-scale-up space-y-6">
             
             <button 
               onClick={() => setShowRechargeModal(false)}
@@ -1190,7 +1190,7 @@ export default function Home() {
             {/* Action Pay */}
             <button 
               onClick={handleRecharge}
-              className="w-full bg-gradient-to-r from-[#6C3BFF] to-[#FF4D8D] text-white font-black py-4 rounded-xl text-xs md:text-sm shadow-lg hover:opacity-90 active:scale-95 transition-all"
+              className="w-full bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] text-white font-black py-4 rounded-xl text-xs md:text-sm shadow-lg hover:opacity-90 active:scale-95 transition-all"
             >
               Instant UPI/Paytm Pay ₹{rechargeAmount}
             </button>

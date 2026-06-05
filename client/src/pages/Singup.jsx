@@ -256,12 +256,24 @@ export default function Signup() {
                                 )}
                             </button>
 
-                            <p className="text-center text-xs text-slate-400">
-                                Already have an account?{' '}
-                                <a href="/login" className="text-[#FF4D8D] hover:text-[#6C3BFF] transition-colors">
-                                    Login
-                                </a>
-                            </p>
+                            <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/20"></div>
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="px-2 bg-linear-to-br from-[#0F172A] via-[#1a1f3a] to-[#0F172A]">
+                    Already have an account?
+                  </span>
+                </div>
+              </div>
+
+              {/* Sign Up Link */}
+              <a
+                href="/login"
+                className="block w-full py-3 border border-white/20 text-white font-bold rounded-xl text-center hover:bg-white/5 hover:border-[#FF4D8D] transition-all duration-300 transform hover:scale-105"
+              >
+                Login
+              </a>
                         </div>
                     )}
 

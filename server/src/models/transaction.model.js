@@ -11,7 +11,7 @@ const transactionSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    amount: {
+    coinAmount: {
         type: Number,
     }
 }, { timestamps: true });

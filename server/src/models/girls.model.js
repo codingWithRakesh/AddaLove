@@ -21,7 +21,6 @@ const girlsSchema = new mongoose.Schema({
     },
     vedioUrl: {
         type: String,
-        required: true,
     },
     applicationStatus: {
         type: String,
@@ -29,16 +28,23 @@ const girlsSchema = new mongoose.Schema({
         enum: ['pending', 'accepted', 'rejected'],
         default: 'pending'
     },
+    userType: {
+        type: String,
+        default: 'Girl'
+    },
     walletBlance: {
         type: Number,
         required: true,
         default: 0
+    },
+    applicationId:{
+        type:String,
     },
     password: {
         type: String,
         required: true,
 
     }
-},{ timestamps: true });
-const Girls= mongoose.model('Girls',girlsSchema);
+}, { timestamps: true });
+const Girls = mongoose.model('Girls', girlsSchema);
 export default Girls;

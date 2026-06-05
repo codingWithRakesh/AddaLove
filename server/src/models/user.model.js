@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         default:'https://ik.imagekit.io/ufopzzlbh/p.jpeg'
     },
+    userType:{
+        type:String,
+        default:'Boy'
+    },
     walletBlance:{
         type:Number,
         require:true,
