@@ -9,6 +9,7 @@ import Login from './pages/login.jsx'
 import SignupGirls from './pages/SignupGirls.jsx'
 import CheckApplication from './pages/CheckApplication.jsx'
 import GirlsLogin from './pages/GirlsLogin.jsx'
+import AddaLoveRecharge from './pages/Wallet.jsx'
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,11 @@ const router = createBrowserRouter([
       {
         path: "/girlslogin",
         element: <GirlsLogin />
+
+      },
+      {
+        path: "/wallet",
+        element: <AddaLoveRecharge />
 
       },
     ]
