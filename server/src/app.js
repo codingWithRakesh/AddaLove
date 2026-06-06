@@ -19,9 +19,11 @@ app.use(express.static("public"))
 import errorHandler from "./middlewares/error.middleware.js";
 import AuthRoute from "./routes/auth.route.js";
 import messageRoute from "./routes/message.route.js";
+import WalletRoute from "./routes/wallet.route.js";
 
 app.use('/api/auth/v1',AuthRoute)
 app.use('/api/message/v1',messageRoute)
+app.use('/api/wallet/v1',WalletRoute);
 
 
 
