@@ -15,6 +15,10 @@ const historySchema = new Schema({
         type: String,
         required: true,
         enum: ['audiocall', 'videocall']
+    },
+    duration: {
+        type: String,
+        required: true
     }
 }, { timestamps: true });
 
