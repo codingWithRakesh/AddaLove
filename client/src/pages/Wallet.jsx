@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { handleError, handleSuccess } from '../components/ErrorMessage';
-
+import { History } from 'lucide-react';
+import { useNavigate } from 'react-router';
 const coinPackages = [
     { coins: 25, price: 9, bonus: null },
     { coins: 95, price: 29, bonus: null },
@@ -23,6 +24,11 @@ export default function AddaLoveRecharge() {
     const [isProcessing, setIsProcessing] = useState(false);
     // const [orderdata, setOrderdata] = useState({})
     const [balance, setBalance] = useState(0)
+    const naviget= useNavigate()
+
+    const handleclick=()=>{
+    naviget('/transcation-history')
+    }
     // Simulated API Call
     const handlePayment = async () => {
         setIsProcessing(true);
@@ -201,11 +207,9 @@ export default function AddaLoveRecharge() {
                             ≈ ₹0.99 value
                         </div>
 
-                        <button className="flex items-center gap-2 bg-[#251e12] border border-[#52441a] text-yellow-400 hover:bg-[#332816] transition-colors px-5 py-2.5 rounded-xl text-sm font-semibold shadow-inner">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                            </svg>
-                            Claim Daily Reward (50 coins) <span className="text-yellow-200">✨</span>
+                        <button onClick={handleclick} className="flex items-center gap-2 bg-[#251e12] border border-[#52441a] text-yellow-400 hover:bg-[#332816] transition-colors px-5 py-2.5 rounded-xl text-sm font-semibold shadow-inner">
+                            <History/>
+                            Your transcation history
                         </button>
                     </div>
                 </div>

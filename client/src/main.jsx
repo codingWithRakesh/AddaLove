@@ -10,6 +10,7 @@ import SignupGirls from './pages/SignupGirls.jsx'
 import CheckApplication from './pages/CheckApplication.jsx'
 import GirlsLogin from './pages/GirlsLogin.jsx'
 import AddaLoveRecharge from './pages/Wallet.jsx'
+import TranscationHistory from './pages/TranscationHistory.jsx'
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,11 @@ const router = createBrowserRouter([
       {
         path: "/wallet",
         element: <AddaLoveRecharge />
+
+      },
+      {
+        path: "/transcation-history",
+        element: <TranscationHistory />
 
       },
     ]

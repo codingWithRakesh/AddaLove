@@ -54,14 +54,16 @@ const paymentVerify = asyncHandler(async (req, res) => {
 
 const addMoneyToWallet = asyncHandler(async (req, res) => {
     const { userId, coins, bonus, amount, razorpay_payment_id, razorpay_order_id } = req.body;
-    if (!userId || !coins || !bonus || !amount || !razorpay_payment_id || !razorpay_order_id) {
+    if (!userId || !coins || !amount || !razorpay_payment_id || !razorpay_order_id) {
         throw new ApiError(400, 'All data not found')
     }
     const nAmount = Number(amount);
     const nCoins = Number(coins);
+    const nbonus =Number(bonus)
     const newcointranscation = new CoinTransaction({
         userId,
         coins: nCoins,
+        bonus: nbonus,
         razorpay_payment_id,
         razorpay_order_id,
         amount: nAmount/100
@@ -77,5 +79,15 @@ const addMoneyToWallet = asyncHandler(async (req, res) => {
 
 
 
+});
+
+const coinTranscationHistory = asyncHandler(async(req,res)=>{
+    const userId= req.user._id;
+    const allTranscation = await CoinTransaction.find({userId:userId}).lean();
+    if (!allTranscation){
+       throw new ApiError(200,'No transaction found.') 
+    }
+    return res.status(200).json(new ApiResponse(200,{allTranscation},'transcation found'))
+
 })
-export { creatCoinOrder, paymentVerify , addMoneyToWallet}
+export { creatCoinOrder, paymentVerify , addMoneyToWallet , coinTranscationHistory}

@@ -1,4 +1,5 @@
 import mongoose, { model } from "mongoose"
+import { type } from "os";
 
 const coinsTransacationSchema = new mongoose.Schema({
     userId: {
@@ -7,6 +8,10 @@ const coinsTransacationSchema = new mongoose.Schema({
         required: true
     },
     coins: {
+        type: Number,
+        required: true
+    },
+    bonus: {
         type: Number,
         required: true
     },
