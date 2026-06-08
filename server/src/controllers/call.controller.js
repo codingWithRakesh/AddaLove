@@ -28,7 +28,7 @@ const ALLOWED_DURATIONS = {
  */
 const createRoom = asyncHandler(async (req, res) => {
     const boyId = req.user._id;
-    const { girlId, durationMinutes } = req.body;
+    const { girlId, durationMinutes, callType = 'audio' } = req.body;
 
     if (!girlId) {
         throw new ApiError(400, 'girlId is required');
@@ -65,6 +65,7 @@ const createRoom = asyncHandler(async (req, res) => {
         createdBy: boyId,
         invitedGirl: girlId,
         durationMs,
+        callType,
         status: 'waiting'
     });
 

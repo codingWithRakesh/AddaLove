@@ -90,6 +90,7 @@ async function endCall(roomId, reason = 'ended_by_user') {
         if (roomDoc) {
             await CallHistory.create({
                 roomId,
+                callType: roomDoc.callType,
                 caller: roomDoc.createdBy,
                 receiver: roomDoc.invitedGirl,
                 status: 'completed',
@@ -238,6 +239,7 @@ io.on('connection', (socket) => {
             // Push incoming call to girl
             io.to(`user:${girlId}`).emit('incoming_call', {
                 roomId,
+                callType: room.callType,
                 durationMinutes: room.durationMs / 60000,
                 caller: {
                     id: room.createdBy._id,

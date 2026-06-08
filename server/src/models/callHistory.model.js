@@ -39,6 +39,11 @@ const callHistorySchema = new Schema({
     endReason: {
         type: String,
         default: null
+    },
+    callType: {
+        type: String,
+        enum: ['audio', 'video'],
+        default: 'audio'
     }
 }, { timestamps: true });
 

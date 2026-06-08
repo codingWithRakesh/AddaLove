@@ -42,6 +42,11 @@ const callRoomSchema = new Schema({
     actualDurationMs: {
         type: Number,
         default: null
+    },
+    callType: {
+        type: String,
+        enum: ['audio', 'video'],
+        default: 'audio'
     }
 }, { timestamps: true });
 
