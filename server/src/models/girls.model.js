@@ -44,7 +44,10 @@ const girlsSchema = new mongoose.Schema({
         type: String,
         required: true,
 
-    }
+    },
+    publicKey: {
+        type: String,
+    },
 }, { timestamps: true });
 const Girls = mongoose.model('Girls', girlsSchema);
 export default Girls;
