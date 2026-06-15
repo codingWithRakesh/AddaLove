@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { handleError, handleSuccess } from '../components/ErrorMessage';
 import { History } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { useUserData } from '../context/UserdataContext';
 const coinPackages = [
     { coins: 25, price: 9, bonus: null },
     { coins: 95, price: 29, bonus: null },
@@ -22,6 +23,7 @@ export default function AddaLoveRecharge() {
     const [selectedPkg, setSelectedPkg] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+    const { useralldata } = useUserData();
     // const [orderdata, setOrderdata] = useState({})
     const [balance, setBalance] = useState(0)
     const naviget = useNavigate()
@@ -203,7 +205,7 @@ export default function AddaLoveRecharge() {
                         </div>
 
                         <div className="flex items-baseline gap-2 mb-1">
-                            <span className="text-5xl font-black text-yellow-400 tracking-tight">{balance}</span>
+                            <span className="text-5xl font-black text-yellow-400 tracking-tight">{useralldata.walletBlance}</span>
                             <span className="text-lg font-bold text-yellow-400">coins</span>
                         </div>
                         <div className="text-gray-500 text-sm mb-6 font-medium">

@@ -343,84 +343,7 @@ export default function Home() {
         <aside className="hidden md:flex flex-col w-72 bg-[#0B0F19] border-r border-slate-800 p-6 shrink-0 h-screen sticky top-0 justify-between">
           
           {/* Logo & Header */}
-          <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-2">
-              <svg className="w-10 h-10 filter drop-shadow-[0_2px_8px_rgba(255,77,141,0.5)]" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 32C12 20.9543 20.9543 12 32 12C33.2 12 34.4 12.1 35.5 12.3C27.5 15.5 22 23.1 22 32C22 39.2 25.8 45.6 31.5 49.2C21.4 49.9 12 42.1 12 32Z" fill="#FF4D8D"/>
-                <path d="M52 32C52 43.0457 43.0457 52 32 52C20.9543 52 12 43.0457 12 32C12 20.9543 20.9543 12 32 12C43.0457 12 52 20.9543 52 32Z" fill="url(#logoGradDesktop)" fillOpacity="0.85"/>
-                <path d="M32 40C32 40 25 36 25 31C25 28.5 27 26.5 29.5 26.5C30.9 26.5 31.6 27.2 32 27.8C32.4 27.2 33.1 26.5 34.5 26.5C37 26.5 39 28.5 39 31C39 36 32 40 32 40Z" fill="#FFFFFF"/>
-                <defs>
-                  <linearlinear id="logoGradDesktop" x1="12" y1="12" x2="52" y2="52" linearUnits="userSpaceOnUse">
-                    <stop stopColor="#6C3BFF"/>
-                    <stop offset="1" stopColor="#FF4D8D"/>
-                  </linearlinear>
-                </defs>
-              </svg>
-              <div>
-                <div className="flex items-baseline leading-none">
-                  <span className="text-2xl font-black italic tracking-wide text-transparent bg-clip-text bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF]">Adda</span>
-                  <span className="text-2xl font-black italic tracking-wide text-[#FF4D8D]">Love</span>
-                </div>
-                <span className="text-[8px] tracking-widest text-[#4DA6FF] uppercase font-bold">Where Voices Connect</span>
-              </div>
-            </div>
-
-            {/* Wallet Info Box */}
-            <div className="bg-[#1E293B] rounded-2xl p-4 border border-slate-700/60 shadow-lg">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">🪙</span>
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase tracking-wider font-extrabold">Wallet Balance</span>
-                    <span className="text-lg font-black text-[#FF4D8D]">₹{walletBalance.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-              <button 
-                onClick={() => setShowRechargeModal(true)}
-                className="w-full mt-3 bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] hover:opacity-90 py-2 rounded-xl text-xs font-bold text-white transition-all shadow-md active:scale-95"
-              >
-                + Instant Recharge
-              </button>
-            </div>
-
-            {/* Navigation links */}
-            <nav className="flex flex-col gap-1.5 mt-4">
-              {[
-                { id: 'home', label: 'Explore Home', icon: '🏠' },
-                { id: 'rooms', label: 'Voice Rooms', icon: '🎙️', sub: 'Online' },
-                { id: 'wallet', label: 'Wallet Ledger', icon: '🪙' },
-              ].map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    if (item.id === 'wallet') {
-                      setShowRechargeModal(true);
-                    } else {
-                      setActiveTab(item.id);
-                      if (item.id === 'rooms') setActiveCategory('Online');
-                      else setActiveCategory('All');
-                    }
-                  }}
-                  className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                    activeTab === item.id 
-                      ? 'bg-linear-to-r from-[#6C3BFF]/20 to-[#FF4D8D]/10 text-white border-l-4 border-[#FF4D8D]' 
-                      : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg">{item.icon}</span>
-                    <span>{item.label}</span>
-                  </div>
-                  {item.sub && (
-                    <span className="text-[9px] bg-green-500/20 text-green-400 font-extrabold px-1.5 py-0.5 rounded uppercase">
-                      {item.sub}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </nav>
-          </div>
+   
 
           {/* Sidebar Footer Profile */}
           <div className="border-t border-slate-800 pt-4 flex items-center justify-between">
@@ -449,64 +372,7 @@ export default function Home() {
         <main className="flex-1 min-w-0 flex flex-col min-h-screen pb-24 md:pb-6">
 
           {/* HEADER SECTION */}
-          <header className="sticky top-0 bg-[#0F172A]/90 backdrop-blur-md border-b border-slate-800 z-30 px-4 md:px-8 py-4 flex justify-between items-center select-none">
-            
-            {/* Left section: Web title on widescreen or close button on small screens */}
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => {
-                  setSearchQuery('');
-                  setActiveCategory('All');
-                  triggerToast("Exploring all live voice hosts on AddaLove!");
-                }}
-                className="md:hidden w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700/80 flex items-center justify-center transition-all"
-              >
-                <svg className="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-
-              <div className="hidden md:block">
-                <h1 className="text-xl font-black text-white flex items-center gap-2">
-                  <span>Welcome to AddaLove Web</span>
-                  <span className="text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                    ● Premium Voice Hub
-                  </span>
-                </h1>
-                <p className="text-xs text-slate-400">Interact with high-rated vocal artists and listeners instantly.</p>
-              </div>
-
-              {/* Logo specifically for Mobile Viewport header */}
-              <div className="flex md:hidden items-center gap-1.5">
-                <div className="relative flex items-center">
-                  <span className="text-lg font-black italic text-transparent bg-clip-text bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF]">Adda</span>
-                  <span className="text-lg font-black italic text-[#FF4D8D] ml-px">Love</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Header Controls (Search & Wallet) */}
-            <div className="flex items-center gap-3">
-              {/* Wallet button specifically on Mobile Viewport */}
-              <button 
-                onClick={() => setShowRechargeModal(true)} 
-                className="md:hidden bg-slate-800/80 hover:bg-slate-700/80 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold border border-[#6C3BFF]/30"
-              >
-                <span className="text-yellow-400">🪙</span>
-                <span className="text-slate-200">₹{walletBalance.toFixed(2)}</span>
-              </button>
-
-              <button 
-                onClick={() => triggerToast("All active connections are premium and secure.")}
-                className="w-10 h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-all relative"
-              >
-                <svg className="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-[#FF4D8D] rounded-full ring-2 ring-[#0F172A]"></span>
-              </button>
-            </div>
-          </header>
+       
 
           {/* MAIN PAGE FEED */}
           <div className="flex-1 px-4 md:px-8 py-6 max-w-7xl w-full mx-auto space-y-8">
@@ -808,67 +674,7 @@ export default function Home() {
       {/* ========================================================= */}
       {/* MOBILE BOTTOM NAVIGATION BAR: SHOWN ONLY ON SMALL SCREENS */}
       {/* ========================================================= */}
-      <div className="fixed bottom-0 left-0 right-0 h-20 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex md:hidden justify-between items-center px-4 z-40 select-none">
-        
-        <button 
-          onClick={() => { setActiveTab('home'); }}
-          className={`flex flex-col items-center justify-center flex-1 transition-all ${activeTab === 'home' ? 'text-[#FF4D8D]' : 'text-slate-400 hover:text-slate-200'}`}
-        >
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-          </svg>
-          <span className="text-[10px] font-black mt-1">Home</span>
-        </button>
-
-        <button 
-          onClick={() => { setActiveTab('rooms'); setActiveCategory('Online'); }}
-          className={`flex flex-col items-center justify-center flex-1 transition-all ${activeTab === 'rooms' ? 'text-[#6C3BFF]' : 'text-slate-400 hover:text-slate-200'}`}
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <span className="text-[10px] font-black mt-1">Rooms</span>
-        </button>
-
-        {/* Floating Quick Connection center button */}
-        <div className="flex-1 flex justify-center -mt-6">
-          <button 
-            onClick={() => {
-              const randomGirl = recommendedGirls[Math.floor(Math.random() * recommendedGirls.length)];
-              if (randomGirl) {
-                handleStartCall(randomGirl);
-                triggerToast(`Quick Match: Connecting with ${randomGirl.name}!`);
-              }
-            }}
-            className="w-14 h-14 rounded-full bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] flex items-center justify-center shadow-[0_4px_20px_rgba(255,77,141,0.6)] border-4 border-slate-950 active:scale-95 transform transition-all group animate-pulse-glow"
-          >
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z" />
-            </svg>
-          </button>
-        </div>
-
-        <button 
-          onClick={() => { setShowRechargeModal(true); }}
-          className="flex flex-col items-center justify-center flex-1 text-slate-400 hover:text-slate-200"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span className="text-[10px] font-black mt-1">Recharge</span>
-        </button>
-
-        <button 
-          onClick={() => triggerToast("AddaLove responsive user profiles are coming soon!")}
-          className="flex flex-col items-center justify-center flex-1 text-slate-400 hover:text-slate-200"
-        >
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-          </svg>
-          <span className="text-[10px] font-black mt-1">Profile</span>
-        </button>
-      </div>
-
+      
 
       {/* ========================================================= */}
       {/* PROFILE DETAIL BOTTOM DRAWER: FLOATS UP FLUIDLY ON BOTH VIEWS */}

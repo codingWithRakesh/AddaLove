@@ -8,6 +8,8 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import { ToastContainer, Flip } from "react-toastify";
 import { useUserData } from './context/UserdataContext';
 import lodescreen from './assets/LodingScreen.mp4'
+import TopNavbar from './components/TopNavbar'
+import ButtomNavbar from './components/ButtomNavbar'
 function App() {
   const { setUseralldata } = useUserData();
   const [screenloder, setScreenloder] = useState(true)
@@ -34,7 +36,7 @@ function App() {
       } catch (error) {
         console.log(error)
       } finally {
-        await new Promise(resolve => setTimeout(resolve, 10000));
+        // await new Promise(resolve => setTimeout(resolve, 10000));
         setScreenloder(false)
       }
     }
@@ -52,9 +54,11 @@ function App() {
   return (
     <div className="App">
       <ToastContainer transition={Flip} />
+      <TopNavbar/>
       <Suspense>
         <Outlet />
       </Suspense>
+      <ButtomNavbar/>
     </div>
   )
 }
