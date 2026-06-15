@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Upload, Loader } from 'lucide-react';
 import { handleSuccess } from '../components/ErrorMessage';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import shotlogo from "../assets/logo2.png"
 export default function Signup() {
     // Step 1: Email verification
@@ -268,12 +268,12 @@ export default function Signup() {
               </div>
 
               {/* Sign Up Link */}
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 className="block w-full py-3 border border-white/20 text-white font-bold rounded-xl text-center hover:bg-white/5 hover:border-[#FF4D8D] transition-all duration-300 transform hover:scale-105"
               >
                 Login
-              </a>
+              </Link>
                         </div>
                     )}
 

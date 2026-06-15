@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Loader } from 'lucide-react';
 import { handleSuccess } from '../components/ErrorMessage';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import shotlogo from "../assets/logo2.png"
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -200,12 +200,18 @@ export default function Login() {
                         </div>
 
                         {/* Sign Up Link */}
-                        <a
-                            href="/signup"
+                        <Link
+                            to="/signup"
                             className="block w-full py-3 border border-white/20 text-white font-bold rounded-xl text-center hover:bg-white/5 hover:border-[#FF4D8D] transition-all duration-300 transform hover:scale-105"
                         >
                             Create Account
-                        </a>
+                        </Link>
+                        <Link
+                            to="/signupgirl"
+                            className="block w-full py-3 border border-white/20 text-white font-bold rounded-xl text-center hover:bg-white/5 hover:border-[#FF4D8D] transition-all duration-300 transform hover:scale-105"
+                        >
+                            Create Account as girls
+                        </Link>
                     </form>
 
                     {/* Footer Text */}
