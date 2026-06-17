@@ -14,15 +14,15 @@ const verifyUser = asyncHandler(async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SERECT);
     console.log(decoded)
 
-    if (decoded.userType.toLowerCase() === 'boy') {
-        const user = await User.findById(decoded.id).select('-password');
+    if (decoded.usertype === 'Boy') {
+        const user = await User.findById(decoded.userId).select('-password');
         if (!user) {
             throw new ApiError(401, 'User not found');
         }
         req.user = user;
         req.userType = 'boy';
-    } else if (decoded.userType.toLowerCase() === 'girl') {
-        const girl = await Girls.findById(decoded.id).select('-password');
+    } else if (decoded.usertype === 'Girl') {
+        const girl = await Girls.findById(decoded.userId).select('-password');
         if (!girl) {
             throw new ApiError(401, 'Girl not found');
         }

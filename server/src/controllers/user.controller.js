@@ -216,4 +216,14 @@ const girlsLogin = asyncHandler(async (req, res) => {
 
 
 })
-export { sendOtp, otpVerify, register, login, girlRegister, girlVedioUpload, checkApplicationStatus , girlsLogin };
+
+const currentUser = asyncHandler(async (req, res) => {
+    if (req.user) {
+        return res.status(200).json(new ApiResponse(200, req.user, "Current user details retrieved successfully"))
+    } else if (req.girl) {
+        return res.status(200).json(new ApiResponse(200, req.girl, "Current user details retrieved successfully"))
+    } else {
+        throw new ApiError(401, "Unauthorized")
+    }
+})
+export { sendOtp, otpVerify, register, login, girlRegister, girlVedioUpload, checkApplicationStatus , girlsLogin, currentUser };

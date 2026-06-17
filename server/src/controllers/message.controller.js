@@ -46,6 +46,9 @@ const sendMessage = asyncHandler(async (req, res) => {
     const girlOwner = room.createdBy.toString();
     const currentBoy = room.currentBoy?.toString();
 
+    if (!currentBoy) {
+        throw new ApiError(403, 'No boy is inside this room');
+    }
     if (!isGirl && currentBoy !== senderId.toString()) {
         throw new ApiError(403, 'You are not inside this room');
     }

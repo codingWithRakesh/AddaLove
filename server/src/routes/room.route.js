@@ -7,7 +7,8 @@ import {
     getOpenRooms,
     getRoomMessages,
     getGirlHistory,
-    getBoyHistory
+    getBoyHistory,
+    getRoomDetails
 } from "../controllers/room.controller.js";
 import {
     sendMessage
@@ -23,10 +24,11 @@ router.route("/destroy/:roomId").delete(verifyUser, destroyRoom);
 router.route("/join/:roomId").post(verifyUser, joinRoom);
 router.route("/leave/:roomId").post(verifyUser, leaveRoom);
 router.route("/openRooms").get(verifyUser, getOpenRooms);
+router.route("/:roomId/details").get(verifyUser, getRoomDetails);
 
 //message routes
 router.route("/:roomId/messages").get(verifyUser, getRoomMessages);
-router.route("/:roomId/messages").post(verifyUser, upload.single('file'), sendMessage);
+router.route("/:roomId/message").post(verifyUser, upload.single('file'), sendMessage);
 
 //history routes
 router.route("/history/girl").get(verifyUser, getGirlHistory);

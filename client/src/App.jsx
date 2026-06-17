@@ -1,13 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
-import { Suspense } from 'react'
+import { useEffect, Suspense } from 'react'
 import { Outlet } from 'react-router-dom'
 import { ToastContainer, Flip } from "react-toastify";
+import { connectSocket, disconnectSocket } from './socket/socket.js';
+import useUserStore from './store/userStore.js';
+import useRoomStore from './store/roomStore.js';
 function App() {
-  const [count, setCount] = useState(0)
+  const { fetchUser, isAuthenticated, user, userRole } = useUserStore();
+  const {getOpenRooms} = useRoomStore();
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        await fetchUser();
+        await getOpenRooms();
+      } catch (error) {
+        disconnectSocket();
+      }
+    };
+
+    loadInitialData();
+  }, [fetchUser, getOpenRooms]);
+
+  useEffect(() => {
+    if (isAuthenticated && user?._id && userRole) {
+      connectSocket();
+    } else {
+      disconnectSocket();
+    }
+  }, [isAuthenticated, user?._id, userRole]);
 
   return (
     <div className="App">
