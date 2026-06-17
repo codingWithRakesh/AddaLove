@@ -8,7 +8,7 @@ export default function TopNavbar() {
         window.scrollTo({
             top: 0,
             left: 0,
-            behavior: 'smooth', // Optional: creates a smooth animation instead of an instant jump
+            behavior: 'smooth',
         });
         naviget('/wallet')
     }
