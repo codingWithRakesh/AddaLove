@@ -1,0 +1,185 @@
+/* Base Wrapper - Dark Theme Background */
+.profile-wrapper {
+  background-color: #0F172A;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #FFFFFF;
+}
+
+.profile-wrapper.loading {
+  color: #6C3BFF;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+/* Glassmorphism Card */
+.glass-card {
+  background: rgba(30, 41, 59, 0.65); /* #1E293B with opacity */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(108, 59, 255, 0.25); /* Subtle Primary border */
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.glass-card:hover {
+  box-shadow: 0 25px 50px rgba(108, 59, 255, 0.15);
+}
+
+/* Header & Avatar Styling */
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.avatar-container {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  /* Gradient border using Primary and Secondary colors */
+  background: linear-gradient(135deg, #6C3BFF, #FF4D8D);
+  padding: 4px;
+  margin-bottom: 1rem;
+  box-shadow: 0 8px 24px rgba(108, 59, 255, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.avatar-container:hover {
+  transform: scale(1.05) rotate(5deg);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #1E293B; /* Card background */
+}
+
+.profile-name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+}
+
+.profile-email {
+  color: #94A3B8;
+  font-size: 0.95rem;
+  margin: 0 0 1rem 0;
+}
+
+.profile-badge {
+  background: rgba(77, 166, 255, 0.15);
+  color: #4DA6FF; /* Accent color */
+  border: 1px solid rgba(77, 166, 255, 0.3);
+  padding: 0.35rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Stats Section */
+.profile-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.stat-card {
+  background: rgba(15, 23, 42, 0.5); /* #0F172A with opacity */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.wallet-card {
+  align-items: flex-start;
+  padding: 1.5rem;
+}
+
+.wallet-amount {
+  font-size: 2rem;
+  color: #FF4D8D; /* Secondary color for heavy emphasis */
+}
+
+/* Hover Effects Toolkit */
+.hover-lift:hover {
+  transform: translateY(-4px);
+  background: rgba(108, 59, 255, 0.1);
+  border-color: rgba(108, 59, 255, 0.3);
+}
+
+/* Action Buttons */
+.profile-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn {
+  flex: 1;
+  padding: 0.85rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.primary-btn {
+  background-color: #6C3BFF;
+  color: #FFFFFF;
+  box-shadow: 0 4px 15px rgba(108, 59, 255, 0.4);
+}
+
+.primary-btn:hover {
+  background-color: #5A2BE5; /* Slightly darker purple */
+  box-shadow: 0 6px 20px rgba(108, 59, 255, 0.6);
+}
+
+.secondary-btn {
+  background-color: transparent;
+  color: #4DA6FF;
+  border: 1px solid #4DA6FF;
+}
+
+.secondary-btn:hover {
+  background-color: rgba(77, 166, 255, 0.1);
+}

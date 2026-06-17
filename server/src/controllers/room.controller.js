@@ -95,7 +95,7 @@ const scheduleBoyAutoLeave = (roomId, boyId, durationMs) => {
 
 const createRoom = asyncHandler(async (req, res) => {
 
-    const girlId = req.girl._id;
+    const girlId = req.user._id;
     const { roomType } = req.body;
 
     if (!roomType || !['message', 'voice', 'video'].includes(roomType)) {
@@ -133,7 +133,7 @@ const createRoom = asyncHandler(async (req, res) => {
 
 const destroyRoom = asyncHandler(async (req, res) => {
 
-    const girlId = req.girl._id;
+    const girlId = req.user._id;
     const { roomId } = req.params;
 
     const room = await Room.findOne({ roomId });
@@ -330,7 +330,7 @@ const getRoomMessages = asyncHandler(async (req, res) => {
 // GET /api/rooms/history/girl
 // ─────────────────────────────────────────────────────────────────────────────
 const getGirlHistory = asyncHandler(async (req, res) => {
-    const girlId = req.girl._id;
+    const girlId = req.user._id;
 
     const history = await VisitHistory.find({ girl: girlId })
         .populate('boy', 'fullName imageUrl')

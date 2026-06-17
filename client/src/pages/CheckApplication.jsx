@@ -120,7 +120,7 @@ export default function CheckApplication() {
                   id="applicationId"
                   value={applicationId}
                   onChange={(e) => {
-                    setApplicationId(e.target.value.toUpperCase());
+                    setApplicationId(e.target.value);
                     setErrors({});
                   }}
                   placeholder="e.g., APP123456789"
@@ -248,7 +248,7 @@ export default function CheckApplication() {
             <div className="space-y-3 mt-8">
               {applicationData.applicationStatus?.toLowerCase() === 'accepted' && (
                 <button
-                  onClick={() => navigate('/login')}
+                  onClick={() => navigate('/girlslogin')}
                   className="w-full py-3 px-4 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#FF4D8D]/50 transition-all duration-300"
                 >
                   🔐 Go to Login

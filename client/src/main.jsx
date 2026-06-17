@@ -18,6 +18,8 @@ import TranscationHistory from './pages/TranscationHistory.jsx'
 import { AuthenticatedUserRoute, ProtectRoute } from './utils/ProtectRoute.jsx'
 import MessageRoom from './pages/MessageRoom.jsx'
 // import Tmp from './pages/Tmp.jsx'
+import { UserdataProvider } from './context/UserdataContext.jsx'
+import Profile from './pages/Profile.jsx'
 
 const router = createBrowserRouter([
   {
@@ -66,6 +68,10 @@ const router = createBrowserRouter([
         path: "/messageRoom/:roomId",
         element: <ProtectRoute><MessageRoom /></ProtectRoute>
       },
+      {
+        path: "/profile",
+        element: <ProtectRoute><Profile /></ProtectRoute>
+      }
       // {
       //   path: "/voiceRoom/:roomId",
       //   element: <ProtectRoute><AudioRoom /></ProtectRoute>
@@ -88,6 +94,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <UserdataProvider>
     <RouterProvider router={router} />
+    </UserdataProvider>
   </StrictMode>
 )

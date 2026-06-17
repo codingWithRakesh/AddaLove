@@ -1,8 +1,8 @@
 import express from 'express';
 import {sendOtp,otpVerify,register,login,girlRegister, girlVedioUpload, checkApplicationStatus, girlsLogin, currentUser} from "../controllers/user.controller.js"
 import {upload} from '../middlewares/multer.middleware.js'
-const AuthRoute= express.Router();
 import { verifyUser } from '../middlewares/user.middleware.js';
+const AuthRoute= express.Router();
 
 AuthRoute.post('/send-otp',sendOtp);
 AuthRoute.post('/verify-otp',otpVerify)

@@ -23,8 +23,8 @@ const sendMessage = asyncHandler(async (req, res) => {
     const { messageType, text } = req.body;
 
     // Determine who is sending
-    const isGirl = !!req.girl;
-    const senderId = isGirl ? req.girl._id : req.user._id;
+    const isGirl = req.userType === 'girl';
+    const senderId = isGirl ? req.user._id : req.user._id;
     const senderModel = isGirl ? 'Girls' : 'User';
 
     if (!messageType || !['text', 'image', 'audio'].includes(messageType)) {

@@ -212,9 +212,7 @@ const girlsLogin = asyncHandler(async (req, res) => {
             )
 
     }
-    throw new ApiError(400,'Your account not accecpted yet.')
-
-
+    throw new ApiError(400, 'Your account not accecpted yet.')
 })
 
 const currentUser = asyncHandler(async (req, res) => {
@@ -226,4 +224,4 @@ const currentUser = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Unauthorized")
     }
 })
-export { sendOtp, otpVerify, register, login, girlRegister, girlVedioUpload, checkApplicationStatus , girlsLogin, currentUser };
+export { sendOtp, otpVerify, register, login, girlRegister, girlVedioUpload, checkApplicationStatus, girlsLogin, currentUser };

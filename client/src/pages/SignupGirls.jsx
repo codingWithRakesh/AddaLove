@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 import { handleError, handleSuccess } from '../components/ErrorMessage';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -488,12 +488,12 @@ export default function SignupGirls() {
               </div>
 
               {/* Sign Up Link */}
-              <a
-                href="/girlslogin"
+              <Link
+                to="/girlslogin"
                 className="block w-full py-3 border border-white/20 text-white font-bold rounded-xl text-center hover:bg-white/5 hover:border-[#FF4D8D] transition-all duration-300 transform hover:scale-105"
               >
                 Login
-              </a>
+              </Link>
             </form>
           </div>
         </div>
