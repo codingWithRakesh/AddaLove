@@ -3,6 +3,7 @@ import { handleError, handleSuccess } from '../components/ErrorMessage';
 import { History } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useUserData } from '../context/UserdataContext';
+import useUserStore from '../store/userStore';
 const coinPackages = [
     { coins: 25, price: 9, bonus: null },
     { coins: 95, price: 29, bonus: null },
@@ -23,7 +24,7 @@ export default function AddaLoveRecharge() {
     const [selectedPkg, setSelectedPkg] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
-    const { useralldata } = useUserData();
+    const { user : useralldata } = useUserStore();
     // const [orderdata, setOrderdata] = useState({})
     const [balance, setBalance] = useState(0)
     const naviget = useNavigate()
@@ -277,7 +278,7 @@ export default function AddaLoveRecharge() {
 
             {/* Floating Recharge Button */}
             {selectedPkg && (
-                <div className="fixed bottom-0 left-0 w-full p-4 bg-[#0d0c11]/80 backdrop-blur-md border-t border-gray-800 z-40 flex justify-center animate-fade-in-up">
+                <div className="fixed bottom-18 left-0 w-full p-4 bg-[#0d0c11]/80 backdrop-blur-md border-t border-gray-800 z-40 flex justify-center animate-fade-in-up">
                     <button
                         onClick={() => setIsModalOpen(true)}
                         className="w-full max-w-md bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold py-4 px-6 rounded-2xl shadow-[0_0_20px_rgba(236,72,153,0.4)] transition-all flex justify-between items-center"
