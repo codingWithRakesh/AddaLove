@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useUserData } from '../context/UserdataContext';
 import { useNavigate } from 'react-router';
+import useUserStore from '../store/userStore';
 
 export default function Profile() {
-  const { useralldata } = useUserData();
+  const { user : useralldata } = useUserStore();
   const naviget = useNavigate()
   // State for Modal and Form
   const [isModalOpen, setIsModalOpen] = useState(false);

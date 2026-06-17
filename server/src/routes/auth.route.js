@@ -12,5 +12,6 @@ AuthRoute.post('/girl-register',upload.single('profilePhoto'),girlRegister);
 AuthRoute.put('/girl-vedio',upload.single('girlVedio'),girlVedioUpload);
 AuthRoute.get('/check-application/:applicationId', checkApplicationStatus);
 AuthRoute.post('/girl-login',girlsLogin);
-AuthRoute.get('/current-user',verifyUser,currentUser)
+AuthRoute.get('/current-user', verifyUser, currentUser);
+
 export default AuthRoute; 

@@ -26,20 +26,25 @@ const visitHistorySchema = new Schema({
     },
     leftAt: {
         type: Date,
-        default: null
+        required: true
     },
     // Actual time spent in seconds
     durationSeconds: {
         type: Number,
-        default: 0
+        default: 0,
+        min: 0
     },
-    // How the session ended
+    // How the boy session ended: boy left, girl destroyed the room, or time ended.
     exitReason: {
         type: String,
-        enum: ['time_limit', 'boy_left', 'room_destroyed', 'disconnect'],
-        default: null
+        enum: ['boy_left', 'room_destroyed', 'time_limit'],
+        required: true
     }
 }, { timestamps: true });
+
+visitHistorySchema.index({ girl: 1, createdAt: -1 });
+visitHistorySchema.index({ boy: 1, createdAt: -1 });
+visitHistorySchema.index({ roomId: 1 });
 
 const VisitHistory = model('VisitHistory', visitHistorySchema);
 export default VisitHistory;

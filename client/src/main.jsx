@@ -11,6 +11,13 @@ import CheckApplication from './pages/CheckApplication.jsx'
 import GirlsLogin from './pages/GirlsLogin.jsx'
 import AddaLoveRecharge from './pages/Wallet.jsx'
 import TranscationHistory from './pages/TranscationHistory.jsx'
+// import MessageRoom from './pages/MessageRoom.jsx'
+// import AudioRoom from './pages/AudioRoom.jsx'
+// import VideoRoom from './pages/VideoRoom.jsx'
+// import History from './pages/History.jsx'
+import { AuthenticatedUserRoute, ProtectRoute } from './utils/ProtectRoute.jsx'
+import MessageRoom from './pages/MessageRoom.jsx'
+// import Tmp from './pages/Tmp.jsx'
 import { UserdataProvider } from './context/UserdataContext.jsx'
 import Profile from './pages/Profile.jsx'
 
@@ -22,47 +29,65 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Home />
+        element: <ProtectRoute><Home /></ProtectRoute>
       },
       {
         path: "/signup",
-        element: <Singup />
+        element: <AuthenticatedUserRoute><Singup /></AuthenticatedUserRoute>
       },
       {
         path: "/login",
-        element: <Login />
+        element: <AuthenticatedUserRoute><Login /></AuthenticatedUserRoute>
 
       },
       {
         path: "/signupgirl",
-        element: <SignupGirls />
+        element: <AuthenticatedUserRoute><SignupGirls /></AuthenticatedUserRoute>
 
       },
       {
         path: "/check-application",
-        element: <CheckApplication />
+        element: <AuthenticatedUserRoute><CheckApplication /></AuthenticatedUserRoute>
 
       },
       {
         path: "/girlslogin",
-        element: <GirlsLogin />
+        element: <AuthenticatedUserRoute><GirlsLogin /></AuthenticatedUserRoute>
 
       },
       {
         path: "/wallet",
-        element: <AddaLoveRecharge />
+        element: <ProtectRoute><AddaLoveRecharge /></ProtectRoute>
 
       },
       {
         path: "/transcation-history",
-        element: <TranscationHistory />
-
+        element: <ProtectRoute><TranscationHistory /></ProtectRoute>
+      },
+      {
+        path: "/messageRoom/:roomId",
+        element: <ProtectRoute><MessageRoom /></ProtectRoute>
       },
       {
         path: "/profile",
-        element: <Profile />
-
-      },
+        element: <ProtectRoute><Profile /></ProtectRoute>
+      }
+      // {
+      //   path: "/voiceRoom/:roomId",
+      //   element: <ProtectRoute><AudioRoom /></ProtectRoute>
+      // },
+      // {
+      //   path: "/videoRoom/:roomId",
+      //   element: <ProtectRoute><VideoRoom /></ProtectRoute>
+      // },
+      // {
+      //   path: "/history",
+      //   element: <ProtectRoute><History /></ProtectRoute>
+      // },
+      // {
+      //   path: "/tmp",
+      //   element: <Tmp />
+      // }
     ]
   }
 ])

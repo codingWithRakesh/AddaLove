@@ -1,9 +1,11 @@
 import React from 'react'
 import { useUserData } from '../context/UserdataContext'
 import { useNavigate } from 'react-router';
+import useUserStore from '../store/userStore';
 export default function TopNavbar() {
     const naviget = useNavigate();
-    const { useralldata } = useUserData();
+    const { user :useralldata } = useUserStore();
+    console.log(useralldata)
     const handlecoinclick = () => {
         window.scrollTo({
             top: 0,
@@ -58,7 +60,7 @@ export default function TopNavbar() {
                         className="md:hidden bg-slate-800/80 hover:bg-slate-700/80 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold border border-[#6C3BFF]/30"
                     >
                         <span className="text-yellow-400">🪙</span>
-                        <span className="text-slate-200">{useralldata.walletBlance}</span>
+                        <span className="text-slate-200">{useralldata?.walletBlance}</span>
                     </button>
 
                     <button

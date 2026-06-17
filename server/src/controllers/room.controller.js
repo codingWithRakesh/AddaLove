@@ -8,29 +8,100 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { ApiError } from '../utils/apiError.js';
 import { io } from '../socket/socket.js';
 
-const ALLOWED_DURATIONS_MS = {
-    5: 5 * 60 * 1000,
-    10: 10 * 60 * 1000,
-    15: 15 * 60 * 1000,
-    20: 20 * 60 * 1000,
-    30: 30 * 60 * 1000
+const SESSION_DURATIONS_SECONDS = {
+    '20_sec': 20,
+    '30_sec': 30,
+    '1_min': 60,
+    '2_min': 2 * 60,
+    '5_min': 5 * 60,
+    '10_min': 10 * 60
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GIRL: CREATE ROOM
-// POST /api/rooms/create
-// Body: { roomType: 'message' | 'voice' | 'video' }
-// ─────────────────────────────────────────────────────────────────────────────
+// Change only this key when you want a different hardcoded session time.
+const ACTIVE_SESSION_DURATION_KEY = '2_min';
+const ACTIVE_SESSION_DURATION_SECONDS = SESSION_DURATIONS_SECONDS[ACTIVE_SESSION_DURATION_KEY];
+const activeRoomTimers = new Map();
+
+const clearRoomTimer = (roomId) => {
+    const timer = activeRoomTimers.get(roomId);
+    if (timer) {
+        clearTimeout(timer);
+        activeRoomTimers.delete(roomId);
+    }
+};
+
+const createVisitHistory = async (room, boyId, exitReason) => {
+    const leftAt = new Date();
+    const durationSeconds = room.currentBoyJoinedAt
+        ? Math.max(0, Math.round((leftAt - room.currentBoyJoinedAt) / 1000))
+        : 0;
+
+    await VisitHistory.create({
+        roomId: room.roomId,
+        girl: room.createdBy,
+        boy: boyId,
+        roomType: room.roomType,
+        joinedAt: room.currentBoyJoinedAt || leftAt,
+        leftAt,
+        durationSeconds,
+        exitReason
+    });
+
+    return { durationSeconds };
+};
+
+const completeBoySession = async (room, boyId, exitReason) => {
+    const roomId = room.roomId;
+    const { durationSeconds } = await createVisitHistory(room, boyId, exitReason);
+
+    clearRoomTimer(roomId);
+
+    room.status = 'open';
+    room.currentBoy = null;
+    room.currentBoyJoinedAt = null;
+    room.currentSessionDurationMs = null;
+    await room.save();
+
+    await Message.deleteMany({ roomId });
+
+    io.to(roomId).emit('boy_left', {
+        roomId,
+        boyId,
+        durationSeconds,
+        exitReason
+    });
+
+    return { durationSeconds };
+};
+
+const scheduleBoyAutoLeave = (roomId, boyId, durationMs) => {
+    clearRoomTimer(roomId);
+
+    const timer = setTimeout(async () => {
+        try {
+            const room = await Room.findOne({ roomId });
+            if (!room || room.currentBoy?.toString() !== boyId.toString()) {
+                return;
+            }
+
+            await completeBoySession(room, boyId, 'time_limit');
+        } catch (error) {
+            console.error(`Auto leave failed for roomId=${roomId}:`, error.message);
+        }
+    }, durationMs);
+
+    activeRoomTimers.set(roomId, timer);
+};
+
 const createRoom = asyncHandler(async (req, res) => {
 
-    const girlId = req.girl._id;
+    const girlId = req.user._id;
     const { roomType } = req.body;
 
     if (!roomType || !['message', 'voice', 'video'].includes(roomType)) {
         throw new ApiError(400, 'Invalid or missing roomType. Must be one of: message, voice, video');
     }
 
-    // Girl can only have one active room at a time
     const existing = await Room.findOne({
         createdBy: girlId,
         status: { $in: ['open', 'occupied'] }
@@ -59,13 +130,10 @@ const createRoom = asyncHandler(async (req, res) => {
 
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GIRL: DESTROY ROOM
-// DELETE /api/rooms/:roomId
-// ─────────────────────────────────────────────────────────────────────────────
+
 const destroyRoom = asyncHandler(async (req, res) => {
 
-    const girlId = req.girl._id;
+    const girlId = req.user._id;
     const { roomId } = req.params;
 
     const room = await Room.findOne({ roomId });
@@ -94,20 +162,17 @@ const destroyRoom = asyncHandler(async (req, res) => {
         }
     }
 
-    // Mark room destroyed
-    room.status = 'destroyed';
-    await room.save();
-
-    // Socket layer handles kicking the current boy and emitting room_destroyed
-    // We export the io instance and call it from here via the socket utility
-
-    // If a boy is currently inside, close his session via socket
     if (room.currentBoy) {
-        io.to(`user:${room.currentBoy.toString()}`).emit('room_destroyed', {
+        await createVisitHistory(room, room.currentBoy, 'room_destroyed');
+        io.to(room.currentBoy).emit('room_destroyed', {
             roomId,
             message: 'The room has been destroyed by the host'
         });
     }
+
+    await Message.deleteMany({ roomId });
+    await Room.deleteOne({ roomId });
+    clearRoomTimer(roomId);
 
     // Notify everyone watching the room list
     io.emit('room_closed', { roomId });
@@ -126,12 +191,6 @@ const joinRoom = asyncHandler(async (req, res) => {
 
     const boyId = req.user._id;
     const { roomId } = req.params;
-    const { durationMinutes = 5 } = req.body;
-
-    const parsedDuration = Number(durationMinutes);
-    if (!ALLOWED_DURATIONS_MS[parsedDuration]) {
-        throw new ApiError(400, `durationMinutes must be one of: ${Object.keys(ALLOWED_DURATIONS_MS).join(', ')}`);
-    }
 
     const room = await Room.findOne({ roomId });
     if (!room) {
@@ -144,20 +203,28 @@ const joinRoom = asyncHandler(async (req, res) => {
         throw new ApiError(409, 'Room is currently occupied. Try again shortly.');
     }
 
-    const sessionDurationMs = ALLOWED_DURATIONS_MS[parsedDuration];
+    const sessionDurationMs = ACTIVE_SESSION_DURATION_SECONDS * 1000;
 
-    // Lock the room — also store the chosen duration so the socket timer can read it
     room.status = 'occupied';
     room.currentBoy = boyId;
     room.currentBoyJoinedAt = new Date();
     room.currentSessionDurationMs = sessionDurationMs;
     await room.save();
 
+    io.to(roomId).emit('boy_joined', {
+        roomId,
+        boyId,
+        sessionDurationMs
+    });
+
+    scheduleBoyAutoLeave(roomId, boyId, sessionDurationMs);
+
     return res.status(200).json(
         new ApiResponse(200, {
             roomId: room.roomId,
             roomType: room.roomType,
             sessionDurationMs,
+            sessionDurationSeconds: ACTIVE_SESSION_DURATION_SECONDS,
             joinedAt: room.currentBoyJoinedAt
         }, 'Joined room successfully')
     );
@@ -182,29 +249,30 @@ const leaveRoom = asyncHandler(async (req, res) => {
         throw new ApiError(403, 'You are not in this room');
     }
 
-    const leftAt = new Date();
-    const durationSeconds = Math.round((leftAt - room.currentBoyJoinedAt) / 1000);
-
-    // Save visit history
-    await VisitHistory.create({
-        roomId,
-        girl: room.createdBy,
-        boy: boyId,
-        roomType: room.roomType,
-        joinedAt: room.currentBoyJoinedAt,
-        leftAt,
-        durationSeconds,
-        exitReason: 'boy_left'
-    });
-
-    // Free the room
-    room.status = 'open';
-    room.currentBoy = null;
-    room.currentBoyJoinedAt = null;
-    await room.save();
+    await completeBoySession(room, boyId, 'boy_left');
 
     return res.status(200).json(
         new ApiResponse(200, null, 'Left room successfully')
+    );
+
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET ROOM DETAILS (used by client when entering a room via roomId in URL)
+// GET /api/rooms/:roomId/details
+// ─────────────────────────────────────────────────────────────────────────────
+const getRoomDetails = asyncHandler(async (req, res) => {
+    const { roomId } = req.params;
+
+    const room = await Room.findOne({ roomId })
+        .populate('createdBy', 'fullName imageUrl age');
+
+    if (!room) {
+        throw new ApiError(404, 'Room not found');
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, { room }, 'Room details retrieved successfully')
     );
 
 });
@@ -226,8 +294,10 @@ const getOpenRooms = asyncHandler(async (req, res) => {
         .populate('createdBy', 'fullName imageUrl age')
         .sort({ createdAt: -1 });
 
+    const visibleRooms = rooms.filter((room) => room.status !== 'destroyed');
+
     return res.status(200).json(
-        new ApiResponse(200, rooms, 'Open rooms retrieved successfully')
+        new ApiResponse(200, visibleRooms, 'Open rooms retrieved successfully')
     );
 
 });
@@ -260,7 +330,7 @@ const getRoomMessages = asyncHandler(async (req, res) => {
 // GET /api/rooms/history/girl
 // ─────────────────────────────────────────────────────────────────────────────
 const getGirlHistory = asyncHandler(async (req, res) => {
-    const girlId = req.girl._id;
+    const girlId = req.user._id;
 
     const history = await VisitHistory.find({ girl: girlId })
         .populate('boy', 'fullName imageUrl')
@@ -296,6 +366,7 @@ export {
     destroyRoom,
     joinRoom,
     leaveRoom,
+    getRoomDetails,
     getOpenRooms,
     getRoomMessages,
     getGirlHistory,

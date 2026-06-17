@@ -23,8 +23,8 @@ const sendMessage = asyncHandler(async (req, res) => {
     const { messageType, text } = req.body;
 
     // Determine who is sending
-    const isGirl = !!req.girl;
-    const senderId = isGirl ? req.girl._id : req.user._id;
+    const isGirl = req.userType === 'girl';
+    const senderId = isGirl ? req.user._id : req.user._id;
     const senderModel = isGirl ? 'Girls' : 'User';
 
     if (!messageType || !['text', 'image', 'audio'].includes(messageType)) {
@@ -46,6 +46,9 @@ const sendMessage = asyncHandler(async (req, res) => {
     const girlOwner = room.createdBy.toString();
     const currentBoy = room.currentBoy?.toString();
 
+    if (!currentBoy) {
+        throw new ApiError(403, 'No boy is inside this room');
+    }
     if (!isGirl && currentBoy !== senderId.toString()) {
         throw new ApiError(403, 'You are not inside this room');
     }

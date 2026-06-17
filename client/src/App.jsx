@@ -1,47 +1,44 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
-import { Suspense } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { useEffect, Suspense, useState } from 'react'
+import { Outlet } from 'react-router-dom'
 import { ToastContainer, Flip } from "react-toastify";
-import { useUserData } from './context/UserdataContext';
+import { connectSocket, disconnectSocket } from './socket/socket.js';
+import useUserStore from './store/userStore.js';
+import useRoomStore from './store/roomStore.js';
 import lodescreen from './assets/LodingScreen.mp4'
 import TopNavbar from './components/TopNavbar'
 import ButtomNavbar from './components/ButtomNavbar'
+
 function App() {
-  const { setUseralldata } = useUserData();
+  const { fetchUser, isAuthenticated, user, userRole } = useUserStore();
+  const {getOpenRooms} = useRoomStore();
   const [screenloder, setScreenloder] = useState(true)
-  const naviget = useNavigate();
+
   useEffect(() => {
-    const fecthCurrentUserData = async () => {
-      setScreenloder(true)
-      
+    const loadInitialData = async () => {
+      setScreenloder(true);
       try {
-        const url = `${import.meta.env.VITE_BACKEND_URL}/api/auth/v1/current-user`
-        const res = await fetch(url, {
-          method: 'GET',
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: 'include',
-        })
-        const data = await res.json();
-        console.log(data)
-        if(!data.success){
-          return naviget('/login')
-        }
-        setUseralldata(data.data.userData);
+        await fetchUser();
+        await getOpenRooms();
       } catch (error) {
-        console.log(error)
-      } finally {
-        // await new Promise(resolve => setTimeout(resolve, 10000));
-        setScreenloder(false)
+        disconnectSocket();
+      }finally {
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        setScreenloder(false);
       }
+    };
+
+    loadInitialData();
+  }, [fetchUser, getOpenRooms]);
+
+  useEffect(() => {
+    if (isAuthenticated && user?._id && userRole) {
+      connectSocket();
+    } else {
+      disconnectSocket();
     }
-    fecthCurrentUserData();
-  }, [])
+  }, [isAuthenticated, user?._id, userRole]);
+  
   if (screenloder) {
     return (
       <div className='h-full w-full bg-[#0c1014]'>

@@ -1,0 +1,34 @@
+import { create } from "zustand";
+import axios from "axios";
+
+const useUserStore = create((set) => ({
+    user: null,
+    userRole: null,
+    isLoading: false,
+    error: null,
+    message: null,
+    isAuthenticated: false,
+    fetchUser: async () => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await axios.get(
+                `${import.meta.env.VITE_BACKEND_URL}/api/auth/v1/current-user`,
+                {
+                    withCredentials: true,
+                }
+            );
+
+            if (response.status === 200) {
+                set({ user: response.data.data, isAuthenticated: true, userRole: response.data.data.userType.toLowerCase(), isLoading: false });
+                console.log("from store", response.data.data);
+            } else {
+                set({ user: null, isAuthenticated: false, userRole: null });
+            }
+        } catch (error) {
+            set({ user: null, isAuthenticated: false, userRole: null });
+            throw error;
+        }
+    }
+}));
+
+export default useUserStore;
