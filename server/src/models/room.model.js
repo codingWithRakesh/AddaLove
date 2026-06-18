@@ -31,10 +31,20 @@ const roomSchema = new Schema({
         type: Date,
         default: null
     },
-    // Duration the boy chose when joining — read by socket to set the timer
     currentSessionDurationMs: {
         type: Number,
         default: 5 * 60 * 1000
+    },
+    language: {
+        type: [{
+            type: String,
+            enum: ['Bengali', 'Hindi', 'Gujarati', 'English', 'Kannada', 'Marathi', 'Tamil', 'Telugu', 'Urdu', 'Punjabi']
+        }],
+        required: true,
+        validate: {
+            validator: (languages) => Array.isArray(languages) && languages.length === 2,
+            message: 'Exactly 2 languages are required'
+        }
     }
 }, { timestamps: true });
 

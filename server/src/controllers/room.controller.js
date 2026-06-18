@@ -17,6 +17,8 @@ const SESSION_DURATIONS_SECONDS = {
     '10_min': 10 * 60
 };
 
+const ALLOWED_LANGUAGES = ['Bengali', 'Hindi', 'Gujarati', 'English', 'Kannada', 'Marathi', 'Tamil', 'Telugu', 'Urdu', 'Punjabi'];
+
 // Change only this key when you want a different hardcoded session time.
 const ACTIVE_SESSION_DURATION_KEY = '2_min';
 const ACTIVE_SESSION_DURATION_SECONDS = SESSION_DURATIONS_SECONDS[ACTIVE_SESSION_DURATION_KEY];
@@ -96,10 +98,19 @@ const scheduleBoyAutoLeave = (roomId, boyId, durationMs) => {
 const createRoom = asyncHandler(async (req, res) => {
 
     const girlId = req.user._id;
-    const { roomType } = req.body;
+    const { roomType, languages } = req.body;
 
     if (!roomType || !['message', 'voice', 'video'].includes(roomType)) {
         throw new ApiError(400, 'Invalid or missing roomType. Must be one of: message, voice, video');
+    }
+
+    if (!Array.isArray(languages) || languages.length !== 2) {
+        throw new ApiError(400, 'Please select exactly 2 languages');
+    }
+
+    const selectedLanguages = [...new Set(languages.map((language) => String(language).trim()))];
+    if (selectedLanguages.length !== 2 || selectedLanguages.some((language) => !ALLOWED_LANGUAGES.includes(language))) {
+        throw new ApiError(400, `Invalid languages. Select exactly 2 from: ${ALLOWED_LANGUAGES.join(', ')}`);
     }
 
     const existing = await Room.findOne({
@@ -116,6 +127,7 @@ const createRoom = asyncHandler(async (req, res) => {
         roomId,
         createdBy: girlId,
         roomType,
+        language: selectedLanguages,
         status: 'open'
     });
 
@@ -123,6 +135,7 @@ const createRoom = asyncHandler(async (req, res) => {
         new ApiResponse(201, {
             roomId: room.roomId,
             roomType: room.roomType,
+            languages: room.language,
             status: room.status,
             createdAt: room.createdAt
         }, 'Room created successfully')
