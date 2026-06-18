@@ -4,6 +4,8 @@ import { History } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useUserData } from '../context/UserdataContext';
 import useUserStore from '../store/userStore';
+import loadRazorpay from '../utils/RazorpayLoder';
+import removeRazorpay from '../utils/RazorpayRemove';
 const coinPackages = [
     { coins: 25, price: 9, bonus: null },
     { coins: 95, price: 29, bonus: null },
@@ -24,9 +26,9 @@ export default function AddaLoveRecharge() {
     const [selectedPkg, setSelectedPkg] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
-    const { user : useralldata } = useUserStore();
+    const { user: useralldata } = useUserStore();
     // const [orderdata, setOrderdata] = useState({})
-    const [balance, setBalance] = useState(0)
+    const [balance, setBalance] = useState(null)
     const naviget = useNavigate()
 
     const handleclick = () => {
@@ -35,6 +37,13 @@ export default function AddaLoveRecharge() {
     // Simulated API Call
     const handlePayment = async () => {
         setIsProcessing(true);
+        const loaded = await loadRazorpay();
+
+        if (!loaded) {
+            handleError("Failed to load Razorpay");
+             setIsProcessing(false);
+            return;
+        }
         const url = `${import.meta.env.VITE_BACKEND_URL}/api/wallet/v1/creat-coin-order`
         const response = await fetch(url, {
             method: 'POST',
@@ -147,10 +156,11 @@ export default function AddaLoveRecharge() {
         } catch (error) {
             setIsProcessing(false);
             handleError('Payment Cancel')
-            console.error('Payment Error:', error); 
+            console.error('Payment Error:', error);
         }
         finally {
-           setIsProcessing(false);
+            removeRazorpay();
+            setIsProcessing(false);
         }
     };
 
@@ -206,7 +216,7 @@ export default function AddaLoveRecharge() {
                         </div>
 
                         <div className="flex items-baseline gap-2 mb-1">
-                            <span className="text-5xl font-black text-yellow-400 tracking-tight">{useralldata.walletBlance}</span>
+                            <span className="text-5xl font-black text-yellow-400 tracking-tight">{balance?balance:useralldata.walletBlance}</span>
                             <span className="text-lg font-bold text-yellow-400">coins</span>
                         </div>
                         <div className="text-gray-500 text-sm mb-6 font-medium">
