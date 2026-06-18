@@ -129,7 +129,7 @@ export default function AddaLoveRecharge() {
                 }
                 else {
                     handleError("Payment fail")
-                    setLoder(false)
+                    setIsProcessing(false);
                 }
                 // You can verify payment here by sending info to the backend
             },
@@ -145,12 +145,12 @@ export default function AddaLoveRecharge() {
             const rzp = new window.Razorpay(option);
             rzp.open();
         } catch (error) {
-            setLoder(false)
+            setIsProcessing(false);
             handleError('Payment Cancel')
-            console.error('Payment Error:', error);
+            console.error('Payment Error:', error); 
         }
         finally {
-            setLoder(false)
+           setIsProcessing(false);
         }
     };
 

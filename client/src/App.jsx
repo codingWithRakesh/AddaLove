@@ -11,7 +11,7 @@ import ButtomNavbar from './components/ButtomNavbar'
 
 function App() {
   const { fetchUser, isAuthenticated, user, userRole } = useUserStore();
-  const {getOpenRooms} = useRoomStore();
+  const {getOpenRooms, isEnterTheRoom } = useRoomStore();
   const [screenloder, setScreenloder] = useState(true)
 
   useEffect(() => {
@@ -20,6 +20,7 @@ function App() {
       try {
         await fetchUser();
         await getOpenRooms();
+        console.log(isEnterTheRoom)
       } catch (error) {
         disconnectSocket();
       }finally {
@@ -51,11 +52,11 @@ function App() {
   return (
     <div className="App">
       <ToastContainer transition={Flip} />
-      <TopNavbar/>
+     {isAuthenticated && !isEnterTheRoom? <TopNavbar/>:''}
       <Suspense>
         <Outlet />
       </Suspense>
-      <ButtomNavbar/>
+      {isAuthenticated && !isEnterTheRoom?<ButtomNavbar/>:''}
     </div>
   )
 }

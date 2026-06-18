@@ -21,6 +21,16 @@ export default function ButtomNavbar() {
         naviget('/')
         
     }
+    const handelRechargeClick=()=>{
+         window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'smooth', // Optional: creates a smooth animation instead of an instant jump
+        });
+        naviget('/wallet')
+        
+    }
+
     return (
         <div>
             <div className="fixed bottom-0 left-0 right-0 h-20 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 flex md:hidden justify-between items-center px-4 z-40 select-none">
@@ -63,7 +73,7 @@ export default function ButtomNavbar() {
                 </div>
 
                 <button
-                    onClick={() => { setShowRechargeModal(true); }}
+                    onClick={handelRechargeClick}
                     className="flex flex-col items-center justify-center flex-1 text-slate-400 hover:text-slate-200"
                 >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

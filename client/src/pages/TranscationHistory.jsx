@@ -128,7 +128,7 @@ function TransactionCard({ tx }) {
       
       {/* Left side: Icon, Coins, and Date */}
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-[#2a1a29] to-[#17161c] rounded-xl flex items-center justify-center border border-pink-500/20 group-hover:border-pink-500/40 transition-colors shadow-inner">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-linear-to-br from-[#2a1a29] to-[#17161c] rounded-xl flex items-center justify-center border border-pink-500/20 group-hover:border-pink-500/40 transition-colors shadow-inner">
           <CoinIcon className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-400 drop-shadow-md" />
         </div>
         
@@ -161,7 +161,7 @@ function TransactionCard({ tx }) {
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 text-blue-400">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span className="truncate max-w-[120px]" title={tx.razorpay_order_id}>
+          <span className="truncate max-w-30" title={tx.razorpay_order_id}>
             {tx.razorpay_order_id}
           </span>
         </div>
