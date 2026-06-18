@@ -303,14 +303,45 @@ const getOpenRooms = asyncHandler(async (req, res) => {
         query.roomType = type;
     }
 
-    const rooms = await Room.find(query)
-        .populate('createdBy', 'fullName imageUrl age')
-        .sort({ createdAt: -1 });
-
-    const visibleRooms = rooms.filter((room) => room.status !== 'destroyed');
+    const rooms = await Room.aggregate([
+        { $match: query },
+        {
+            $lookup: {
+                from: 'girls',
+                localField: 'createdBy',
+                foreignField: '_id',
+                as: 'createdBy'
+            }
+        },
+        {
+            $unwind: {
+                path: '$createdBy',
+            }
+        },
+        {
+            $project: {
+                roomId: 1,
+                roomType: 1,
+                status: 1,
+                currentBoy: 1,
+                currentBoyJoinedAt: 1,
+                currentSessionDurationMs: 1,
+                language: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                createdBy: {
+                    _id: '$createdBy._id',
+                    fullName: '$createdBy.fullName',
+                    imageUrl: '$createdBy.imageUrl',
+                    age: '$createdBy.age'
+                }
+            }
+        },
+        { $sort: { createdAt: -1 } }
+    ]);
 
     return res.status(200).json(
-        new ApiResponse(200, visibleRooms, 'Open rooms retrieved successfully')
+        new ApiResponse(200, rooms, 'Open rooms retrieved successfully')
     );
 
 });
