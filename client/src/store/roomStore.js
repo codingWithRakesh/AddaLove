@@ -22,12 +22,12 @@ const useRoomStore = create((set) => ({
             throw error;
         }
     },
-    createRoom: async (roomType) => {
+    createRoom: async (roomType, languages) => {
         set({ isLoading: true, error: null });
         try {
             const response = await axios.post(
                 `${import.meta.env.VITE_BACKEND_URL}/api/rooms/v1/create`,
-                { roomType },
+                { roomType, languages },
                 {
                     withCredentials: true,
                 }
