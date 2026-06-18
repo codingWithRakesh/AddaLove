@@ -3,6 +3,7 @@ import { Eye, EyeOff, Loader } from 'lucide-react';
 import { handleSuccess } from '../components/ErrorMessage';
 import { Link, useNavigate } from 'react-router';
 import shotlogo from "../assets/logo2.png"
+import useUserStore from '../store/userStore.js';
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -11,6 +12,7 @@ export default function Login() {
     const [errors, setErrors] = useState({});
     const [rememberMe, setRememberMe] = useState(false);
     const naviget=useNavigate()
+    const { fetchUser} = useUserStore();
     // Handle Login
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -51,9 +53,9 @@ export default function Login() {
                 // Handle successful login
 
                 handleSuccess('Login successful!');
-                naviget('/')
+       
                 // Redirect to dashboard or home
-                // window.location.href = '/';
+                window.location.href = '/';
             } else {
                 setErrors({ submit: data.message || 'Login failed' });
             }

@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { useUserData } from '../context/UserdataContext';
 import { useNavigate } from 'react-router';
 import useUserStore from '../store/userStore';
+import { LogOut } from 'lucide-react';
+import { handleError } from '../components/ErrorMessage';
 
 export default function Profile() {
-  const { user : useralldata } = useUserStore();
+  const { user: useralldata } = useUserStore();
   const naviget = useNavigate()
   // State for Modal and Form
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loder,setLoder]=useState(false)
   const [formData, setFormData] = useState({
     fullName: '',
     age: '',
@@ -50,7 +53,32 @@ export default function Profile() {
     // Add your API call or context update here
     setIsModalOpen(false);
   };
+  const handelLogout = async (e) => {
+    try {
+      setLoder(true)
+      const url = `${import.meta.env.VITE_BACKEND_URL}/api/auth/v1/logout`
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: 'include',
 
+      })
+      const data = res.json();
+      if (!data.success) {
+        handleError(data.message)
+      }
+      window.location.reload();
+    } catch (error) {
+      console.log(error)
+      handleError('Network issue!!')
+    }
+    finally{
+      setLoder(false)
+    }
+
+  }
   // ---------------------------------------------------------
   // SKELETON LOADER
   // ---------------------------------------------------------
@@ -177,6 +205,32 @@ export default function Profile() {
               })}
               gradient="from-slate-400 to-slate-200"
             />
+            <div onClick={handelLogout} className="group relative p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:border-white/20 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-[2]"></div>
+
+              {loder ? <div className='flex justify-center'>
+                <svg className="animate-spin h-10 w-10 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div> : <div className="flex items-start gap-5 relative z-10 w-full">
+                <div className={`p-4 rounded-xl bg-linear-to-br from-[#ffffff] to-[] bg-opacity-20 shadow-inner group-hover:scale-110 transition-transform duration-300 shrink-0`}>
+                  <LogOut className='text-red-600' />
+                </div>
+
+                <div className="w-full overflow-hidden">
+
+                  {/* Action Area (e.g. Top Up Button) */}
+                  <div
+
+                    className="mt-2 text-xl font-bold text-red-400"
+                  >
+                    Logout
+                  </div>
+
+                </div>
+              </div>}
+            </div>
           </div>
         </div>
       </div>
@@ -288,8 +342,8 @@ function InfoCard({ icon, label, value, gradient, isHighlight, action }) {
         <div className="w-full overflow-hidden">
           <p className="text-sm text-slate-400 font-medium mb-1">{label}</p>
           <p className={`text-lg font-bold truncate ${isHighlight
-              ? 'text-transparent bg-clip-text bg-linear-to-r from-[#4DA6FF] to-white drop-shadow-sm'
-              : 'text-slate-100'
+            ? 'text-transparent bg-clip-text bg-linear-to-r from-[#4DA6FF] to-white drop-shadow-sm'
+            : 'text-slate-100'
             }`}>
             {value}
           </p>
