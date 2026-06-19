@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useUserData } from '../context/UserdataContext';
 import { useNavigate } from 'react-router';
 import useUserStore from '../store/userStore';
 import { LogOut } from 'lucide-react';
 import { handleError } from '../components/ErrorMessage';
-
 export default function Profile() {
   const { user: useralldata } = useUserStore();
   const naviget = useNavigate()
+  const { userRole } = useUserStore();
   // State for Modal and Form
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loder,setLoder]=useState(false)
@@ -17,7 +17,8 @@ export default function Profile() {
     userType: '',
     imageUrl: ''
   });
-
+  const isBoy = useMemo(() => userRole === 'boy', [userRole]);
+  const isGirl = useMemo(() => userRole === 'girl', [userRole]);
   // Open modal and pre-fill data (excluding email & wallet)
   const handleOpenModal = () => {
     if (useralldata) {
@@ -78,6 +79,9 @@ export default function Profile() {
       setLoder(false)
     }
 
+  }
+  const handlewithdraw=()=>{
+    console.log('done')
   }
   // ---------------------------------------------------------
   // SKELETON LOADER
@@ -152,8 +156,8 @@ export default function Profile() {
               {useralldata.fullName}
             </h1>
             <div className="flex flex-wrap items-center gap-3 text-slate-400 font-medium">
-              <span className="px-3 py-1 rounded-full bg-[#6C3BFF]/10 border border-[#6C3BFF]/30 text-sm backdrop-blur-md flex items-center gap-2 text-[#4DA6FF]">
-                <span className="w-2 h-2 rounded-full bg-[#4DA6FF] animate-pulse shadow-[0_0_8px_#4DA6FF]"></span>
+              <span className={`px-3 py-1 rounded-full bg-[#6C3BFF]/10 border border-[#6C3BFF]/30 text-sm backdrop-blur-md flex items-center gap-2 ${isGirl?'text-[#ff4dc1]':'text-[#4DA6FF]'}`}>
+                <span className={`w-2 h-2 rounded-full ${isGirl?'bg-[#fa2afa]':'bg-[#4DA6FF]'}  animate-pulse shadow-[0_0_8px_#4DA6FF]`}></span>
                 {useralldata.userType}
               </span>
               <span>•</span>
@@ -182,17 +186,17 @@ export default function Profile() {
 
             {/* Wallet Card with Top Up Button */}
             <InfoCard
-              icon={<WalletIcon />}
-              label="Wallet Balance"
-              value={`$${useralldata.walletBlance.toLocaleString()}`}
+              icon={<CoinIcon className='w-6 h-6 text-yellow-400' />}
+              label={` ${isGirl?'Your earning':"Wallet Balance"}`}
+              value={`${useralldata.walletBlance.toLocaleString()}`}
               gradient="from-[#4DA6FF] to-blue-400"
               isHighlight={true}
               action={
                 <button
-                  onClick={hnadletopup}
-                  className="mt-3 px-5 py-1.5 rounded-full bg-linear-to-r from-[#4DA6FF] to-[#6C3BFF] text-white text-sm font-bold shadow-lg shadow-[#4DA6FF]/30 hover:shadow-[#4DA6FF]/50 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                  onClick={isGirl?handlewithdraw:hnadletopup}
+                  className={`mt-3  px-5 py-1.5 rounded-full bg-linear-to-r from-[#4DA6FF] to-[#6C3BFF] text-white text-sm font-bold shadow-lg shadow-[#4DA6FF]/30 hover:shadow-[#4DA6FF]/50 transition-all hover:-translate-y-0.5 active:translate-y-0`}
                 >
-                  Top Up
+                  {isGirl?'Withdreaw':'Top Up'}
                 </button>
               }
             />
@@ -391,3 +395,12 @@ const CloseIcon = () => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
+function CoinIcon({ className }) {
+    return (
+        <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+            <circle cx="12" cy="12" r="10" fill="#facc15" />
+            <circle cx="12" cy="12" r="8" fill="#eab308" />
+            <path d="M12 6V18M9 9H15M9 15H15" stroke="#ca8a04" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    );
+}
