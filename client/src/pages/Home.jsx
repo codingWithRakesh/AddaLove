@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useUserStore from '../store/userStore.js';
 import useRoomStore from '../store/roomStore.js';
@@ -9,11 +9,10 @@ const languages = ['Bengali', 'Hindi', 'Gujarati', 'English', 'Kannada', 'Marath
 const Home = () => {
   const navigate = useNavigate();
   const { userRole } = useUserStore();
-  const { isLoading, error, createRoom, joinRoom } = useRoomStore();
+  const { isLoading, error, createRoom, joinRoom , rooms } = useRoomStore();
   const [roomType, setRoomType] = useState('message');
   const [roomId, setRoomId] = useState('');
   const [selectedLanguages, setSelectedLanguages] = useState([]);
-
   const isBoy = useMemo(() => userRole === 'boy', [userRole]);
   const isGirl = useMemo(() => userRole === 'girl', [userRole]);
 
