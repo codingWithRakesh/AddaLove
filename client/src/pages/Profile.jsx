@@ -81,7 +81,7 @@ export default function Profile() {
 
   }
   const handlewithdraw=()=>{
-    console.log('done')
+    naviget('/withdraw')
   }
   // ---------------------------------------------------------
   // SKELETON LOADER

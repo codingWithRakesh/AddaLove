@@ -20,6 +20,8 @@ import MessageRoom from './pages/MessageRoom.jsx'
 // import Tmp from './pages/Tmp.jsx'
 import { UserdataProvider } from './context/UserdataContext.jsx'
 import Profile from './pages/Profile.jsx'
+import Earning from './pages/Earning.jsx'
+import WithdrawMoney from './pages/WithdrawMoney.jsx'
 
 const router = createBrowserRouter([
   {
@@ -71,7 +73,15 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <ProtectRoute><Profile /></ProtectRoute>
-      }
+      },
+      {
+        path: "/earning",
+        element: <ProtectRoute><Earning /></ProtectRoute>
+      },
+      {
+        path: "/withdraw",
+        element: <ProtectRoute><WithdrawMoney /></ProtectRoute>
+      },
       // {
       //   path: "/voiceRoom/:roomId",
       //   element: <ProtectRoute><AudioRoom /></ProtectRoute>
