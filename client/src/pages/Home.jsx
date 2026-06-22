@@ -2,20 +2,40 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useUserStore from '../store/userStore.js';
 import useRoomStore from '../store/roomStore.js';
+import { socket } from '../socket/socket.js';
 
 const roomTypes = ['message', 'voice', 'video'];
 const languages = ['Bengali', 'Hindi', 'Gujarati', 'English', 'Kannada', 'Marathi', 'Tamil', 'Telugu', 'Urdu', 'Punjabi'];
 
+const getRoomPath = (type, roomId) => {
+  if (type === 'voice') return `/voiceRoom/${roomId}`;
+  return `/messageRoom/${roomId}`;
+};
+
 const Home = () => {
   const navigate = useNavigate();
   const { userRole } = useUserStore();
-  const { isLoading, error, createRoom, joinRoom, rooms } = useRoomStore();
+  const { isLoading, error, createRoom, joinRoom, getOpenRooms, rooms } = useRoomStore();
   const [roomType, setRoomType] = useState('message');
-  const [roomId, setRoomId] = useState('');
   const [selectedLanguages, setSelectedLanguages] = useState([]);
   
   const isBoy = useMemo(() => userRole === 'boy', [userRole]);
   const isGirl = useMemo(() => userRole === 'girl', [userRole]);
+
+  useEffect(() => {
+    if (!isBoy) return undefined;
+    const refreshRooms = () => getOpenRooms().catch(() => {});
+    socket.on('room_opened', refreshRooms);
+    socket.on('room_available', refreshRooms);
+    socket.on('room_occupied', refreshRooms);
+    socket.on('room_closed', refreshRooms);
+    return () => {
+      socket.off('room_opened', refreshRooms);
+      socket.off('room_available', refreshRooms);
+      socket.off('room_occupied', refreshRooms);
+      socket.off('room_closed', refreshRooms);
+    };
+  }, [getOpenRooms, isBoy]);
 
   const handleLanguageChange = (language) => {
     setSelectedLanguages((currentLanguages) => {
@@ -38,15 +58,15 @@ const Home = () => {
     }
 
     try {
-      const { roomId } = await createRoom(roomType, selectedLanguages);
-      navigate(`/messageRoom/${roomId}`);
+      const createdRoom = await createRoom(roomType, selectedLanguages);
+      navigate(getRoomPath(createdRoom.roomType, createdRoom.roomId));
     } catch (error) {
       console.error('Error creating room:', error);
     }
   };
 
-  const handleJoinRoom = async (targetId) => {
-    const idToJoin = typeof targetId === 'string' ? targetId : roomId;
+  const handleJoinRoom = async (targetRoom) => {
+    const idToJoin = typeof targetRoom === 'object' ? targetRoom.roomId : targetRoom;
 
     if (!idToJoin || idToJoin.trim() === '') {
       alert('Please enter a room ID.');
@@ -54,8 +74,8 @@ const Home = () => {
     }
 
     try {
-      await joinRoom(idToJoin);
-      navigate(`/messageRoom/${idToJoin}`);
+      const joinedRoom = await joinRoom(idToJoin);
+      navigate(getRoomPath(joinedRoom.roomType, idToJoin));
     } catch (error) {
       console.error('Error joining room:', error);
     }
@@ -170,7 +190,7 @@ const Home = () => {
                   {rooms.map((room) => (
                     <button
                       key={room._id}
-                      onClick={() => handleJoinRoom(room.roomId)}
+                      onClick={() => handleJoinRoom(room)}
                       // Added pink hover glow, pink border, and pink background tint
                       className="group flex w-full flex-col rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition-all duration-300 hover:border-[#FF4D8D] hover:bg-[#FF4D8D]/5 hover:shadow-[0_0_20px_rgba(255,77,141,0.15)] focus:outline-none"
                     >

@@ -22,6 +22,7 @@ import { UserdataProvider } from './context/UserdataContext.jsx'
 import Profile from './pages/Profile.jsx'
 import Earning from './pages/Earning.jsx'
 import WithdrawMoney from './pages/WithdrawMoney.jsx'
+import AudioRoom from './pages/AudioRoom.jsx'
 
 const router = createBrowserRouter([
   {
@@ -67,10 +68,6 @@ const router = createBrowserRouter([
         element: <ProtectRoute><TranscationHistory /></ProtectRoute>
       },
       {
-        path: "/messageRoom/:roomId",
-        element: <ProtectRoute><MessageRoom /></ProtectRoute>
-      },
-      {
         path: "/profile",
         element: <ProtectRoute><Profile /></ProtectRoute>
       },
@@ -82,10 +79,14 @@ const router = createBrowserRouter([
         path: "/withdraw",
         element: <ProtectRoute><WithdrawMoney /></ProtectRoute>
       },
-      // {
-      //   path: "/voiceRoom/:roomId",
-      //   element: <ProtectRoute><AudioRoom /></ProtectRoute>
-      // },
+      {
+        path: "/messageRoom/:roomId",
+        element: <ProtectRoute><MessageRoom /></ProtectRoute>
+      },
+      {
+        path: "/voiceRoom/:roomId",
+        element: <ProtectRoute><AudioRoom /></ProtectRoute>
+      },
       // {
       //   path: "/videoRoom/:roomId",
       //   element: <ProtectRoute><VideoRoom /></ProtectRoute>

@@ -72,6 +72,7 @@ const completeBoySession = async (room, boyId, exitReason) => {
         durationSeconds,
         exitReason
     });
+    io.emit('room_available', { roomId });
 
     return { durationSeconds };
 };
@@ -96,6 +97,10 @@ const scheduleBoyAutoLeave = (roomId, boyId, durationMs) => {
 };
 
 const createRoom = asyncHandler(async (req, res) => {
+
+    if (req.userType !== 'girl') {
+        throw new ApiError(403, 'Only girls can create rooms');
+    }
 
     const girlId = req.user._id;
     const { roomType, languages } = req.body;
@@ -131,6 +136,8 @@ const createRoom = asyncHandler(async (req, res) => {
         status: 'open'
     });
 
+    io.emit('room_opened', { roomId: room.roomId });
+
     return res.status(201).json(
         new ApiResponse(201, {
             roomId: room.roomId,
@@ -145,6 +152,10 @@ const createRoom = asyncHandler(async (req, res) => {
 
 
 const destroyRoom = asyncHandler(async (req, res) => {
+
+    if (req.userType !== 'girl') {
+        throw new ApiError(403, 'Only the girl who created a room can destroy it');
+    }
 
     const girlId = req.user._id;
     const { roomId } = req.params;
@@ -177,7 +188,7 @@ const destroyRoom = asyncHandler(async (req, res) => {
 
     if (room.currentBoy) {
         await createVisitHistory(room, room.currentBoy, 'room_destroyed');
-        io.to(room.currentBoy).emit('room_destroyed', {
+        io.to(room.currentBoy.toString()).emit('room_destroyed', {
             roomId,
             message: 'The room has been destroyed by the host'
         });
@@ -202,33 +213,47 @@ const destroyRoom = asyncHandler(async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const joinRoom = asyncHandler(async (req, res) => {
 
+    if (req.userType !== 'boy') {
+        throw new ApiError(403, 'Only boys can join rooms');
+    }
+
     const boyId = req.user._id;
     const { roomId } = req.params;
 
-    const room = await Room.findOne({ roomId });
-    if (!room) {
-        throw new ApiError(404, 'Room not found');
-    }
-    if (room.status === 'destroyed') {
-        throw new ApiError(400, 'This room no longer exists');
-    }
-    if (room.status === 'occupied') {
-        throw new ApiError(409, 'Room is currently occupied. Try again shortly.');
+    const existingBoyRoom = await Room.findOne({
+        currentBoy: boyId,
+        status: 'occupied'
+    });
+    if (existingBoyRoom) {
+        throw new ApiError(409, 'You are already inside another room');
     }
 
     const sessionDurationMs = ACTIVE_SESSION_DURATION_SECONDS * 1000;
-
-    room.status = 'occupied';
-    room.currentBoy = boyId;
-    room.currentBoyJoinedAt = new Date();
-    room.currentSessionDurationMs = sessionDurationMs;
-    await room.save();
+    const joinedAt = new Date();
+    const room = await Room.findOneAndUpdate(
+        { roomId, status: 'open', currentBoy: null },
+        {
+            $set: {
+                status: 'occupied',
+                currentBoy: boyId,
+                currentBoyJoinedAt: joinedAt,
+                currentSessionDurationMs: sessionDurationMs
+            }
+        },
+        { new: true }
+    );
+    if (!room) {
+        const roomExists = await Room.exists({ roomId });
+        if (!roomExists) throw new ApiError(404, 'Room not found');
+        throw new ApiError(409, 'Room is currently occupied. Try again shortly.');
+    }
 
     io.to(roomId).emit('boy_joined', {
         roomId,
         boyId,
         sessionDurationMs
     });
+    io.emit('room_occupied', { roomId });
 
     scheduleBoyAutoLeave(roomId, boyId, sessionDurationMs);
 
@@ -250,6 +275,10 @@ const joinRoom = asyncHandler(async (req, res) => {
 // POST /api/rooms/:roomId/leave
 // ─────────────────────────────────────────────────────────────────────────────
 const leaveRoom = asyncHandler(async (req, res) => {
+
+    if (req.userType !== 'boy') {
+        throw new ApiError(403, 'Girls must destroy their room; they cannot leave it');
+    }
 
     const boyId = req.user._id;
     const { roomId } = req.params;
@@ -285,6 +314,13 @@ const getRoomDetails = asyncHandler(async (req, res) => {
         throw new ApiError(404, 'Room not found');
     }
 
+    const requesterId = req.user._id.toString();
+    const isOwner = room.createdBy?._id?.toString() === requesterId;
+    const isCurrentBoy = room.currentBoy?._id?.toString() === requesterId;
+    if (!isOwner && !isCurrentBoy) {
+        throw new ApiError(403, 'You are not a participant in this room');
+    }
+
     return res.status(200).json(
         new ApiResponse(200, { room }, 'Room details retrieved successfully')
     );
@@ -299,7 +335,7 @@ const getOpenRooms = asyncHandler(async (req, res) => {
 
     const { type } = req.query; // optional filter: ?type=voice
 
-    const query = { status: { $in: ['open', 'occupied'] } };
+    const query = { status: 'open' };
     if (type && ['message', 'voice', 'video'].includes(type)) {
         query.roomType = type;
     }
