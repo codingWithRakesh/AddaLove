@@ -20,10 +20,12 @@ import errorHandler from "./middlewares/error.middleware.js";
 import AuthRoute from "./routes/auth.route.js";
 import WalletRoute from "./routes/wallet.route.js";
 import roomRoute from "./routes/room.route.js";
+import FollowersRoute from "./routes/follower.route.js";
 
 app.use('/api/auth/v1',AuthRoute)
 app.use('/api/rooms/v1',roomRoute);
 app.use('/api/wallet/v1',WalletRoute);
+app.use('/api/follower/v1', FollowersRoute)
 
 
 
