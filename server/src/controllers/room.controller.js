@@ -207,10 +207,6 @@ const destroyRoom = asyncHandler(async (req, res) => {
 
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BOY: JOIN ROOM
-// POST /api/rooms/:roomId/join
-// ─────────────────────────────────────────────────────────────────────────────
 const joinRoom = asyncHandler(async (req, res) => {
 
     if (req.userType !== 'boy') {
@@ -270,10 +266,6 @@ const joinRoom = asyncHandler(async (req, res) => {
 
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BOY: LEAVE ROOM
-// POST /api/rooms/:roomId/leave
-// ─────────────────────────────────────────────────────────────────────────────
 const leaveRoom = asyncHandler(async (req, res) => {
 
     if (req.userType !== 'boy') {
@@ -299,10 +291,6 @@ const leaveRoom = asyncHandler(async (req, res) => {
 
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GET ROOM DETAILS (used by client when entering a room via roomId in URL)
-// GET /api/rooms/:roomId/details
-// ─────────────────────────────────────────────────────────────────────────────
 const getRoomDetails = asyncHandler(async (req, res) => {
     const { roomId } = req.params;
 
@@ -456,10 +444,6 @@ const getRoomDetails = asyncHandler(async (req, res) => {
 
 
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GET ALL OPEN ROOMS (boy browses available rooms)
-// GET /api/rooms
-// ─────────────────────────────────────────────────────────────────────────────
 const getOpenRooms = asyncHandler(async (req, res) => {
 
     const { type } = req.query; // optional filter: ?type=voice
@@ -542,10 +526,6 @@ const getOpenRooms = asyncHandler(async (req, res) => {
 
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GET ROOM MESSAGES
-// GET /api/rooms/:roomId/messages
-// ─────────────────────────────────────────────────────────────────────────────
 const getRoomMessages = asyncHandler(async (req, res) => {
 
     const { roomId } = req.params;
@@ -565,10 +545,6 @@ const getRoomMessages = asyncHandler(async (req, res) => {
 
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GIRL: GET HER VISIT HISTORY (who visited her rooms)
-// GET /api/rooms/history/girl
-// ─────────────────────────────────────────────────────────────────────────────
 const getGirlHistory = asyncHandler(async (req, res) => {
     const girlId = req.user._id;
 
@@ -583,10 +559,6 @@ const getGirlHistory = asyncHandler(async (req, res) => {
 
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BOY: GET HIS VISIT HISTORY (rooms he joined)
-// GET /api/rooms/history/boy
-// ─────────────────────────────────────────────────────────────────────────────
 const getBoyHistory = asyncHandler(async (req, res) => {
     const boyId = req.user._id;
 

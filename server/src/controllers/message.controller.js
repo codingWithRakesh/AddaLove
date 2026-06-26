@@ -6,17 +6,6 @@ import Message from '../models/message.model.js';
 import { io } from '../socket/socket.js';
 import { uploadToImageKit } from '../utils/imageKit.js';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SEND MESSAGE
-// POST /api/rooms/:roomId/message
-//
-// For text:  multipart or JSON body { messageType: 'text', text: '...' }
-// For image: multipart body, file in req.file, messageType: 'image'
-// For audio: multipart body, file in req.file, messageType: 'audio'
-//
-// Only the girl (owner) and the current boy inside the room can send messages.
-// Room must be of type 'message'.
-// ─────────────────────────────────────────────────────────────────────────────
 const sendMessage = asyncHandler(async (req, res) => {
 
     const { roomId } = req.params;
