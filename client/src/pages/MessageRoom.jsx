@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Coins, LogOut, MessageCircle, Send, Trash2 } from 'lucide-react'
+import { Coins, Loader2, LogOut, MessageCircle, Send, Trash2, UserMinus, UserRoundPlus } from 'lucide-react'
 import useUserStore from '../store/userStore.js'
 import { connectSocket, socket } from '../socket/socket.js'
 import useRoomStore from '../store/roomStore.js'
 import useMessageStore from '../store/messageStore.js'
+import { handleError } from '../components/ErrorMessage.jsx'
 const MessageRoom = () => {
   const { roomId } = useParams()
   const navigate = useNavigate()
@@ -13,7 +14,7 @@ const MessageRoom = () => {
   const [isLeaving, setIsLeaving] = useState(false)
   const [isBoyInside, setIsBoyInside] = useState(userRole === 'boy')
   const [boyProfile, setBoyProfile] = useState(null)
-    const { user: useralldata } = useUserStore();
+  const { user: useralldata } = useUserStore();
   const [girlProfile, setGirlProfile] = useState(null)
   const messagesEndRef = useRef(null)
   const { leaveRoom, destroyRoom, getRoomDetails } = useRoomStore()
@@ -94,6 +95,188 @@ const MessageRoom = () => {
       socket.emit('leave_room', { roomId, userId: user._id })
     }
   }, [roomId, user?._id])
+  const isBoy = useMemo(() => userRole === 'boy', [userRole]);
+  const isGirl = useMemo(() => userRole === 'girl', [userRole]);
+  const [isFollow, setIsFollow] = useState(false)
+  const [loder, setLoder] = useState(false)
+  useEffect(() => {
+    console.log(boyProfile);
+    console.log(girlProfile)
+    const fectFollowOrnot = async () => {
+      if (isBoy) {
+        try {
+          const url = `${import.meta.env.VITE_BACKEND_URL}/api/follower/v1/check-follow`;
+
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ profileUserId: girlProfile._id }),
+            credentials: 'include',
+          });
+          const data = await res.json();
+          console.log(data)
+          if (!data.success) {
+            return setIsFollow(false)
+          }
+          setIsFollow(true)
+        } catch (error) {
+          
+        }
+        finally {
+          setLoder(false)
+        }
+
+      }
+      if (isGirl) {
+        try {
+
+
+          const url = `${import.meta.env.VITE_BACKEND_URL}/api/follower/v1/check-follow`;
+
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ profileUserId: boyProfile._id }),
+            credentials: 'include',
+          });
+          const data = await res.json();
+          console.log(data);
+          if (!data.success) {
+            return setIsFollow(false)
+          }
+          setIsFollow(true)
+        } catch (error) {
+         
+        }
+        finally {
+          setLoder(false);
+        }
+      }
+
+    }
+    fectFollowOrnot();
+  }, [boyProfile, girlProfile])
+  // Follow and Unfollow api call here
+  const handleFollowClick = async () => {
+    if (isBoy) {
+      try {
+        setLoder(true)
+
+        const url = `${import.meta.env.VITE_BACKEND_URL}/api/follower/v1/add-followers`;
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ profileUserId: girlProfile._id }),
+          credentials: 'include',
+        });
+        const data = await res.json();
+        console.log(data)
+        if (!data.success) {
+          return setIsFollow(false)
+        }
+        setIsFollow(true)
+      } catch (error) {
+        
+
+      } finally {
+        setLoder(false)
+      }
+
+    }
+    if (isGirl) {
+      try {
+        setLoder(true)
+
+        const url = `${import.meta.env.VITE_BACKEND_URL}/api/follower/v1/add-followers`;
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ profileUserId: boyProfile._id }),
+          credentials: 'include',
+        });
+        const data = await res.json();
+        console.log(data);
+        if (!data.success) {
+          return setIsFollow(false)
+        }
+        setIsFollow(true)
+      } catch (error) {
+        
+      } finally {
+        setLoder(false)
+      }
+    }
+
+  }
+  const handleUnfollowClick = async () => {
+
+    if (isBoy) {
+      try {
+
+
+        const url = `${import.meta.env.VITE_BACKEND_URL}/api/follower/v1/unfollow`;
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ profileUserId: girlProfile._id }),
+          credentials: 'include',
+        });
+        const data = await res.json();
+        console.log(data)
+        if (data.success) {
+          return setIsFollow(false)
+        }
+        setIsFollow(true)
+      } catch (error) {
+        handleError('Network Issue ! Try again')
+      } finally {
+        setLoder(false)
+      }
+
+    }
+    if (isGirl) {
+      try {
+
+
+        const url = `${import.meta.env.VITE_BACKEND_URL}/api/follower/v1/unfollow`;
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ profileUserId: boyProfile._id }),
+          credentials: 'include',
+        });
+        const data = await res.json();
+        console.log(data);
+        if (data.success) {
+          return setIsFollow(false)
+        }
+        setIsFollow(true)
+      } catch (error) {
+        handleError('Network Issue ! Try again')
+      } finally {
+        setLoder(false)
+      }
+    }
+
+  }
+
+
 
   useEffect(() => {
     if (!roomId) return
@@ -192,7 +375,7 @@ const MessageRoom = () => {
             <div className='flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FF4D8D]/15 text-[#FF4D8D]'>
               <MessageCircle size={21} />
             </div>
-            <div> 
+            <div>
               <p className='text-[10px] font-semibold uppercase tracking-[0.25em] text-[#FF4D8D]'>Live chat</p>
               <h1 className='text-base font-bold sm:text-lg'>Message Room</h1>
             </div>
@@ -252,12 +435,24 @@ const MessageRoom = () => {
                     />
                   </div>
                   <h2 className='mt-3 text-xl font-extrabold'>{partnerName}</h2>
-                  {userRole === 'girl' && (
-                    <div className='mt-2 flex items-center gap-2 rounded-full border border-yellow-400/15 bg-yellow-400/8 px-3 py-1.5 text-sm text-yellow-300'>
-                      <Coins size={15} />
-                      <span className='font-semibold'>{Number(chatPartner.walletBlance || 0).toLocaleString()} coins</span>
-                    </div>
-                  )}
+
+                  <div
+                    onClick={loder ? undefined : (isFollow ? handleUnfollowClick : handleFollowClick)}
+                    className={`mt-2 flex w-fit cursor-pointer items-center justify-center gap-2 rounded-full border border-yellow-400/15 bg-yellow-400/10 px-3 py-1.5 text-sm text-yellow-300 transition-colors hover:bg-yellow-400/20 ${loder ? 'cursor-not-allowed opacity-70' : ''}`}
+                  >
+                    {loder ? (
+                      <>
+                        <Loader2 size={15} className="animate-spin text-yellow-400" />
+                        <span className="font-semibold text-yellow-400">Loading...</span>
+                      </>
+                    ) : (
+                      <>
+                        {isFollow ? <UserMinus size={15} /> : <UserRoundPlus size={15} />}
+                        <span className="font-semibold">{isFollow ? 'Unfollow' : 'Follow'}</span>
+                      </>
+                    )}
+                  </div>
+
                   <p className='mt-3 text-xs text-slate-500'>You’re connected — say hello!</p>
                 </section>
               )}

@@ -20,7 +20,7 @@ export default function TransactionHistory() {
           credentials: 'include',
         });
 
-        if (!res.ok) {
+        if (!res.success) {
           throw new Error('Failed to fetch transaction history');
         }
 

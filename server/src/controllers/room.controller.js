@@ -314,6 +314,8 @@ const getRoomDetails = asyncHandler(async (req, res) => {
         throw new ApiError(404, 'Room not found');
     }
 
+    const roomData = room[0];
+
     const requesterId = req.user._id.toString();
     const isOwner = room.createdBy?._id?.toString() === requesterId;
     const isCurrentBoy = room.currentBoy?._id?.toString() === requesterId;
@@ -326,6 +328,133 @@ const getRoomDetails = asyncHandler(async (req, res) => {
     );
 
 });
+
+
+
+//Try to calculte the the followers with user data 
+// const getRoomDetails = asyncHandler(async (req, res) => {
+//     const { roomId } = req.params;
+
+//     const room = await Room.aggregate([
+//         {
+//             $match: { roomId: roomId }
+//         },
+
+//         // Created By
+//         {
+//             $lookup: {
+//                 from: "girls",
+//                 localField: "createdBy",
+//                 foreignField: "_id",
+//                 as: "createdBy"
+//             }
+//         },
+//         {
+//             $unwind: "$createdBy"
+//         },
+
+//         // Current Boy
+//         {
+//             $lookup: {
+//                 from: "boys",
+//                 localField: "currentBoy",
+//                 foreignField: "_id",
+//                 as: "currentBoy"
+//             }
+//         },
+//         {
+//             $unwind: {
+//                 path: "$currentBoy",
+//                 preserveNullAndEmptyArrays: true
+//             }
+//         },
+
+//         // CreatedBy Followers Count
+//         {
+//             $lookup: {
+//                 from: "followers",
+//                 localField: "createdBy._id",
+//                 foreignField: "following",
+//                 as: "createdByFollowers"
+//             }
+//         },
+
+//         // CurrentBoy Followers Count
+//         {
+//             $lookup: {
+//                 from: "followers",
+//                 localField: "currentBoy._id",
+//                 foreignField: "following",
+//                 as: "currentBoyFollowers"
+//             }
+//         },
+
+//         {
+//             $addFields: {
+//                 "createdBy.totalFollowers": {
+//                     $size: "$createdByFollowers"
+//                 },
+//                 "currentBoy.totalFollowers": {
+//                     $size: "$currentBoyFollowers"
+//                 }
+//             }
+//         },
+
+//         {
+//             $project: {
+//                 roomId: 1,
+//                 roomType: 1,
+//                 status: 1,
+//                 language: 1,
+//                 createdAt: 1,
+//                 updatedAt: 1,
+//                 currentSessionDurationMs: 1,
+//                 currentBoyJoinedAt: 1,
+
+//                 "createdBy._id": 1,
+//                 "createdBy.fullName": 1,
+//                 "createdBy.imageUrl": 1,
+//                 "createdBy.age": 1,
+//                 "createdBy.totalFollowers": 1,
+
+//                 "currentBoy._id": 1,
+//                 "currentBoy.fullName": 1,
+//                 "currentBoy.imageUrl": 1,
+//                 "currentBoy.walletBlance": 1,
+//                 "currentBoy.totalFollowers": 1
+//             }
+//         }
+//     ]);
+
+//     if (!room.length) {
+//         throw new ApiError(404, "Room not found");
+//     }
+
+//     const roomData = room[0];
+
+//     const requesterId = req.user._id.toString();
+
+//     const isOwner =
+//         roomData.createdBy?._id?.toString() === requesterId;
+
+//     const isCurrentBoy =
+//         roomData.currentBoy?._id?.toString() === requesterId;
+
+//     if (!isOwner && !isCurrentBoy) {
+//         throw new ApiError(403, "You are not a participant in this room");
+//     }
+
+//     return res.status(200).json(
+//         new ApiResponse(200, { room: roomData }, "Room details retrieved successfully")
+//     );
+//     return res.status(200).json(
+//         new ApiResponse(200, { room }, 'Room details retrieved successfully')
+//     );
+
+// });
+
+
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GET ALL OPEN ROOMS (boy browses available rooms)
@@ -356,6 +485,35 @@ const getOpenRooms = asyncHandler(async (req, res) => {
             }
         },
         {
+            $lookup: {
+                from: "followers",
+                let: { girlId: "$createdBy._id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $eq: ["$following", "$$girlId"]
+                            }
+                        }
+                    },
+                    {
+                        $count: "totalFollowers"
+                    }
+                ],
+                as: "followersData"
+            }
+        },
+        {
+            $addFields: {
+                totalFollowers: {
+                    $ifNull: [
+                        { $arrayElemAt: ["$followersData.totalFollowers", 0] },
+                        0
+                    ]
+                }
+            }
+        },
+        {
             $project: {
                 roomId: 1,
                 roomType: 1,
@@ -366,6 +524,7 @@ const getOpenRooms = asyncHandler(async (req, res) => {
                 language: 1,
                 createdAt: 1,
                 updatedAt: 1,
+                totalFollowers: 1,
                 createdBy: {
                     _id: '$createdBy._id',
                     fullName: '$createdBy.fullName',
