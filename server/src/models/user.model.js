@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
         require:true,
         default:0
     },
-    publicKey:{
+    userBio:{
         type:String,
     },
     password:{

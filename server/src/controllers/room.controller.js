@@ -21,10 +21,10 @@ const SESSION_DURATIONS_SECONDS = {
 const ALLOWED_LANGUAGES = ['Bengali', 'Hindi', 'Gujarati', 'English', 'Kannada', 'Marathi', 'Tamil', 'Telugu', 'Urdu', 'Punjabi'];
 
 // Change only this key when you want a different hardcoded session time.
-const ACTIVE_SESSION_DURATION_KEY = '2_min';
+const ACTIVE_SESSION_DURATION_KEY = '5_min';
 const ACTIVE_SESSION_DURATION_SECONDS = SESSION_DURATIONS_SECONDS[ACTIVE_SESSION_DURATION_KEY];
 const activeRoomTimers = new Map();
-
+    
 const clearRoomTimer = (roomId) => {
     const timer = activeRoomTimers.get(roomId);
     if (timer) {

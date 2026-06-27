@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useUserStore from '../store/userStore.js';
 import useRoomStore from '../store/roomStore.js';
 import { socket } from '../socket/socket.js';
+import { MessageCircleMore } from 'lucide-react';
 
 const roomTypes = ['message', 'voice', 'video'];
 const languages = ['Bengali', 'Hindi', 'Gujarati', 'English', 'Kannada', 'Marathi', 'Tamil', 'Telugu', 'Urdu', 'Punjabi'];
@@ -75,7 +76,7 @@ const Home = () => {
 
   useEffect(() => {
     if (!isBoy) return undefined;
-    const refreshRooms = () => getOpenRooms().catch(() => {});
+    const refreshRooms = () => getOpenRooms().catch(() => { });
     socket.on('room_opened', refreshRooms);
     socket.on('room_available', refreshRooms);
     socket.on('room_occupied', refreshRooms);
@@ -130,7 +131,7 @@ const Home = () => {
   return (
     <div className={`min-h-screen ${isBoy ? 'bg-[#090A10]' : 'bg-[#0F172A]'} text-white flex justify-center sm:items-center px-0 sm:px-4 sm:py-8`}>
       <div className={`w-full max-w-md shadow-2xl relative overflow-hidden flex flex-col ${isBoy ? 'bg-[#0B0C13] border-none sm:rounded-3xl sm:border sm:border-white/5' : 'bg-[#1E293B] rounded-3xl border border-white/10 p-6'}`}>
-        
+
         {/* Girl/Unknown Header (Hidden for Boy) */}
         {!isBoy && (
           <div className="text-center">
@@ -204,13 +205,13 @@ const Home = () => {
         {isBoy && (
           <div className="flex-1 overflow-y-auto px-4 pt-4 pb-24 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none">
             <div className="flex flex-col gap-6">
-              
+
               {/* Hero Banner */}
               <div className="relative w-full rounded-2xl border mt-18 border-[#FF4D8D]/20 bg-linear-to-br from-[#2D1433] via-[#141021] to-[#0D111A] p-5 overflow-hidden shadow-lg">
                 {/* Decorative glows */}
                 <div className="absolute top-0 right-0 -mr-10 -mt-10 h-32 w-32 rounded-full bg-[#FF4D8D] opacity-20 blur-[40px]"></div>
                 <div className="absolute bottom-0 right-10 h-24 w-24 rounded-full bg-[#6C3BFF] opacity-20 blur-[40px]"></div>
-                
+
                 <div className="relative z-10 w-2/3">
                   <h2 className="text-[26px] font-black leading-tight tracking-wide">
                     <span className="block text-[#FF4D8D]">Real Voices.</span>
@@ -279,9 +280,9 @@ const Home = () => {
                                   e.target.src = `https://ui-avatars.com/api/?name=${room.createdBy?.fullName || 'U'}&background=FF4D8D&color=fff`;
                                 }}
                               />
-                              <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-[2px] border-[#12131D] bg-[#22C55E]"></span>
+                              <span className="absolute bottom-9 right-0 h-3 w-3 rounded-full border-[2px] border-[#12131D] bg-[#22C55E]"></span>
                             </div>
-                            
+
                             <div className="flex flex-col">
                               <div className="flex items-center gap-1.5">
                                 <h4 className="text-[15px] font-bold text-white">{room.createdBy?.fullName}</h4>
@@ -289,15 +290,16 @@ const Home = () => {
                                 <span className="text-[11px] font-medium text-slate-400">{room.createdBy?.age} yrs</span>
                               </div>
                               <div className="mt-[2px] flex items-center gap-1 text-[10px] font-bold tracking-wider text-[#FF4D8D] uppercase">
-                                <Icons.Mic /> VOICE ROOM
+                                {room.roomType === 'message' ? <MessageCircleMore className='h-4' /> : <Icons.Mic />} {room.roomType}
                               </div>
-                              
+
                               {/* Audio Wave Visualizer & Listeners */}
-                              <div className="mt-2.5 flex items-center gap-4">
-                                <div className="flex items-center gap-[2px]">
-                                  {[10, 14, 8, 16, 12, 10, 18, 12, 14, 10, 6, 14, 8].map((h, i) => (
-                                    <span key={i} className="w-[1.5px] rounded-full bg-linear-to-t from-[#6C3BFF] to-[#FF4D8D]" style={{ height: `${h}px` }}></span>
-                                  ))}
+                              <div className="flex flex-col items-center justify-center transition-transform hover:scale-105">
+                                <div className="bg-gradient-to-b from-white to-[#FF4D8D] bg-clip-text text-2xl font-black text-transparent drop-shadow-[0_0_15px_rgba(255,77,141,0.8)]">
+                                  {room.totalFollowers || 0}
+                                </div>
+                                <div className="text-xs font-semibold tracking-widest text-[#FF4D8D] drop-shadow-[0_0_8px_rgba(255,77,141,0.6)]">
+                                  Followers
                                 </div>
                               </div>
                             </div>
@@ -305,9 +307,9 @@ const Home = () => {
 
                           {/* Join Button */}
                           <div className="flex flex-col items-center justify-center gap-1.5 pt-1">
-                            <button 
+                            <button
                               onClick={() => handleJoinRoom(room)}
-                              className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-linear-to-br from-[#FF4D8D] to-[#E11D48] shadow-[0_4px_14px_rgba(255,77,141,0.35)] transition-transform hover:scale-105 active:scale-95"
+                              className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-linear-to-br from-[#4dffa6] to-[#55e11d] shadow-[0_4px_14px_rgba(255,77,141,0.35)] transition-transform hover:scale-105 active:scale-95"
                             >
                               <Icons.Phone />
                             </button>
@@ -337,7 +339,7 @@ const Home = () => {
               <div className="relative rounded-[16px] bg-linear-to-r from-[#FF4D8D]/40 to-transparent p-[1px] overflow-hidden">
                 <div className="flex items-center gap-3 rounded-[16px] bg-[#120B15] px-4 py-3.5 relative z-10">
                   <div className="shrink-0 flex items-center justify-center h-10 w-10">
-                     <Icons.HeartShield />
+                    <Icons.HeartShield />
                   </div>
                   <div className="flex flex-col">
                     <h4 className="text-[13px] font-bold text-[#FF4D8D]">Only Girls Can Create Rooms</h4>
@@ -369,7 +371,7 @@ const Home = () => {
               <div className="flex cursor-pointer items-center justify-between rounded-xl bg-[#12131D] border border-white/5 px-4 py-3 transition-colors hover:bg-white/5">
                 <div className="flex items-center gap-3">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FF4D8D]/15 text-[#FF4D8D]">
-                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" /></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" /></svg>
                   </div>
                   <div className="flex flex-col">
                     <h4 className="text-[13px] font-bold text-[#D8B4FE]">Your Safety, Our Priority</h4>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Coins, Loader2, LogOut, MessageCircle, Send, Trash2, UserMinus, UserRoundPlus } from 'lucide-react'
+import { Coins, Loader2, LogOut, MessageCircle, Send, Trash2, TriangleAlert, UserMinus, UserRoundPlus } from 'lucide-react'
 import useUserStore from '../store/userStore.js'
 import { connectSocket, socket } from '../socket/socket.js'
 import useRoomStore from '../store/roomStore.js'
@@ -16,6 +16,8 @@ const MessageRoom = () => {
   const [boyProfile, setBoyProfile] = useState(null)
   const { user: useralldata } = useUserStore();
   const [girlProfile, setGirlProfile] = useState(null)
+  const [boyFollowers,setBoyFollowers]=useState(0)
+  const [girlFollowers,setGirlFollowers]=useState(0)
   const messagesEndRef = useRef(null)
   const { leaveRoom, destroyRoom, getRoomDetails } = useRoomStore()
   const {
@@ -122,7 +124,7 @@ const MessageRoom = () => {
           }
           setIsFollow(true)
         } catch (error) {
-          
+
         }
         finally {
           setLoder(false)
@@ -150,7 +152,7 @@ const MessageRoom = () => {
           }
           setIsFollow(true)
         } catch (error) {
-         
+
         }
         finally {
           setLoder(false);
@@ -183,7 +185,7 @@ const MessageRoom = () => {
         }
         setIsFollow(true)
       } catch (error) {
-        
+
 
       } finally {
         setLoder(false)
@@ -211,7 +213,7 @@ const MessageRoom = () => {
         }
         setIsFollow(true)
       } catch (error) {
-        
+
       } finally {
         setLoder(false)
       }
@@ -286,6 +288,9 @@ const MessageRoom = () => {
     getRoomDetails(roomId)
       .then((data) => {
         const room = data?.room
+        console.log(room)
+        setBoyFollowers(room.boyExtraDetails.followerCount);
+        setGirlFollowers(room.girlsExtraDetails.followerCount)
         setIsBoyInside(userRole === 'boy' || Boolean(room?.currentBoy))
         setBoyProfile(room?.currentBoy || null)
         setGirlProfile(room?.createdBy || null)
@@ -393,22 +398,30 @@ const MessageRoom = () => {
         </nav>
 
         {isBoyInside && chatPartner && (
-          <div className='z-10 flex items-center gap-3 border-b border-white/10 bg-white/3 px-4 py-3 sm:px-6'>
-            <div className='relative shrink-0'>
-              <img
-                src={partnerAvatar}
-                alt={partnerName}
-                onError={(event) => handleAvatarError(event, partnerName)}
-                className='h-11 w-11 rounded-full border-2 border-[#FF4D8D]/70 object-cover'
-              />
-              <span className='absolute right-0 bottom-0 h-3 w-3 rounded-full border-2 border-slate-900 bg-emerald-400' />
+          <div className='z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-white/3 px-4 py-3 sm:px-6'>
+            <div className='flex gap-3'>
+              <div className='relative shrink-0'>
+                <img
+                  src={partnerAvatar}
+                  alt={partnerName}
+                  onError={(event) => handleAvatarError(event, partnerName)}
+                  className='h-11 w-11 rounded-full border-2 border-[#FF4D8D]/70 object-cover'
+                />
+                <span className='absolute right-0 bottom-0 h-3 w-3 rounded-full border-2 border-slate-900 bg-emerald-400' />
+              </div>
+              <div className='min-w-0'>
+                <p className='truncate text-sm font-bold text-white'>{partnerName}</p>
+                <p className='flex items-center gap-1.5 text-xs text-emerald-400'>
+                  <span className='h-1.5 w-1.5 rounded-full bg-emerald-400' />
+                  In the room
+                </p>
+              </div>
             </div>
-            <div className='min-w-0'>
-              <p className='truncate text-sm font-bold text-white'>{partnerName}</p>
-              <p className='flex items-center gap-1.5 text-xs text-emerald-400'>
-                <span className='h-1.5 w-1.5 rounded-full bg-emerald-400' />
-                In the room
-              </p>
+            <div className='text-gray-500 text-[15px]'>
+              End to end encrypted
+            </div>
+            <div className='flex items-center gap-2 rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-sm'>
+              <TriangleAlert />
             </div>
           </div>
         )}
@@ -433,7 +446,17 @@ const MessageRoom = () => {
                       onError={(event) => handleAvatarError(event, partnerName)}
                       className='h-22 w-22 rounded-full border-4 border-slate-900 object-cover sm:h-26 sm:w-26'
                     />
+
                   </div>
+                  <div className="flex flex-col items-center justify-center transition-transform hover:scale-105">
+                    <div className="bg-linear-to-b from-white to-[#FF4D8D] bg-clip-text text-2xl font-black text-transparent drop-shadow-[0_0_15px_rgba(255,77,141,0.8)]">
+                      {isBoy?girlFollowers:boyFollowers}
+                    </div>
+                    <div className="text-xs font-semibold tracking-widest text-[#FF4D8D] drop-shadow-[0_0_8px_rgba(255,77,141,0.6)]">
+                      Followers
+                    </div>
+                  </div>
+
                   <h2 className='mt-3 text-xl font-extrabold'>{partnerName}</h2>
 
                   <div

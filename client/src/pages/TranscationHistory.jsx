@@ -20,14 +20,14 @@ export default function TransactionHistory() {
           credentials: 'include',
         });
 
-        if (!res.success) {
-          throw new Error('Failed to fetch transaction history');
-        }
+        // if (!res.success) {
+        //   throw new Error('Failed to fetch transaction history');
+        // }
 
         const data = await res.json();
-        
+         console.log(data)
         // Match the backend typo "allTranscation" to extract the array
-        if (data.success && data.data && data.data.allTranscation) {
+        if (data.data.allTranscation) {
           setTransactions(data.data.allTranscation.reverse());
         } else {
           setTransactions([]);
