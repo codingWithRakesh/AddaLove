@@ -7,6 +7,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiResponse } from "../utils/apiResponse.js";
 import { ApiError } from '../utils/apiError.js';
 import { io } from '../socket/socket.js';
+import mongoose from 'mongoose';
 
 const SESSION_DURATIONS_SECONDS = {
     '20_sec': 20,
@@ -293,20 +294,218 @@ const leaveRoom = asyncHandler(async (req, res) => {
 
 const getRoomDetails = asyncHandler(async (req, res) => {
     const { roomId } = req.params;
+    const requesterId = new mongoose.Types.ObjectId(req.user._id);
 
-    const room = await Room.findOne({ roomId })
-        .populate('createdBy', 'fullName imageUrl age')
-        .populate('currentBoy', 'fullName imageUrl walletBlance');
+    const [room] = await Room.aggregate([
+
+        {
+            $match: {
+                roomId
+            }
+        },
+        {
+            $lookup: {
+                from: 'girls',
+                localField: 'createdBy',
+                foreignField: '_id',
+                as: 'createdBy'
+            }
+        },
+        { 
+            $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: false } 
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'currentBoy',
+                foreignField: '_id',
+                as: 'currentBoy'
+            }
+        },
+        { 
+            $unwind: { path: '$currentBoy', preserveNullAndEmptyArrays: true } 
+        },
+        {
+            $lookup: {
+                from: 'followers',
+                let: { girlId: '$createdBy._id' },
+                pipeline: [
+                    { $match: { $expr: { $eq: ['$following', '$$girlId'] } } },
+                    { $count: 'count' }
+                ],
+                as: '_girlFollowers'
+            }
+        },
+        {
+            $lookup: {
+                from: 'followers',
+                let: { girlId: '$createdBy._id' },
+                pipeline: [
+                    { $match: { $expr: { $eq: ['$follower', '$$girlId'] } } },
+                    { $count: 'count' }
+                ],
+                as: '_girlFollowing'
+            }
+        },
+        {
+            $lookup: {
+                from: 'followers',
+                let: { boyId: { $ifNull: ['$currentBoy._id', null] } },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $ne: ['$$boyId', null] },
+                                    { $eq: ['$following', '$$boyId'] }
+                                ]
+                            }
+                        }
+                    },
+                    { $count: 'count' }
+                ],
+                as: '_boyFollowers'
+            }
+        },
+        {
+            $lookup: {
+                from: 'followers',
+                let: { boyId: { $ifNull: ['$currentBoy._id', null] } },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $ne: ['$$boyId', null] },
+                                    { $eq: ['$follower', '$$boyId'] }
+                                ]
+                            }
+                        }
+                    },
+                    { $count: 'count' }
+                ],
+                as: '_boyFollowing'
+            }
+        },
+        {
+            $lookup: {
+                from: 'followers',
+                let: {
+                    boyId: { $ifNull: ['$currentBoy._id', null] },
+                    girlId: '$createdBy._id'
+                },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $ne: ['$$boyId', null] },
+                                    { $eq: ['$follower', '$$boyId'] },
+                                    { $eq: ['$following', '$$girlId'] }
+                                ]
+                            }
+                        }
+                    },
+                    { $limit: 1 }
+                ],
+                as: '_boyFollowsGirl'
+            }
+        },
+        {
+            $lookup: {
+                from: 'followers',
+                let: {
+                    girlId: '$createdBy._id',
+                    boyId: { $ifNull: ['$currentBoy._id', null] }
+                },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $ne: ['$$boyId', null] },
+                                    { $eq: ['$follower', '$$girlId'] },
+                                    { $eq: ['$following', '$$boyId'] }
+                                ]
+                            }
+                        }
+                    },
+                    { $limit: 1 }
+                ],
+                as: '_girlFollowsBoy'
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                roomId: 1,
+                roomType: 1,
+                status: 1,
+                language: 1,
+                currentBoyJoinedAt: 1,
+                currentSessionDurationMs: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                createdBy: {
+                    _id: '$createdBy._id',
+                    fullName: '$createdBy.fullName',
+                    imageUrl: '$createdBy.imageUrl',
+                    age: '$createdBy.age'
+                },
+                currentBoy: {
+                    $cond: {
+                        if: { $not: ['$currentBoy._id'] },
+                        then: null,
+                        else: {
+                            _id: '$currentBoy._id',
+                            fullName: '$currentBoy.fullName',
+                            imageUrl: '$currentBoy.imageUrl',
+                            walletBlance: '$currentBoy.walletBlance'
+                        }
+                    }
+                },
+                girlsExtraDetails: {
+                    followerCount: {
+                        $ifNull: [{ $arrayElemAt: ['$_girlFollowers.count', 0] }, 0]
+                    },
+                    followingCount: {
+                        $ifNull: [{ $arrayElemAt: ['$_girlFollowing.count', 0] }, 0]
+                    },
+                    isFollowedByBoy: {
+                        $cond: {
+                            if: { $not: ['$currentBoy._id'] },
+                            then: '$$REMOVE',
+                            else: { $gt: [{ $size: '$_boyFollowsGirl' }, 0] }
+                        }
+                    }
+                },
+                boyExtraDetails: {
+                    $cond: {
+                        if: { $not: ['$currentBoy._id'] },
+                        then: null,
+                        else: {
+                            followerCount: {
+                                $ifNull: [{ $arrayElemAt: ['$_boyFollowers.count', 0] }, 0]
+                            },
+                            followingCount: {
+                                $ifNull: [{ $arrayElemAt: ['$_boyFollowing.count', 0] }, 0]
+                            },
+                            isFollowingGirl: { $gt: [{ $size: '$_boyFollowsGirl' }, 0] },
+                            isFollowedByGirl: { $gt: [{ $size: '$_girlFollowsBoy' }, 0] }
+                        }
+                    }
+                }
+            }
+        }
+    ]);
 
     if (!room) {
         throw new ApiError(404, 'Room not found');
     }
 
-    const roomData = room[0];
+    const isOwner = room.createdBy?._id?.toString() === requesterId.toString();
+    const isCurrentBoy = room.currentBoy?._id?.toString() === requesterId.toString();
 
-    const requesterId = req.user._id.toString();
-    const isOwner = room.createdBy?._id?.toString() === requesterId;
-    const isCurrentBoy = room.currentBoy?._id?.toString() === requesterId;
     if (!isOwner && !isCurrentBoy) {
         throw new ApiError(403, 'You are not a participant in this room');
     }
@@ -314,7 +513,6 @@ const getRoomDetails = asyncHandler(async (req, res) => {
     return res.status(200).json(
         new ApiResponse(200, { room }, 'Room details retrieved successfully')
     );
-
 });
 
 
