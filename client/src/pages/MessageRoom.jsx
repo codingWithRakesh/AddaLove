@@ -102,8 +102,6 @@ const MessageRoom = () => {
   const [isFollow, setIsFollow] = useState(false)
   const [loder, setLoder] = useState(false)
   useEffect(() => {
-    console.log(boyProfile);
-    console.log(girlProfile)
     const fectFollowOrnot = async () => {
       if (isBoy) {
         try {

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Headphones, LoaderCircle, LogOut, Mic, MicOff, PhoneOff, Radio, Trash2, Volume2, VolumeX } from 'lucide-react';
+import { Headphones, LoaderCircle, LogOut, Mic, MicOff, PhoneOff, Radio, Trash2, TriangleAlert, Volume2, VolumeX } from 'lucide-react';
 import useUserStore from '../store/userStore.js';
 import useRoomStore from '../store/roomStore.js';
 import { connectSocket, socket } from '../socket/socket.js';
@@ -29,10 +29,16 @@ export default function AudioRoom() {
   const remoteAudioRef = useRef(null);
   const pendingCandidatesRef = useRef([]);
   const boyProfileRef = useRef(null);
+  const [boyFollowers, setBoyFollowers] = useState(0)
+  const [girlFollowers, setGirlFollowers] = useState(0)
 
   const isGirl = userRole === 'girl';
   const partner = isGirl ? boyProfile : girlProfile;
   const isBoyInside = isGirl ? Boolean(boyProfile) : true;
+  const isBoy = useMemo(() => userRole === 'boy', [userRole]);
+  useEffect(() => {
+
+  }, [roomId])
 
   const stopPeer = useCallback(() => {
     peerRef.current?.close();
@@ -61,7 +67,7 @@ export default function AudioRoom() {
     peer.ontrack = ({ streams }) => {
       if (remoteAudioRef.current) {
         remoteAudioRef.current.srcObject = streams[0];
-        remoteAudioRef.current.play().catch(() => {});
+        remoteAudioRef.current.play().catch(() => { });
       }
       setConnectionState('connected');
     };
@@ -151,7 +157,7 @@ export default function AudioRoom() {
       if (data.roomId !== roomId || !data.candidate) return;
       const peer = peerRef.current;
       if (!peer?.remoteDescription) pendingCandidatesRef.current.push(data.candidate);
-      else await peer.addIceCandidate(data.candidate).catch(() => {});
+      else await peer.addIceCandidate(data.candidate).catch(() => { });
     };
     const handleBoyJoined = async (data) => {
       if (data.roomId !== roomId || !isGirl) return;
@@ -160,6 +166,8 @@ export default function AudioRoom() {
         if (!active) return;
         boyProfileRef.current = details.room.currentBoy;
         setBoyProfile(details.room.currentBoy);
+        setBoyFollowers(details.room.boyExtraDetails.followerCount);
+        setGirlFollowers(details.room.girlsExtraDetails.followerCount)
       } catch {
         setError('Could not load the new participant.');
       }
@@ -264,7 +272,7 @@ export default function AudioRoom() {
           </div>
         </div>
         <button type="button" onClick={handleExit} disabled={isLeaving} className="flex items-center gap-2 rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-500 hover:text-white disabled:opacity-50">
-          {isGirl ? <Trash2 size={18} /> : <LogOut size={18} />}
+          <TriangleAlert size={18} />
           <span className="hidden sm:inline">{isLeaving ? 'Please wait...' : isGirl ? 'Destroy Room' : 'Leave Room'}</span>
         </button>
       </header>
@@ -274,6 +282,10 @@ export default function AudioRoom() {
       <main className="mx-auto min-h-0 w-full max-w-7xl flex-1 p-4 md:p-6">
         <div className={`flex h-full w-full gap-4 transition-all duration-300 md:gap-6 ${participants.length === 1 ? 'flex-col' : 'flex-col md:flex-row'}`}>
           {participants.map((participant) => {
+            // console.log(participant)
+            
+            console.log(girlFollowers)
+            console.log(boyFollowers)
             const name = participant.fullName || participant.label;
             const connected = connectionState === 'connected' && !participant.self;
             return (
@@ -288,6 +300,14 @@ export default function AudioRoom() {
                 <div className="absolute bottom-4 left-4 z-10 flex items-center gap-3 rounded-2xl border border-white/5 bg-[#0F172A]/85 px-4 py-2 shadow-lg backdrop-blur-md">
                   <span className={`rounded-full p-1.5 ${participant.muted ? 'bg-red-500/20 text-red-400' : 'bg-[#6C3BFF]/20 text-[#9f86ff]'}`}>{participant.muted ? <MicOff size={14} /> : <Mic size={14} />}</span>
                   <span className="text-sm font-medium text-gray-200 md:text-base">{participant.label}</span>
+                </div>
+                <div className="flex flex-col items-center justify-center transition-transform hover:scale-105">
+                  <div className="bg-linear-to-b from-white to-[#FF4D8D] bg-clip-text text-2xl font-black text-transparent drop-shadow-[0_0_15px_rgba(255,77,141,0.8)]">
+                    {participant.userType==='Girl' ?girlFollowers:boyFollowers}
+                  </div>
+                  <div className="text-xs font-semibold tracking-widest text-[#FF4D8D] drop-shadow-[0_0_8px_rgba(255,77,141,0.6)]">
+                    Followers
+                  </div>
                 </div>
               </section>
             );
