@@ -3,6 +3,13 @@ import axios from "axios";
 
 const useUserStore = create((set) => ({
     user: null,
+    onlineUsers: [],
+    setOnlineUsers: (users) => set({ onlineUsers: users }),
+    removeOnlineUser: (userId) => {
+        set((state) => ({
+            onlineUsers: state.onlineUsers.filter((user) => user._id !== userId),
+        }));
+    },
     userRole: null,
     isLoading: false,
     error: null,

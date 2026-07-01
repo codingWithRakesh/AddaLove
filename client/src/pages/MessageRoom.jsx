@@ -5,7 +5,11 @@ import useUserStore from '../store/userStore.js'
 import { connectSocket, socket } from '../socket/socket.js'
 import useRoomStore from '../store/roomStore.js'
 import useMessageStore from '../store/messageStore.js'
-import { handleError } from '../components/ErrorMessage.jsx'
+import { handleError, handleSuccess } from '../components/ErrorMessage.jsx'
+import useReportStore from '../store/reportStore.js'
+import ReportPopup from '../components/ReportPopup.jsx'
+import useRatingStore from '../store/ratingStore.js'
+import RatingPopup from '../components/RatingPopup.jsx'
 const MessageRoom = () => {
   const { roomId } = useParams()
   const navigate = useNavigate()
@@ -18,7 +22,15 @@ const MessageRoom = () => {
   const [girlProfile, setGirlProfile] = useState(null)
   const [boyFollowers,setBoyFollowers]=useState(0)
   const [girlFollowers,setGirlFollowers]=useState(0)
+  const [isReportOpen, setIsReportOpen] = useState(false)
+  const [isRatingOpen, setIsRatingOpen] = useState(false)
+  const [ratingTarget, setRatingTarget] = useState(null)
+  const [afterRatingAction, setAfterRatingAction] = useState(null)
   const messagesEndRef = useRef(null)
+  const hasPendingRatingRef = useRef(false)
+  const suppressCloseRatingRef = useRef(false)
+  const boyProfileRef = useRef(null)
+  const girlProfileRef = useRef(null)
   const { leaveRoom, destroyRoom, getRoomDetails } = useRoomStore()
   const {
     sendMessage: sendMessageToServer,
@@ -27,6 +39,8 @@ const MessageRoom = () => {
     addMessage,
     messages,
   } = useMessageStore()
+  const { createReport, isLoading: isReportSubmitting } = useReportStore()
+  const { createRating, checkRating, isLoading: isRatingSubmitting } = useRatingStore()
 
   const handleSendMessage = async () => {
     if (!isBoyInside) return
@@ -53,13 +67,61 @@ const MessageRoom = () => {
     navigate('/')
   }, [clearMessages, navigate, roomId, user])
 
+  const runAfterRatingAction = useCallback(async (action) => {
+    if (action === 'destroyThenExit') {
+      suppressCloseRatingRef.current = true
+      await destroyRoom(roomId)
+      exitRoom()
+      return
+    }
+
+    if (action === 'exit') {
+      suppressCloseRatingRef.current = true
+      exitRoom()
+    }
+  }, [destroyRoom, exitRoom, roomId])
+
+  const openRatingPopup = useCallback(async (targetUser, action = null) => {
+    if (!targetUser?._id || hasPendingRatingRef.current) return
+
+    try {
+      const hasRated = await checkRating(targetUser._id)
+      if (hasRated) {
+        await runAfterRatingAction(action)
+        return
+      }
+    } catch (error) {
+      console.error('Error checking rating:', error)
+    }
+
+    hasPendingRatingRef.current = true
+    setRatingTarget(targetUser)
+    setAfterRatingAction(action)
+    setIsRatingOpen(true)
+  }, [checkRating, runAfterRatingAction])
+
+  const completeRatingFlow = useCallback(async () => {
+    const action = afterRatingAction
+
+    hasPendingRatingRef.current = false
+    setIsRatingOpen(false)
+    setRatingTarget(null)
+    setAfterRatingAction(null)
+
+    await runAfterRatingAction(action)
+  }, [afterRatingAction, runAfterRatingAction])
+
   const leaveRoomFunc = async () => {
     if (userRole !== 'boy' || isLeaving) return
 
     try {
       setIsLeaving(true)
       await leaveRoom(roomId)
-      exitRoom()
+      if (girlProfile?._id) {
+        await openRatingPopup(girlProfile, 'exit')
+      } else {
+        exitRoom()
+      }
     } catch (error) {
       console.error('Error leaving room:', error)
     } finally {
@@ -71,6 +133,10 @@ const MessageRoom = () => {
     if (userRole !== 'girl' || isLeaving) return
 
     try {
+      if (boyProfile?._id) {
+        await openRatingPopup(boyProfile, 'destroyThenExit')
+        return
+      }
       setIsLeaving(true)
       await destroyRoom(roomId)
       exitRoom()
@@ -290,6 +356,8 @@ const MessageRoom = () => {
         setBoyFollowers(room.boyExtraDetails.followerCount);
         setGirlFollowers(room.girlsExtraDetails.followerCount)
         setIsBoyInside(userRole === 'boy' || Boolean(room?.currentBoy))
+        boyProfileRef.current = room?.currentBoy || null
+        girlProfileRef.current = room?.createdBy || null
         setBoyProfile(room?.currentBoy || null)
         setGirlProfile(room?.createdBy || null)
       })
@@ -304,7 +372,20 @@ const MessageRoom = () => {
     }
 
     const handleRoomClosed = (data) => {
-      if (data.roomId === roomId) exitRoom()
+      if (data.roomId !== roomId) return
+
+      if (suppressCloseRatingRef.current) {
+        exitRoom()
+        return
+      }
+
+      const target = userRole === 'boy' ? girlProfileRef.current : boyProfileRef.current
+      if (target?._id) {
+        openRatingPopup(target, 'exit')
+        return
+      }
+
+      exitRoom()
     }
 
     const handleBoyJoined = async (data) => {
@@ -314,6 +395,7 @@ const MessageRoom = () => {
       if (userRole === 'girl') {
         try {
           const details = await getRoomDetails(roomId)
+          boyProfileRef.current = details?.room?.currentBoy || null
           setBoyProfile(details?.room?.currentBoy || null)
         } catch (error) {
           console.error('Error loading joined boy details:', error)
@@ -324,12 +406,19 @@ const MessageRoom = () => {
     const handleBoyLeft = (data) => {
       if (data.roomId !== roomId) return
 
+      const leavingBoy = boyProfileRef.current
       setIsBoyInside(false)
+      boyProfileRef.current = null
       setBoyProfile(null)
       clearMessages()
 
       if (userRole === 'boy' && String(data.boyId) === String(user?._id)) {
-        exitRoom()
+        openRatingPopup(girlProfileRef.current, 'exit')
+        return
+      }
+
+      if (userRole === 'girl' && leavingBoy?._id) {
+        openRatingPopup(leavingBoy, null)
       }
     }
 
@@ -347,7 +436,7 @@ const MessageRoom = () => {
       socket.off('boy_left', handleBoyLeft)
       clearMessages()
     }
-  }, [roomId, userRole, user, getRoomDetails, getMessages, addMessage, clearMessages, exitRoom])
+  }, [roomId, userRole, user, getRoomDetails, getMessages, addMessage, clearMessages, exitRoom, openRatingPopup])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -359,6 +448,53 @@ const MessageRoom = () => {
   const handleAvatarError = (event, name) => {
     event.currentTarget.onerror = null
     event.currentTarget.src = getFallbackAvatar(name)
+  }
+
+  const handleReportSubmit = async (reason) => {
+    if (!chatPartner?._id) {
+      handleError('No user available to report')
+      return
+    }
+
+    try {
+      await createReport({
+        reportedUserId: chatPartner._id,
+        reason,
+      })
+      setIsReportOpen(false)
+      handleSuccess('Report sended')
+    } catch (error) {
+      handleError(error?.response?.data?.message || 'Could not send report')
+    }
+  }
+
+  const handleRatingSubmit = async (rating) => {
+    if (!ratingTarget?._id) {
+      handleError('No user available to rate')
+      return
+    }
+
+    try {
+      await createRating({
+        ratedUserId: ratingTarget._id,
+        rating,
+      })
+      handleSuccess('Rating sended')
+      await completeRatingFlow()
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Could not send rating'
+      if (message.toLowerCase().includes('already rated')) {
+        handleSuccess('Rating already sended')
+        await completeRatingFlow()
+        return
+      }
+      handleError(message)
+    }
+  }
+
+  const handleRatingLater = async () => {
+    if (userRole !== 'boy') return
+    await completeRatingFlow()
   }
 
   const isOwnMessage = (message) =>
@@ -418,9 +554,14 @@ const MessageRoom = () => {
             <div className='text-gray-500 text-[15px]'>
               End to end encrypted
             </div>
-            <div className='flex items-center gap-2 rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-sm'>
-              <TriangleAlert />
-            </div>
+            <button
+              type='button'
+              aria-label={`Report ${partnerName}`}
+              onClick={() => setIsReportOpen(true)}
+              className='flex items-center gap-2 rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-sm'
+            >
+              <TriangleAlert size={18} />
+            </button>
           </div>
         )}
 
@@ -532,6 +673,22 @@ const MessageRoom = () => {
           )}
         </footer>
       </div>
+      <ReportPopup
+        isOpen={isReportOpen}
+        userName={partnerName}
+        onClose={() => setIsReportOpen(false)}
+        onSubmit={handleReportSubmit}
+        isSubmitting={isReportSubmitting}
+      />
+      <RatingPopup
+        isOpen={isRatingOpen}
+        userName={ratingTarget?.fullName || 'Guest'}
+        userImage={ratingTarget?.imageUrl || getFallbackAvatar(ratingTarget?.fullName || 'Guest')}
+        canSkip={userRole === 'boy'}
+        onSkip={handleRatingLater}
+        onSubmit={handleRatingSubmit}
+        isSubmitting={isRatingSubmitting}
+      />
     </div>
   )
 }

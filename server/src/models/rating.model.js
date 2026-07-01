@@ -8,10 +8,15 @@ const ratingSchema = new Schema({
     },
     ratedUser: {
         type: Schema.Types.ObjectId,
-        refPath: "userModel",
+        refPath: "ratedUserModel",
         required: true
     },
     userModel: {
+        type: String,
+        enum: ["User", "Girls"],
+        required: true
+    },
+    ratedUserModel: {
         type: String,
         enum: ["User", "Girls"],
         required: true

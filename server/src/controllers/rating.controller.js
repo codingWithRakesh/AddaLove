@@ -2,6 +2,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiResponse } from "../utils/apiResponse.js";
 import { ApiError } from '../utils/apiError.js';
 import User from '../models/user.model.js';
+import Girls from '../models/girls.model.js';
 import Rating from '../models/rating.model.js';
 
 const createRating = asyncHandler(async (req, res) => {
@@ -12,8 +13,10 @@ const createRating = asyncHandler(async (req, res) => {
 
     const raterId = req.user._id;
     const raterModel = req.userType === 'girl' ? 'Girls' : 'User';
+    const ratedUserModel = req.userType === 'girl' ? 'User' : 'Girls';
 
-    const ratedUser = await User.findById(ratedUserId);
+    const RatedUserModel = ratedUserModel === 'Girls' ? Girls : User;
+    const ratedUser = await RatedUserModel.findById(ratedUserId);
     if (!ratedUser) {
         throw new ApiError(404, 'Rated user not found');
     }
@@ -21,7 +24,8 @@ const createRating = asyncHandler(async (req, res) => {
     const existingRating = await Rating.findOne({
         ratedBy: raterId,
         ratedUser: ratedUserId,
-        userModel: raterModel
+        userModel: raterModel,
+        ratedUserModel
     });
     if (existingRating) {
         throw new ApiError(400, 'You have already rated this user');
@@ -31,10 +35,33 @@ const createRating = asyncHandler(async (req, res) => {
         ratedBy: raterId,
         ratedUser: ratedUserId,
         userModel: raterModel,
+        ratedUserModel,
         rating
     });
 
     return res.status(201).json(new ApiResponse(201, newRating, 'Rating created successfully'));
+});
+
+const checkRating = asyncHandler(async (req, res) => {
+    const { ratedUserId } = req.body;
+    if (!ratedUserId) {
+        throw new ApiError(400, 'ratedUserId is required');
+    }
+
+    const raterId = req.user._id;
+    const raterModel = req.userType === 'girl' ? 'Girls' : 'User';
+    const ratedUserModel = req.userType === 'girl' ? 'User' : 'Girls';
+
+    const existingRating = await Rating.exists({
+        ratedBy: raterId,
+        ratedUser: ratedUserId,
+        userModel: raterModel,
+        ratedUserModel
+    });
+
+    return res.status(200).json(
+        new ApiResponse(200, { hasRated: Boolean(existingRating) }, 'Rating status fetched successfully')
+    );
 });
 
 const getRatingsForUser = asyncHandler(async (req, res) => {
@@ -92,6 +119,7 @@ const deleteRating = asyncHandler(async (req, res) => {
 
 export {
     createRating,
+    checkRating,
     getRatingsForUser,
     getAllRatings,
     deleteRating

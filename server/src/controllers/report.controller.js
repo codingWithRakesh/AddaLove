@@ -2,6 +2,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiResponse } from "../utils/apiResponse.js";
 import { ApiError } from '../utils/apiError.js';
 import User from '../models/user.model.js';
+import Girls from '../models/girls.model.js';
 import Report from '../models/report.model.js';
 
 const createReport = asyncHandler(async (req, res) => {
@@ -12,8 +13,10 @@ const createReport = asyncHandler(async (req, res) => {
 
     const reporterId = req.user._id;
     const reporterModel = req.userType === 'girl' ? 'Girls' : 'User';
+    const reportedUserModel = req.userType === 'girl' ? 'User' : 'Girls';
 
-    const reportedUser = await User.findById(reportedUserId);
+    const ReportedUserModel = reportedUserModel === 'Girls' ? Girls : User;
+    const reportedUser = await ReportedUserModel.findById(reportedUserId);
     if (!reportedUser) {
         throw new ApiError(404, 'Reported user not found');
     }
@@ -22,6 +25,7 @@ const createReport = asyncHandler(async (req, res) => {
         reportedBy: reporterId,
         reportedUser: reportedUserId,
         userModel: reporterModel,
+        reportedUserModel,
         reason
     });
 

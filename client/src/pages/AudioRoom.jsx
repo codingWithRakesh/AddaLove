@@ -4,6 +4,11 @@ import { Headphones, LoaderCircle, LogOut, Mic, MicOff, PhoneOff, Radio, Trash2,
 import useUserStore from '../store/userStore.js';
 import useRoomStore from '../store/roomStore.js';
 import { connectSocket, socket } from '../socket/socket.js';
+import useReportStore from '../store/reportStore.js';
+import ReportPopup from '../components/ReportPopup.jsx';
+import { handleError, handleSuccess } from '../components/ErrorMessage.jsx';
+import useRatingStore from '../store/ratingStore.js';
+import RatingPopup from '../components/RatingPopup.jsx';
 
 const peerConfiguration = {
   iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
@@ -24,16 +29,26 @@ export default function AudioRoom() {
   const [isLeaving, setIsLeaving] = useState(false);
   const [connectionState, setConnectionState] = useState('waiting');
   const [error, setError] = useState('');
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isRatingOpen, setIsRatingOpen] = useState(false);
+  const [ratingTarget, setRatingTarget] = useState(null);
+  const [afterRatingAction, setAfterRatingAction] = useState(null);
   const localStreamRef = useRef(null);
   const peerRef = useRef(null);
   const remoteAudioRef = useRef(null);
   const pendingCandidatesRef = useRef([]);
   const boyProfileRef = useRef(null);
+  const girlProfileRef = useRef(null);
+  const hasPendingRatingRef = useRef(false);
+  const suppressCloseRatingRef = useRef(false);
   const [boyFollowers, setBoyFollowers] = useState(0)
   const [girlFollowers, setGirlFollowers] = useState(0)
+  const { createReport, isLoading: isReportSubmitting } = useReportStore()
+  const { createRating, checkRating, isLoading: isRatingSubmitting } = useRatingStore()
 
   const isGirl = userRole === 'girl';
   const partner = isGirl ? boyProfile : girlProfile;
+  const partnerName = partner?.fullName || 'Guest';
   const isBoyInside = isGirl ? Boolean(boyProfile) : true;
   const isBoy = useMemo(() => userRole === 'boy', [userRole]);
   useEffect(() => {
@@ -104,18 +119,122 @@ export default function AudioRoom() {
     navigate('/');
   }, [navigate, resetRoomState, roomId, stopPeer]);
 
+  const runAfterRatingAction = useCallback(async (action) => {
+    if (action === 'destroyThenExit') {
+      suppressCloseRatingRef.current = true;
+      await destroyRoom(roomId);
+      exitRoom();
+      return;
+    }
+
+    if (action === 'exit') {
+      suppressCloseRatingRef.current = true;
+      exitRoom();
+    }
+  }, [destroyRoom, exitRoom, roomId]);
+
+  const openRatingPopup = useCallback(async (targetUser, action = null) => {
+    if (!targetUser?._id || hasPendingRatingRef.current) return;
+
+    try {
+      const hasRated = await checkRating(targetUser._id);
+      if (hasRated) {
+        await runAfterRatingAction(action);
+        return;
+      }
+    } catch (checkError) {
+      console.error('Error checking rating:', checkError);
+    }
+
+    hasPendingRatingRef.current = true;
+    setRatingTarget(targetUser);
+    setAfterRatingAction(action);
+    setIsRatingOpen(true);
+  }, [checkRating, runAfterRatingAction]);
+
+  const completeRatingFlow = useCallback(async () => {
+    const action = afterRatingAction;
+
+    hasPendingRatingRef.current = false;
+    setIsRatingOpen(false);
+    setRatingTarget(null);
+    setAfterRatingAction(null);
+
+    await runAfterRatingAction(action);
+  }, [afterRatingAction, runAfterRatingAction]);
+
   const handleExit = async () => {
     if (isLeaving) return;
     try {
       setIsLeaving(true);
-      if (isGirl) await destroyRoom(roomId);
-      else await leaveRoom(roomId);
-      exitRoom();
+      if (isGirl) {
+        if (boyProfile?._id) {
+          await openRatingPopup(boyProfile, 'destroyThenExit');
+          return;
+        }
+        await destroyRoom(roomId);
+        exitRoom();
+        return;
+      }
+
+      await leaveRoom(roomId);
+      if (girlProfile?._id) {
+        await openRatingPopup(girlProfile, 'exit');
+      } else {
+        exitRoom();
+      }
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Could not leave the room. Please try again.');
     } finally {
       setIsLeaving(false);
     }
+  };
+
+  const handleReportSubmit = async (reason) => {
+    if (!partner?._id) {
+      handleError('No user available to report');
+      return;
+    }
+
+    try {
+      await createReport({
+        reportedUserId: partner._id,
+        reason,
+      });
+      setIsReportOpen(false);
+      handleSuccess('Report sended');
+    } catch (reportError) {
+      handleError(reportError?.response?.data?.message || 'Could not send report');
+    }
+  };
+
+  const handleRatingSubmit = async (rating) => {
+    if (!ratingTarget?._id) {
+      handleError('No user available to rate');
+      return;
+    }
+
+    try {
+      await createRating({
+        ratedUserId: ratingTarget._id,
+        rating,
+      });
+      handleSuccess('Rating sended');
+      await completeRatingFlow();
+    } catch (ratingError) {
+      const message = ratingError?.response?.data?.message || 'Could not send rating';
+      if (message.toLowerCase().includes('already rated')) {
+        handleSuccess('Rating already sended');
+        await completeRatingFlow();
+        return;
+      }
+      handleError(message);
+    }
+  };
+
+  const handleRatingLater = async () => {
+    if (!isBoy) return;
+    await completeRatingFlow();
   };
 
   useEffect(() => {
@@ -174,16 +293,32 @@ export default function AudioRoom() {
     };
     const handleBoyLeft = (data) => {
       if (data.roomId !== roomId) return;
+      const leavingBoy = boyProfileRef.current;
       stopPeer();
       if (isGirl) {
         boyProfileRef.current = null;
         setBoyProfile(null);
+        if (leavingBoy?._id) openRatingPopup(leavingBoy, null);
       } else if (String(data.boyId) === String(user._id)) {
-        exitRoom();
+        openRatingPopup(girlProfileRef.current, 'exit');
       }
     };
     const handleRoomClosed = (data) => {
-      if (data.roomId === roomId) exitRoom();
+      if (data.roomId !== roomId) return;
+
+      if (suppressCloseRatingRef.current) {
+        exitRoom();
+        return;
+      }
+
+      stopPeer();
+      const target = isGirl ? boyProfileRef.current : girlProfileRef.current;
+      if (target?._id) {
+        openRatingPopup(target, 'exit');
+        return;
+      }
+
+      exitRoom();
     };
     const handleRoomError = (data) => {
       if (!data.roomId || data.roomId === roomId) setError(data.message);
@@ -209,6 +344,7 @@ export default function AudioRoom() {
           return;
         }
         setGirlProfile(details.room.createdBy);
+        girlProfileRef.current = details.room.createdBy;
         setBoyProfile(details.room.currentBoy || null);
         boyProfileRef.current = details.room.currentBoy || null;
         await ensureLocalStream();
@@ -240,7 +376,7 @@ export default function AudioRoom() {
       localStreamRef.current?.getTracks().forEach((track) => track.stop());
       localStreamRef.current = null;
     };
-  }, [addPendingCandidates, createOffer, ensureLocalStream, ensurePeer, exitRoom, getRoomDetails, isGirl, navigate, roomId, stopPeer, user?._id]);
+  }, [addPendingCandidates, createOffer, ensureLocalStream, ensurePeer, exitRoom, getRoomDetails, isGirl, navigate, openRatingPopup, roomId, stopPeer, user?._id]);
 
   useEffect(() => {
     if (remoteAudioRef.current) remoteAudioRef.current.muted = !isSpeakerOn;
@@ -271,10 +407,18 @@ export default function AudioRoom() {
             <p className="text-xs capitalize text-slate-400">{connectionState === 'waiting' && isGirl ? 'Waiting for a boy to join' : connectionState}</p>
           </div>
         </div>
-        <button type="button" onClick={handleExit} disabled={isLeaving} className="flex items-center gap-2 rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-500 hover:text-white disabled:opacity-50">
-          <TriangleAlert size={18} />
-          <span className="hidden sm:inline">{isLeaving ? 'Please wait...' : isGirl ? 'Destroy Room' : 'Leave Room'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {partner && (
+            <button
+              type="button"
+              aria-label={`Report ${partnerName}`}
+              onClick={() => setIsReportOpen(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-red-400/20 bg-red-500/10 text-red-300 transition hover:bg-red-500 hover:text-white"
+            >
+              <TriangleAlert size={18} />
+            </button>
+          )}
+        </div>
       </header>
 
       {error && <div className="mx-4 mt-3 rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-2 text-center text-sm text-red-200">{error}</div>}
@@ -331,6 +475,22 @@ export default function AudioRoom() {
           <span className="sr-only"><Headphones />Audio controls</span>
         </div>
       </footer>
+      <ReportPopup
+        isOpen={isReportOpen}
+        userName={partnerName}
+        onClose={() => setIsReportOpen(false)}
+        onSubmit={handleReportSubmit}
+        isSubmitting={isReportSubmitting}
+      />
+      <RatingPopup
+        isOpen={isRatingOpen}
+        userName={ratingTarget?.fullName || 'Guest'}
+        userImage={ratingTarget?.imageUrl || fallbackAvatar(ratingTarget?.fullName || 'Guest')}
+        canSkip={isBoy}
+        onSkip={handleRatingLater}
+        onSubmit={handleRatingSubmit}
+        isSubmitting={isRatingSubmitting}
+      />
     </div>
   );
 }

@@ -11,7 +11,7 @@ import ButtomNavbar from './components/ButtomNavbar'
 
 function App() {
   const { fetchUser, isAuthenticated, user, userRole } = useUserStore();
-  const {getOpenRooms, isEnterTheRoom } = useRoomStore();
+  const {getOpenRooms, isEnterTheRoom, startRoomSocketListeners, stopRoomSocketListeners } = useRoomStore();
   const [screenloder, setScreenloder] = useState(true);
   const location = useLocation();
 
@@ -35,10 +35,12 @@ function App() {
   useEffect(() => {
     if (isAuthenticated && user?._id && userRole) {
       connectSocket();
+      startRoomSocketListeners();
     } else {
+      stopRoomSocketListeners();
       disconnectSocket();
     }
-  }, [isAuthenticated, user?._id, userRole]);
+  }, [isAuthenticated, user?._id, userRole, startRoomSocketListeners, stopRoomSocketListeners]);
   
   if (screenloder) {
     return (
