@@ -8,10 +8,15 @@ const reportSchema = new Schema({
     },
     reportedUser: {
         type: Schema.Types.ObjectId,
-        refPath: "userModel",
+        refPath: "reportedUserModel",
         required: true
     },
     userModel: {
+        type: String,
+        enum: ["User", "Girls"],
+        required: true
+    },
+    reportedUserModel: {
         type: String,
         enum: ["User", "Girls"],
         required: true

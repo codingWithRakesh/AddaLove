@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useUserStore from '../store/userStore.js';
 import useRoomStore from '../store/roomStore.js';
-import { socket } from '../socket/socket.js';
 import { MessageCircleMore } from 'lucide-react';
 
-const roomTypes = ['message', 'voice', 'video'];
+const roomTypes = ['message', 'voice']; //video
 const languages = ['Bengali', 'Hindi', 'Gujarati', 'English', 'Kannada', 'Marathi', 'Tamil', 'Telugu', 'Urdu', 'Punjabi'];
 
 const getRoomPath = (type, roomId) => {
@@ -67,27 +66,12 @@ const popularTags = [
 const Home = () => {
   const navigate = useNavigate();
   const { userRole } = useUserStore();
-  const { isLoading, error, createRoom, joinRoom, getOpenRooms, rooms } = useRoomStore();
+  const { isLoading, error, createRoom, joinRoom, rooms } = useRoomStore();
   const [roomType, setRoomType] = useState('message');
   const [selectedLanguages, setSelectedLanguages] = useState([]);
 
   const isBoy = useMemo(() => userRole === 'boy', [userRole]);
   const isGirl = useMemo(() => userRole === 'girl', [userRole]);
-
-  useEffect(() => {
-    if (!isBoy) return undefined;
-    const refreshRooms = () => getOpenRooms().catch(() => { });
-    socket.on('room_opened', refreshRooms);
-    socket.on('room_available', refreshRooms);
-    socket.on('room_occupied', refreshRooms);
-    socket.on('room_closed', refreshRooms);
-    return () => {
-      socket.off('room_opened', refreshRooms);
-      socket.off('room_available', refreshRooms);
-      socket.off('room_occupied', refreshRooms);
-      socket.off('room_closed', refreshRooms);
-    };
-  }, [getOpenRooms, isBoy]);
 
   const handleLanguageChange = (language) => {
     setSelectedLanguages((currentLanguages) => {
@@ -116,6 +100,10 @@ const Home = () => {
 
   const handleJoinRoom = async (targetRoom) => {
     const idToJoin = typeof targetRoom === 'object' ? targetRoom.roomId : targetRoom;
+    if (typeof targetRoom === 'object' && targetRoom.status === 'occupied') {
+      alert('This room is currently occupied. Try again shortly.');
+      return;
+    }
     if (!idToJoin || idToJoin.trim() === '') {
       alert('Please enter a room ID.');
       return;
@@ -209,8 +197,8 @@ const Home = () => {
               {/* Hero Banner */}
               <div className="relative w-full rounded-2xl border mt-18 border-[#FF4D8D]/20 bg-linear-to-br from-[#2D1433] via-[#141021] to-[#0D111A] p-5 overflow-hidden shadow-lg">
                 {/* Decorative glows */}
-                <div className="absolute top-0 right-0 -mr-10 -mt-10 h-32 w-32 rounded-full bg-[#FF4D8D] opacity-20 blur-[40px]"></div>
-                <div className="absolute bottom-0 right-10 h-24 w-24 rounded-full bg-[#6C3BFF] opacity-20 blur-[40px]"></div>
+                <div className="absolute top-0 right-0 -mr-10 -mt-10 h-32 w-32 rounded-full bg-[#FF4D8D] opacity-20 blur-2xl"></div>
+                <div className="absolute bottom-0 right-10 h-24 w-24 rounded-full bg-[#6C3BFF] opacity-20 blur-2xl"></div>
 
                 <div className="relative z-10 w-2/3">
                   <h2 className="text-[26px] font-black leading-tight tracking-wide">
@@ -224,7 +212,7 @@ const Home = () => {
                   </button>
                 </div>
                 {/* 3D Mic Proxy Image/Icon */}
-                <div className="absolute right-[-10px] top-1/2 -translate-y-1/2 text-[90px] drop-shadow-[0_0_15px_rgba(255,77,141,0.4)] pointer-events-none select-none">
+                <div className="absolute -right-2.5 top-1/2 -translate-y-1/2 text-[90px] drop-shadow-[0_0_15px_rgba(255,77,141,0.4)] pointer-events-none select-none">
                   🎙️
                 </div>
               </div>
@@ -266,8 +254,11 @@ const Home = () => {
                 ) : rooms && rooms.length > 0 ? (
                   /* Exact Matching Room Card */
                   <div className="flex flex-col gap-4">
-                    {rooms.map((room) => (
-                      <div key={room._id} className="relative rounded-[20px] border border-[#232336] bg-[#12131D] p-4 shadow-sm">
+                    {rooms.map((room) => {
+                      const isOccupied = room.status === 'occupied' || Boolean(room.currentBoy);
+
+                      return (
+                      <div key={room.roomId || room._id} className={`relative rounded-[20px] border p-4 shadow-sm ${isOccupied ? 'border-yellow-400/25 bg-[#17151A]' : 'border-[#232336] bg-[#12131D]'}`}>
                         <div className="flex items-start justify-between">
                           {/* Avatar & Info */}
                           <div className="flex gap-3.5">
@@ -292,6 +283,9 @@ const Home = () => {
                               <div className="mt-[2px] flex items-center gap-1 text-[10px] font-bold tracking-wider text-[#FF4D8D] uppercase">
                                 {room.roomType === 'message' ? <MessageCircleMore className='h-4' /> : <Icons.Mic />} {room.roomType}
                               </div>
+                              <span className={`mt-1 w-fit rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${isOccupied ? 'border-yellow-400/25 bg-yellow-400/10 text-yellow-300' : 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300'}`}>
+                                {isOccupied ? 'Occupied' : 'Available'}
+                              </span>
 
                               {/* Audio Wave Visualizer & Listeners */}
                               <div className="flex flex-col items-center justify-center transition-transform hover:scale-105">
@@ -309,11 +303,12 @@ const Home = () => {
                           <div className="flex flex-col items-center justify-center gap-1.5 pt-1">
                             <button
                               onClick={() => handleJoinRoom(room)}
-                              className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-linear-to-br from-[#4dffa6] to-[#55e11d] shadow-[0_4px_14px_rgba(255,77,141,0.35)] transition-transform hover:scale-105 active:scale-95"
+                              disabled={isOccupied}
+                              className={`flex h-[42px] w-[42px] items-center justify-center rounded-full shadow-[0_4px_14px_rgba(255,77,141,0.35)] transition-transform active:scale-95 ${isOccupied ? 'cursor-not-allowed bg-slate-700 opacity-60' : 'bg-linear-to-br from-[#4dffa6] to-[#55e11d] hover:scale-105'}`}
                             >
                               <Icons.Phone />
                             </button>
-                            <span className="text-[11px] font-medium text-slate-200">Join</span>
+                            <span className="text-[11px] font-medium text-slate-200">{isOccupied ? 'Busy' : 'Join'}</span>
                           </div>
                         </div>
 
@@ -326,7 +321,7 @@ const Home = () => {
                           ))}
                         </div>
                       </div>
-                    ))}
+                    )})}
                   </div>
                 ) : (
                   <div className="rounded-2xl border border-dashed border-[#232336] bg-[#12131D] px-4 py-8 text-center text-[13px] text-slate-400">

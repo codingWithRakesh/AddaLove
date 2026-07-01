@@ -4,6 +4,10 @@ import { Headphones, LoaderCircle, LogOut, Mic, MicOff, PhoneOff, Radio, Trash2,
 import useUserStore from '../store/userStore.js';
 import useRoomStore from '../store/roomStore.js';
 import { connectSocket, socket } from '../socket/socket.js';
+import useReportStore from '../store/reportStore.js';
+import ReportPopup from '../components/ReportPopup.jsx';
+import { handleError, handleSuccess } from '../components/ErrorMessage.jsx';
+import useRatingStore from '../store/ratingStore.js';
 
 const peerConfiguration = {
   iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
@@ -24,6 +28,7 @@ export default function AudioRoom() {
   const [isLeaving, setIsLeaving] = useState(false);
   const [connectionState, setConnectionState] = useState('waiting');
   const [error, setError] = useState('');
+  const [isReportOpen, setIsReportOpen] = useState(false);
   const localStreamRef = useRef(null);
   const peerRef = useRef(null);
   const remoteAudioRef = useRef(null);
@@ -31,9 +36,12 @@ export default function AudioRoom() {
   const boyProfileRef = useRef(null);
   const [boyFollowers, setBoyFollowers] = useState(0)
   const [girlFollowers, setGirlFollowers] = useState(0)
+  const { createReport, isLoading: isReportSubmitting } = useReportStore()
+  const { createRating, checkRating, isLoading: isRatingSubmitting } = useRatingStore()
 
   const isGirl = userRole === 'girl';
   const partner = isGirl ? boyProfile : girlProfile;
+  const partnerName = partner?.fullName || 'Guest';
   const isBoyInside = isGirl ? Boolean(boyProfile) : true;
   const isBoy = useMemo(() => userRole === 'boy', [userRole]);
   useEffect(() => {
@@ -115,6 +123,24 @@ export default function AudioRoom() {
       setError(requestError.response?.data?.message || 'Could not leave the room. Please try again.');
     } finally {
       setIsLeaving(false);
+    }
+  };
+
+  const handleReportSubmit = async (reason) => {
+    if (!partner?._id) {
+      handleError('No user available to report');
+      return;
+    }
+
+    try {
+      await createReport({
+        reportedUserId: partner._id,
+        reason,
+      });
+      setIsReportOpen(false);
+      handleSuccess('Report sended');
+    } catch (reportError) {
+      handleError(reportError?.response?.data?.message || 'Could not send report');
     }
   };
 
@@ -271,10 +297,18 @@ export default function AudioRoom() {
             <p className="text-xs capitalize text-slate-400">{connectionState === 'waiting' && isGirl ? 'Waiting for a boy to join' : connectionState}</p>
           </div>
         </div>
-        <button type="button" onClick={handleExit} disabled={isLeaving} className="flex items-center gap-2 rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-500 hover:text-white disabled:opacity-50">
-          <TriangleAlert size={18} />
-          <span className="hidden sm:inline">{isLeaving ? 'Please wait...' : isGirl ? 'Destroy Room' : 'Leave Room'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {partner && (
+            <button
+              type="button"
+              aria-label={`Report ${partnerName}`}
+              onClick={() => setIsReportOpen(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-red-400/20 bg-red-500/10 text-red-300 transition hover:bg-red-500 hover:text-white"
+            >
+              <TriangleAlert size={18} />
+            </button>
+          )}
+        </div>
       </header>
 
       {error && <div className="mx-4 mt-3 rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-2 text-center text-sm text-red-200">{error}</div>}
@@ -331,6 +365,13 @@ export default function AudioRoom() {
           <span className="sr-only"><Headphones />Audio controls</span>
         </div>
       </footer>
+      <ReportPopup
+        isOpen={isReportOpen}
+        userName={partnerName}
+        onClose={() => setIsReportOpen(false)}
+        onSubmit={handleReportSubmit}
+        isSubmitting={isReportSubmitting}
+      />
     </div>
   );
 }
