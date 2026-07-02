@@ -11,6 +11,7 @@ import jwt from "jsonwebtoken"
 import { options } from "../constants.js";
 import sendemail from '../middlewares/sendotp.middleware.js';
 import Girls from '../models/girls.model.js';
+import mongoose from 'mongoose';
 const sendOtp = asyncHandler(async (req, res) => {
     const { email } = req.body;
     if (!email) {
@@ -216,14 +217,147 @@ const girlsLogin = asyncHandler(async (req, res) => {
 })
 
 const currentUser = asyncHandler(async (req, res) => {
-    if (req.user) {
-        return res.status(200).json(new ApiResponse(200, req.user, "Current user details retrieved successfully"))
-    } else if (req.girl) {
-        return res.status(200).json(new ApiResponse(200, req.girl, "Current user details retrieved successfully"))
-    } else {
-        throw new ApiError(401, "Unauthorized")
+
+    if (req.userType=='boy') {
+
+        const user = await User.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(req.user._id)
+                }
+            },
+            {
+                $lookup: {
+                    from: "followers",
+                    let: { userId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$following", "$$userId"]
+                                }
+                            }
+                        }
+                    ],
+                    as: "followers"
+                }
+            },
+            {
+                $lookup: {
+                    from: "followers",
+                    let: { userId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$follower", "$$userId"]
+                                }
+                            }
+                        }
+                    ],
+                    as: "following"
+                }
+            },
+            {
+                $addFields: {
+                    followersCount: {
+                        $size: "$followers"
+                    },
+                    followingCount: {
+                        $size: "$following"
+                    }
+                }
+            },
+            {
+                $project: {
+                    password: 0,
+                    followers: 0,
+                    following: 0
+                }
+            }
+        ]);
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                user[0],
+                "Current user details retrieved successfully"
+            )
+        );
     }
-})
+
+    if (req.userType=='girl') {
+
+         const user = await Girls.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(req.user._id)
+                }
+            },
+            {
+                $lookup: {
+                    from: "followers",
+                    let: { userId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$following", "$$userId"]
+                                }
+                            }
+                        }
+                    ],
+                    as: "followers"
+                }
+            },
+            {
+                $lookup: {
+                    from: "followers",
+                    let: { userId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$follower", "$$userId"]
+                                }
+                            }
+                        }
+                    ],
+                    as: "following"
+                }
+            },
+            {
+                $addFields: {
+                    followersCount: {
+                        $size: "$followers"
+                    },
+                    followingCount: {
+                        $size: "$following"
+                    }
+                }
+            },
+            {
+                $project: {
+                    password: 0,
+                    followers: 0,
+                    following: 0
+                }
+            }
+        ]);
+        console.log(user[0])
+        // console.log(req.girl)
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                user[0],
+                "Current user details retrieved successfully"
+            )
+        );
+    }
+
+    throw new ApiError(401, "Unauthorized");
+});
 
 const logOut = asyncHandler(async (req, res) => {
     const userId = req.user._id;

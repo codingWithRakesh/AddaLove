@@ -5,13 +5,24 @@ import Followers from '../models/followers.model.js';
 
 const followSomeone = asyncHandler(async(req, res) => {
     const { profileUserId } = req.body;
-
+    let userFollowMoelType;
+    let userFollowingMoelType;
+    if(req.user.userType=='Girl'){
+        userFollowMoelType='Girls';
+        userFollowingMoelType='User'
+    }
+    if(req.user.userType=='Boy'){
+        userFollowMoelType='User';
+        userFollowingMoelType='Girls'
+    }
     if (!profileUserId) {
         throw new ApiError(400, 'USer ID is required');
     }
     const newfollower = new Followers({
         follower: req.user._id,
+        followerModel:userFollowMoelType,
         following: profileUserId,
+        followingModel:userFollowingMoelType
     })
     await newfollower.save();
     return res.status(200).json(new ApiResponse(200, null, 'Following Done.'))
