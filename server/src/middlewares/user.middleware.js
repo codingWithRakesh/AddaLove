@@ -25,7 +25,7 @@ const verifyUser = asyncHandler(async (req, res, next) => {
         const girl = await Girls.findById(decoded.userId).select('-password').lean();
         if (!girl) {
             throw new ApiError(401, 'Girl not found');
-        }
+        }   
         req.user = girl;
         req.userType = 'girl';
     } else {

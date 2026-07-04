@@ -12,6 +12,7 @@ import { options } from "../constants.js";
 import sendemail from '../middlewares/sendotp.middleware.js';
 import Girls from '../models/girls.model.js';
 import mongoose from 'mongoose';
+import { userRateCalculate } from '../utils/calculateUserRateAVG.js';
 const sendOtp = asyncHandler(async (req, res) => {
     const { email } = req.body;
     if (!email) {
@@ -218,7 +219,7 @@ const girlsLogin = asyncHandler(async (req, res) => {
 
 const currentUser = asyncHandler(async (req, res) => {
 
-    if (req.userType=='boy') {
+    if (req.userType == 'boy') {
 
         const user = await User.aggregate([
             {
@@ -276,19 +277,20 @@ const currentUser = asyncHandler(async (req, res) => {
                 }
             }
         ]);
-
+        const userRateAVG = await userRateCalculate(req.user._id);
+        const userInfo=user[0];
         return res.status(200).json(
             new ApiResponse(
                 200,
-                user[0],
+                {userInfo,userRateAVG},
                 "Current user details retrieved successfully"
             )
         );
     }
 
-    if (req.userType=='girl') {
+    if (req.userType == 'girl') {
 
-         const user = await Girls.aggregate([
+        const user = await Girls.aggregate([
             {
                 $match: {
                     _id: new mongoose.Types.ObjectId(req.user._id)
@@ -344,13 +346,13 @@ const currentUser = asyncHandler(async (req, res) => {
                 }
             }
         ]);
-        console.log(user[0])
-        // console.log(req.girl)
 
+        const userRateAVG = await userRateCalculate(req.user._id);
+        const userInfo=user[0];
         return res.status(200).json(
             new ApiResponse(
                 200,
-                user[0],
+                {userInfo,userRateAVG},
                 "Current user details retrieved successfully"
             )
         );

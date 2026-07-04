@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useUserData } from '../context/UserdataContext';
 import { useNavigate } from 'react-router';
 import useUserStore from '../store/userStore';
@@ -7,7 +7,7 @@ import { handleError } from '../components/ErrorMessage';
 export default function Profile() {
   const { user: useralldata } = useUserStore();
   const naviget = useNavigate()
-  const { userRole } = useUserStore();
+  const { userRole, userRate } = useUserStore();
   // State for Modal and Form
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loder,setLoder]=useState(false)
@@ -19,6 +19,10 @@ export default function Profile() {
   });
   const isBoy = useMemo(() => userRole === 'boy', [userRole]);
   const isGirl = useMemo(() => userRole === 'girl', [userRole]);
+  useEffect(()=>{
+    console.log(useralldata)
+    console.log(userRate)
+  },[])
   // Open modal and pre-fill data (excluding email & wallet)
   const handleOpenModal = () => {
     if (useralldata) {

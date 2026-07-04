@@ -65,7 +65,7 @@ const popularTags = [
 
 const Home = () => {
   const navigate = useNavigate();
-  const { userRole } = useUserStore();
+  const { userRole  } = useUserStore();
   const { isLoading, error, createRoom, joinRoom, rooms } = useRoomStore();
   const [roomType, setRoomType] = useState('message');
   const [selectedLanguages, setSelectedLanguages] = useState([]);
