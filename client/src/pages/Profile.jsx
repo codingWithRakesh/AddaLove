@@ -1,36 +1,38 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useUserData } from '../context/UserdataContext';
 import { useNavigate } from 'react-router';
 import useUserStore from '../store/userStore';
-import { LogOut } from 'lucide-react';
+import { LogOut, Bell, ChevronLeft, CheckCircle2, Star, Trophy, Users, UserCheck, Wallet } from 'lucide-react';
 import { handleError } from '../components/ErrorMessage';
+
 export default function Profile() {
-  const { user: useralldata } = useUserStore();
-  const naviget = useNavigate()
-  const { userRole, userRate } = useUserStore();
+  const { user: useralldata, userRole, userRate } = useUserStore();
+  const naviget = useNavigate();
+
   // State for Modal and Form
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loder,setLoder]=useState(false)
+  const [loder, setLoder] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     age: '',
     userType: '',
     imageUrl: ''
   });
-  const isBoy = useMemo(() => userRole === 'boy', [userRole]);
-  const isGirl = useMemo(() => userRole === 'girl', [userRole]);
-  useEffect(()=>{
-    console.log(useralldata)
-    console.log(userRate)
-  },[])
-  // Open modal and pre-fill data (excluding email & wallet)
+
+  const isGirl = useMemo(() => userRole === 'girl' || useralldata?.userType?.toLowerCase() === 'girl', [userRole, useralldata]);
+
+  useEffect(() => {
+    console.log("User Data:", useralldata);
+    console.log("User Rate:", userRate);
+  }, [useralldata, userRate]);
+
+  // Open modal and pre-fill data
   const handleOpenModal = () => {
     if (useralldata) {
       setFormData({
-        fullName: useralldata.fullName,
-        age: useralldata.age,
-        userType: useralldata.userType,
-        imageUrl: useralldata.imageUrl
+        fullName: useralldata.fullName || '',
+        age: useralldata.age || '',
+        userType: useralldata.userType || '',
+        imageUrl: useralldata.imageUrl || ''
       });
       setIsModalOpen(true);
     }
@@ -41,287 +43,290 @@ export default function Profile() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  const hnadletopup = () => {
 
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'smooth', // Optional: creates a smooth animation instead of an instant jump
-    });
-    naviget('/wallet')
-  }
+  const hnadletopup = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    naviget('/wallet');
+  };
+
+  const handlewithdraw = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    naviget('/withdraw');
+  };
 
   // Handle Form Submission
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Updated Data:', formData);
-    // Add your API call or context update here
+    // Add API call or context update here
     setIsModalOpen(false);
   };
-  const handelLogout = async (e) => {
+
+  const handelLogout = async () => {
     try {
-      setLoder(true)
-      const url = `${import.meta.env.VITE_BACKEND_URL}/api/auth/v1/logout`
+      setLoder(true);
+      const url = `${import.meta.env.VITE_BACKEND_URL}/api/auth/v1/logout`;
       const res = await fetch(url, {
         method: 'GET',
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: 'include',
-
-      })
-      const data = res.json();
+      });
+      const data = await res.json();
       if (!data.success) {
-        handleError(data.message)
+        handleError(data.message);
       }
       window.location.reload();
     } catch (error) {
-      console.log(error)
-      handleError('Network issue!!')
+      console.log(error);
+      handleError('Network issue!!');
+    } finally {
+      setLoder(false);
     }
-    finally{
-      setLoder(false)
-    }
+  };
 
-  }
-  const handlewithdraw=()=>{
-    naviget('/withdraw')
-  }
-  // ---------------------------------------------------------
   // SKELETON LOADER
-  // ---------------------------------------------------------
   if (!useralldata) {
     return (
-      <div className="min-h-screen bg-[#0F172A] py-12 px-4 sm:px-6 flex justify-center items-center">
-        <div className="w-full max-w-4xl bg-[#1E293B] rounded-3xl shadow-2xl overflow-hidden animate-pulse border border-white/5">
-          <div className="h-48 bg-slate-700/50 w-full"></div>
-          <div className="px-6 md:px-10 pb-10">
-            <div className="relative flex flex-col md:flex-row md:justify-between md:items-end -mt-16 md:-mt-20 mb-8 gap-4">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-slate-600 border-4 border-[#1E293B]"></div>
-              <div className="w-32 h-10 rounded-full bg-slate-700"></div>
+      <div className="min-h-screen bg-[#090514] py-12 px-4 flex justify-center items-center">
+        <div className="w-full max-w-2xl bg-[#130E29] rounded-3xl p-8 animate-pulse border border-purple-900/20">
+          <div className="flex items-center gap-6 mb-8">
+            <div className="w-24 h-24 rounded-full bg-purple-950/50"></div>
+            <div className="space-y-3 flex-1">
+              <div className="h-6 bg-purple-950/50 rounded w-1/3"></div>
+              <div className="h-4 bg-purple-950/50 rounded w-1/4"></div>
             </div>
-            <div className="space-y-4 mb-10">
-              <div className="h-8 bg-slate-700 rounded-md w-1/3"></div>
-              <div className="h-5 bg-slate-700 rounded-md w-1/4"></div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-28 bg-slate-700/30 rounded-2xl border border-white/5"></div>
-              ))}
-            </div>
+          </div>
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-20 bg-purple-950/30 rounded-xl"></div>
+            ))}
           </div>
         </div>
       </div>
     );
   }
 
-  // ---------------------------------------------------------
-  // MAIN PROFILE UI
-  // ---------------------------------------------------------
   return (
-    <div className="min-h-screen bg-[#0F172A] py-12 px-4 sm:px-6 flex justify-center items-center text-white font-sans selection:bg-[#FF4D8D] selection:text-white">
+    <div className="min-h-screen bg-[#090514] text-white font-sans selection:bg-[#EC4899] selection:text-white pb-24">
+      
+      {/* Top Navigation Bar Header from IMG-20260626-WA0012.jpg */}
+      
 
-      {/* Main Glassmorphism Card */}
-      <div className="w-full max-w-4xl bg-[#1E293B]/90 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden border border-white/10 transition-all duration-500 hover:shadow-[#6C3BFF]/10 hover:border-white/20">
-
-        {/* Gradient Banner */}
-        <div className="h-48 w-full bg-linear-to-r from-[#6C3BFF] via-[#FF4D8D] to-[#4DA6FF] relative overflow-hidden">
-          <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px]"></div>
-          <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-white/20 rounded-full blur-2xl"></div>
-          <div className="absolute -top-12 -left-12 w-48 h-48 bg-white/20 rounded-full blur-2xl"></div>
-        </div>
-
-        <div className="px-6 md:px-10 pb-10">
-
-          {/* Avatar and Action Section */}
-          <div className="relative flex flex-col md:flex-row md:justify-between md:items-end -mt-16 md:-mt-20 mb-8">
-            <div className="relative inline-block group">
-              <div className="absolute inset-0 rounded-full bg-linear-to-tr from-[#6C3BFF] to-[#FF4D8D] blur-md opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <img
-                src={useralldata.imageUrl}
-                alt={useralldata.fullName}
-                className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-[#1E293B] bg-[#1E293B] relative z-10 transition-transform duration-300 group-hover:scale-[1.02]"
-              />
+      {/* Main Container Dashboard */}
+      <main className="max-w-md mx-auto px-4 mt-18  min-h-screen bg-[#090514] text-white font-sans selection:bg-[#EC4899] selection:text-white pb-24">
+        
+        {/* Profile Identity Card Context */}
+        <section className="relative flex items-start justify-between bg-[#130E29]/60 border border-purple-900/30 p-5 rounded-3xl backdrop-blur-xl mb-6 shadow-xl">
+          <div className="flex items-start gap-4">
+            {/* Crown Avatar Badge Container */}
+            <div className="relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-lg drop-shadow-[0_2px_5px_rgba(236,72,153,0.5)] z-20">👑</div>
+              <div className="relative p-1 rounded-full bg-linear-to-tr from-[#8B5CF6] via-[#EC4899] to-[#F472B6] shadow-[0_0_20px_rgba(236,72,153,0.25)]">
+                <img
+                  src={useralldata.imageUrl}
+                  alt={useralldata.fullName}
+                  className="w-20 h-20 rounded-full object-cover border-2 border-[#130E29] bg-[#1A1235]"
+                />
+              </div>
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-linear-to-r from-[#EC4899] to-[#8B5CF6] text-[9px] font-black tracking-wider uppercase whitespace-nowrap shadow-md shadow-pink-500/20 border border-white/10">
+                {isGirl ? 'Top Girl' : 'Top Boy'}
+              </div>
             </div>
 
-            <div className="mt-6 md:mt-0">
-              <button
-                onClick={handleOpenModal}
-                className="px-6 py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 font-semibold tracking-wide transition-all duration-300 hover:bg-white/10 hover:border-white/20 hover:text-[#FF4D8D] hover:shadow-lg active:scale-95"
-              >
-                Edit Profile
-              </button>
+            {/* Profile Info Text Blocks */}
+            <div className="space-y-1.5 mt-2">
+              <div className="flex items-center gap-1.5">
+                <h1 className="text-xl font-bold tracking-tight text-white drop-shadow-sm">{useralldata.fullName}</h1>
+                <CheckCircle2 className="w-4 h-4 text-blue-400 fill-blue-400" />
+              </div>
+              
+              <div className="inline-block bg-purple-950/40 border border-purple-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-semibold text-pink-300">
+                ⭐ Stylish Star
+              </div>
+              
+              <p className="text-xs text-slate-400 italic max-w-[200px] leading-relaxed py-0.5">
+                "Be kind, be real, be you! 💜"
+              </p>
+
+              {/* Badges Info Chips Grid Row */}
+              <div className="flex flex-wrap gap-1.5 pt-1 text-[10px] font-medium text-slate-300">
+                <span className="bg-[#1C143A] px-2 py-0.5 rounded-md border border-purple-500/10 flex items-center gap-1">
+                  👤 {useralldata.age || 20} Years
+                </span>
+                <span className="bg-[#1C143A] px-2 py-0.5 rounded-md border border-purple-500/10 flex items-center gap-1">
+                  📍 India
+                </span>
+                <span className={`px-2 py-0.5 rounded-md border flex items-center gap-1 ${isGirl ? 'bg-pink-950/30 border-pink-500/20 text-pink-400' : 'bg-blue-950/30 border-blue-500/20 text-blue-400'}`}>
+                  {isGirl ? '♀️ Girl' : '♂️ Boy'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Call for Editing */}
+          <button
+            onClick={handleOpenModal}
+            className="shrink-0 px-4 py-1.5 text-xs font-bold rounded-full bg-linear-to-r from-[#8B5CF6] to-[#EC4899] hover:opacity-90 shadow-lg shadow-purple-500/20 active:scale-95 transition-transform"
+          >
+            Edit Profile
+          </button>
+        </section>
+
+        {/* Dashboard Analytics Statistics Grid Layout */}
+        <section className="grid grid-cols-4 gap-2.5 mb-6">
+          <div className="bg-[#130E29]/60 border border-pink-500/40 rounded-2xl p-3 text-center flex flex-col justify-center items-center shadow-lg shadow-pink-500/5">
+            <Users className="w-4 h-4 text-pink-500 mb-1" />
+            <span className="text-sm font-black text-pink-400">{useralldata.followersCount || 0}</span>
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Followers</span>
+          </div>
+
+          <div className="bg-[#130E29]/60 border border-purple-900/30 rounded-2xl p-3 text-center flex flex-col justify-center items-center">
+            <UserCheck className="w-4 h-4 text-purple-400 mb-1" />
+            <span className="text-sm font-black text-slate-200">{useralldata.followingCount || 0}</span>
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Following</span>
+          </div>
+
+          <div className="bg-[#130E29]/60 border border-purple-900/30 rounded-2xl p-3 text-center flex flex-col justify-center items-center">
+            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 mb-1" />
+            <span className="text-sm font-black text-slate-200">{userRate || '4.8'}</span>
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Avg. Rating</span>
+          </div>
+
+          <div className="bg-[#130E29]/60 border border-purple-900/30 rounded-2xl p-3 text-center flex flex-col justify-center items-center">
+            <Trophy className="w-4 h-4 text-orange-400 mb-1" />
+            <span className="text-sm font-black text-slate-200">Rank 3</span>
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Leaderboard</span>
+          </div>
+        </section>
+
+        {/* Financial Action Wallet Section Card */}
+        <section className="bg-[#130E29]/60 border border-purple-900/30 rounded-2xl p-5 mb-4 shadow-xl flex items-center justify-between relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl"></div>
+          <div className="flex items-center gap-3.5 relative z-10">
+            <div className={`p-3 rounded-xl ${isGirl ? 'bg-pink-500/10 text-pink-400 border border-pink-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}`}>
+              <Wallet className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 tracking-wide">
+                {isGirl ? 'Your earning' : 'Wallet Balance'}
+              </p>
+              <h3 className="text-2xl font-black text-white mt-0.5 tracking-tight">
+                {useralldata.walletBlance?.toLocaleString() || 0} <span className="text-xs text-yellow-500 font-bold">Coins</span>
+              </h3>
             </div>
           </div>
 
-          {/* Header Info */}
-          <div className="mb-10">
-            <h1 className="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-linear-to-r from-white to-slate-300 mb-3 drop-shadow-sm">
-              {useralldata.fullName}
-            </h1>
-            <div className="flex flex-wrap items-center gap-3 text-slate-400 font-medium">
-              <span className={`px-3 py-1 rounded-full bg-[#6C3BFF]/10 border border-[#6C3BFF]/30 text-sm backdrop-blur-md flex items-center gap-2 ${isGirl?'text-[#ff4dc1]':'text-[#4DA6FF]'}`}>
-                <span className={`w-2 h-2 rounded-full ${isGirl?'bg-[#fa2afa]':'bg-[#4DA6FF]'}  animate-pulse shadow-[0_0_8px_#4DA6FF]`}></span>
-                {useralldata.userType}
-              </span>
-              <span>•</span>
-              <span className="text-sm">
-                Member since {new Date(useralldata.createdAt).getFullYear()}
-              </span>
-            </div>
-          </div>
+          <button
+            onClick={isGirl ? handlewithdraw : hnadletopup}
+            className={`px-5 py-2 rounded-full text-xs font-black uppercase tracking-wider text-white shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+              isGirl 
+                ? 'bg-linear-to-r from-pink-500 to-rose-600 shadow-pink-500/20' 
+                : 'bg-linear-to-r from-blue-500 to-[#8B5CF6] shadow-blue-500/20'
+            }`}
+          >
+            {isGirl ? 'Withdraw' : 'Top Up'}
+          </button>
+        </section>
 
-          {/* Info Grid using Glassmorphism */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Global Action Management Controls Area */}
+        <section className="space-y-3 mt-6">
+          <button
+            onClick={handelLogout}
+            disabled={loder}
+            className="w-full flex items-center justify-center gap-2.5 p-4 rounded-2xl bg-red-950/20 border border-red-900/30 hover:bg-red-950/40 text-red-400 font-bold text-sm tracking-wide transition-all active:scale-[0.99] disabled:opacity-50"
+          >
+            {loder ? (
+              <svg className="animate-spin h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            ) : (
+              <>
+                <LogOut className="w-4 h-4" />
+                <span>Logout Account</span>
+              </>
+            )}
+          </button>
+        </section>
 
-            <InfoCard
-              icon={<MailIcon />}
-              label="Email Address"
-              value={useralldata.email}
-              gradient="from-[#6C3BFF] to-purple-400"
-            />
+      </main>
 
-            <InfoCard
-              icon={<UserIcon />}
-              label="Age"
-              value={`${useralldata.age} Years`}
-              gradient="from-[#FF4D8D] to-pink-400"
-            />
-
-            {/* Wallet Card with Top Up Button */}
-            <InfoCard
-              icon={<CoinIcon className='w-6 h-6 text-yellow-400' />}
-              label={` ${isGirl?'Your earning':"Wallet Balance"}`}
-              value={`${useralldata.walletBlance.toLocaleString()}`}
-              gradient="from-[#4DA6FF] to-blue-400"
-              isHighlight={true}
-              action={
-                <button
-                  onClick={isGirl?handlewithdraw:hnadletopup}
-                  className={`mt-3  px-5 py-1.5 rounded-full bg-linear-to-r from-[#4DA6FF] to-[#6C3BFF] text-white text-sm font-bold shadow-lg shadow-[#4DA6FF]/30 hover:shadow-[#4DA6FF]/50 transition-all hover:-translate-y-0.5 active:translate-y-0`}
-                >
-                  {isGirl?'Withdreaw':'Top Up'}
-                </button>
-              }
-            />
-
-            <InfoCard
-              icon={<CalendarIcon />}
-              label="Last Updated"
-              value={new Date(useralldata.updatedAt).toLocaleDateString('en-US', {
-                month: 'short', day: 'numeric', year: 'numeric'
-              })}
-              gradient="from-slate-400 to-slate-200"
-            />
-            <div onClick={handelLogout} className="group relative p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:border-white/20 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-[2]"></div>
-
-              {loder ? <div className='flex justify-center'>
-                <svg className="animate-spin h-10 w-10 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </div> : <div className="flex items-start gap-5 relative z-10 w-full">
-                <div className={`p-4 rounded-xl bg-linear-to-br from-[#ffffff] to-[] bg-opacity-20 shadow-inner group-hover:scale-110 transition-transform duration-300 shrink-0`}>
-                  <LogOut className='text-red-600' />
-                </div>
-
-                <div className="w-full overflow-hidden">
-
-                  {/* Action Area (e.g. Top Up Button) */}
-                  <div
-
-                    className="mt-2 text-xl font-bold text-red-400"
-                  >
-                    Logout
-                  </div>
-
-                </div>
-              </div>}
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {/* Edit Profile Glassmorphism Modal Context */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity">
-          <div className="w-full max-w-md bg-[#1E293B]/95 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden transform transition-all">
-
-            {/* Modal Header */}
-            <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center bg-linear-to-r from-white/5 to-transparent">
-              <h2 className="text-xl font-bold text-white">Edit Profile</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity">
+          <div className="w-full max-w-md bg-[#130E29] border border-purple-500/20 rounded-3xl shadow-2xl overflow-hidden transform transition-all">
+            
+            <div className="px-6 py-4 border-b border-purple-900/30 flex justify-between items-center bg-purple-950/20">
+              <h2 className="text-base font-bold text-white tracking-wide">Edit Profile Settings</h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/10"
+                className="text-slate-400 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/5"
               >
-                <CloseIcon />
+                ✕
               </button>
             </div>
 
-            {/* Modal Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
-
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1.5">Full Name</label>
+                <label className="block text-xs font-semibold text-slate-400 mb-1.5 tracking-wider uppercase">Full Name</label>
                 <input
                   type="text"
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#6C3BFF] focus:ring-1 focus:ring-[#6C3BFF] transition-all"
+                  className="w-full bg-[#090514] border border-purple-900/40 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all font-medium"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1.5">Age</label>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 tracking-wider uppercase">Age</label>
                   <input
                     type="number"
                     name="age"
                     value={formData.age}
                     onChange={handleInputChange}
-                    className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#FF4D8D] focus:ring-1 focus:ring-[#FF4D8D] transition-all"
+                    className="w-full bg-[#090514] border border-purple-900/40 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500/30 transition-all font-medium"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-400 mb-1.5">User Type</label>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 tracking-wider uppercase">User Type</label>
                   <input
                     type="text"
                     name="userType"
                     value={formData.userType}
                     onChange={handleInputChange}
-                    className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#4DA6FF] focus:ring-1 focus:ring-[#4DA6FF] transition-all"
+                    className="w-full bg-[#090514] border border-purple-900/40 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 transition-all font-medium"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1.5">Profile Image URL</label>
+                <label className="block text-xs font-semibold text-slate-400 mb-1.5 tracking-wider uppercase">Profile Image URL</label>
                 <input
                   type="url"
                   name="imageUrl"
                   value={formData.imageUrl}
                   onChange={handleInputChange}
-                  className="w-full bg-[#0F172A] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#6C3BFF] focus:ring-1 focus:ring-[#6C3BFF] transition-all text-sm"
+                  className="w-full bg-[#090514] border border-purple-900/40 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 transition-all font-mono"
                   required
                 />
               </div>
 
-              {/* Action Buttons */}
               <div className="pt-4 flex gap-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-white/10 text-slate-300 font-medium hover:bg-white/5 hover:text-white transition-all"
+                  className="flex-1 py-2.5 rounded-xl border border-purple-900/40 text-xs font-bold text-slate-300 hover:bg-white/5 hover:text-white transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] text-white font-bold shadow-lg shadow-[#6C3BFF]/25 hover:shadow-[#6C3BFF]/40 transition-all hover:-translate-y-0.5"
+                  className="flex-1 py-2.5 rounded-xl bg-linear-to-r from-[#8B5CF6] to-[#EC4899] text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-purple-500/20 hover:opacity-90 transition-all"
                 >
                   Save Changes
                 </button>
@@ -332,79 +337,4 @@ export default function Profile() {
       )}
     </div>
   );
-}
-
-// ---------------------------------------------------------
-// REUSABLE GLASSMORPHISM CARD COMPONENT
-// ---------------------------------------------------------
-function InfoCard({ icon, label, value, gradient, isHighlight, action }) {
-  return (
-    <div className="group relative p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 transition-all duration-300 hover:-translate-y-1 hover:bg-white/10 hover:border-white/20 hover:shadow-xl hover:shadow-black/40 overflow-hidden flex flex-col justify-between">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-[2]"></div>
-
-      <div className="flex items-start gap-5 relative z-10 w-full">
-        <div className={`p-4 rounded-xl bg-linear-to-br ${gradient} bg-opacity-20 shadow-inner group-hover:scale-110 transition-transform duration-300 shrink-0`}>
-          {icon}
-        </div>
-
-        <div className="w-full overflow-hidden">
-          <p className="text-sm text-slate-400 font-medium mb-1">{label}</p>
-          <p className={`text-lg font-bold truncate ${isHighlight
-            ? 'text-transparent bg-clip-text bg-linear-to-r from-[#4DA6FF] to-white drop-shadow-sm'
-            : 'text-slate-100'
-            }`}>
-            {value}
-          </p>
-          {/* Action Area (e.g. Top Up Button) */}
-          {action && (
-            <div className="mt-1">
-              {action}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------
-// SVG ICONS
-// ---------------------------------------------------------
-const MailIcon = () => (
-  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-  </svg>
-);
-
-const UserIcon = () => (
-  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-  </svg>
-);
-
-const WalletIcon = () => (
-  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-  </svg>
-);
-
-const CalendarIcon = () => (
-  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-  </svg>
-);
-
-const CloseIcon = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-  </svg>
-);
-function CoinIcon({ className }) {
-    return (
-        <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-            <circle cx="12" cy="12" r="10" fill="#facc15" />
-            <circle cx="12" cy="12" r="8" fill="#eab308" />
-            <path d="M12 6V18M9 9H15M9 15H15" stroke="#ca8a04" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-    );
 }
