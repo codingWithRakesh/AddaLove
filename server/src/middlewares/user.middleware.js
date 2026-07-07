@@ -12,7 +12,7 @@ const verifyUser = asyncHandler(async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SERECT);
-    console.log(decoded)
+    // console.log(decoded)
 
     if (decoded.userType.toLowerCase() === 'boy') {
         const user = await User.findById(decoded.userId).select('-password').lean();
