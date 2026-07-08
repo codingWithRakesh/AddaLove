@@ -18,11 +18,13 @@ export default function Profile() {
     imageUrl: ''
   });
 
-  const isGirl = useMemo(() => userRole === 'girl' || useralldata?.userType?.toLowerCase() === 'girl', [userRole, useralldata]);
+  const isBoy = useMemo(() => userRole === 'boy', [userRole]);
+  const isGirl = useMemo(() => userRole === 'girl', [userRole]);
 
   useEffect(() => {
     console.log("User Data:", useralldata);
     console.log("User Rate:", userRate);
+    console.log(isBoy, '....... girl--->>', isGirl)
   }, [useralldata, userRate]);
 
   // Open modal and pre-fill data
@@ -44,12 +46,14 @@ export default function Profile() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const hnadletopup = () => {
+  const handelTopUp = () => {
+    console.log("hello")
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     naviget('/wallet');
   };
 
   const handlewithdraw = () => {
+    console.log("hello")
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     naviget('/withdraw');
   };
@@ -108,13 +112,13 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-[#090514] text-white font-sans selection:bg-[#EC4899] selection:text-white pb-24">
-      
+
       {/* Top Navigation Bar Header from IMG-20260626-WA0012.jpg */}
-      
+
 
       {/* Main Container Dashboard */}
       <main className="max-w-md mx-auto px-4 mt-18  min-h-screen bg-[#090514] text-white font-sans selection:bg-[#EC4899] selection:text-white pb-24">
-        
+
         {/* Profile Identity Card Context */}
         <section className="relative flex items-start justify-between bg-[#130E29]/60 border border-purple-900/30 p-5 rounded-3xl backdrop-blur-xl mb-6 shadow-xl">
           <div className="flex items-start gap-4">
@@ -139,12 +143,12 @@ export default function Profile() {
                 <h1 className="text-xl font-bold tracking-tight text-white drop-shadow-sm">{useralldata.fullName}</h1>
                 <CheckCircle2 className="w-4 h-4 text-blue-400 fill-blue-400" />
               </div>
-              
+
               <div className="inline-block bg-purple-950/40 border border-purple-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-semibold text-pink-300">
                 ⭐ Stylish Star
               </div>
-              
-              <p className="text-xs text-slate-400 italic max-w-[200px] leading-relaxed py-0.5">
+
+              <p className="text-xs text-slate-400 italic max-w-50 leading-relaxed py-0.5">
                 "Be kind, be real, be you! 💜"
               </p>
 
@@ -201,7 +205,7 @@ export default function Profile() {
 
         {/* Financial Action Wallet Section Card */}
         <section className="bg-[#130E29]/60 border border-purple-900/30 rounded-2xl p-5 mb-4 shadow-xl flex items-center justify-between relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl"></div>
+          {/* <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl"></div> */}
           <div className="flex items-center gap-3.5 relative z-10">
             <div className={`p-3 rounded-xl ${isGirl ? 'bg-pink-500/10 text-pink-400 border border-pink-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}`}>
               <Wallet className="w-6 h-6" />
@@ -217,12 +221,12 @@ export default function Profile() {
           </div>
 
           <button
-            onClick={isGirl ? handlewithdraw : hnadletopup}
-            className={`px-5 py-2 rounded-full text-xs font-black uppercase tracking-wider text-white shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer ${
-              isGirl 
-                ? 'bg-linear-to-r from-pink-500 to-rose-600 shadow-pink-500/20' 
-                : 'bg-linear-to-r from-blue-500 to-[#8B5CF6] shadow-blue-500/20'
-            }`}
+            onClick={isBoy?handelTopUp:handlewithdraw}
+           
+            className={`px-5 py-2 rounded-full text-xs font-black uppercase tracking-wider text-white shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer ${isGirl
+              ? 'bg-linear-to-r from-pink-500 to-rose-600 shadow-pink-500/20'
+              : 'bg-linear-to-r from-blue-500 to-[#8B5CF6] shadow-blue-500/20'
+              }`}
           >
             {isGirl ? 'Withdraw' : 'Top Up'}
           </button>
@@ -255,7 +259,7 @@ export default function Profile() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity">
           <div className="w-full max-w-md bg-[#130E29] border border-purple-500/20 rounded-3xl shadow-2xl overflow-hidden transform transition-all">
-            
+
             <div className="px-6 py-4 border-b border-purple-900/30 flex justify-between items-center bg-purple-950/20">
               <h2 className="text-base font-bold text-white tracking-wide">Edit Profile Settings</h2>
               <button

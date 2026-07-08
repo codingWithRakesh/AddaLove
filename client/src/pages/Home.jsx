@@ -204,8 +204,8 @@ const Home = () => {
 
         {/* GIRL UI */}
         {isGirl && (
-          <div className="flex-1 overflow-y-auto px-4 pt-24 pb-28 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <div className="girl-create-ui rounded-[24px] border border-white/10 bg-[#090915] px-4 py-5 shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
+          <div className="flex-1 overflow-y-auto px-4 pt-24 pb-28 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none">
+            <div className="girl-create-ui rounded-3xl border border-white/10 bg-[#090915] px-4 py-5 shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
               <div className="relative overflow-hidden rounded-[18px] border border-[#FF4D8D]/15 bg-[#0F0D1C] px-4 py-5">
                 <div className="absolute right-3 top-2 h-24 w-24 rounded-full bg-[#FF4D8D]/20 blur-2xl"></div>
                 <div className="absolute right-16 bottom-0 h-20 w-20 rounded-full bg-[#6C3BFF]/20 blur-2xl"></div>
@@ -232,7 +232,7 @@ const Home = () => {
                       type="button"
                       onClick={() => !option.disabled && setRoomType(option.type)}
                       disabled={option.disabled}
-                      className={`relative flex min-h-[86px] flex-col items-center justify-center rounded-[18px] border px-2 py-3 text-center transition-all ${isSelected ? 'border-[#FF4D8D] bg-[#FF4D8D]/20 text-white shadow-[0_0_20px_rgba(255,77,141,0.36)]' : 'border-white/10 bg-[#11111F] text-slate-300 hover:border-white/20'} ${option.disabled ? 'cursor-not-allowed opacity-55' : ''}`}
+                      className={`relative flex min-h-21.5 flex-col items-center justify-center rounded-[18px] border px-2 py-3 text-center transition-all ${isSelected ? 'border-[#FF4D8D] bg-[#FF4D8D]/20 text-white shadow-[0_0_20px_rgba(255,77,141,0.36)]' : 'border-white/10 bg-[#11111F] text-slate-300 hover:border-white/20'} ${option.disabled ? 'cursor-not-allowed opacity-55' : ''}`}
                     >
                       <span className={isSelected ? 'text-[#FF4D8D]' : 'text-[#8D88B8]'}>{option.icon}</span>
                       <span className="mt-2 text-[14px] font-black">{option.title}</span>
@@ -246,12 +246,12 @@ const Home = () => {
                 <h2 className="flex items-center gap-2 text-[17px] font-black text-white">
                   Pick a Vibe <span className="text-[#FF4D8D]"><Icons.Heart /></span>
                 </h2>
-                <div className="mt-3 flex gap-3 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <div className="mt-3 flex gap-3 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none">
                   {girlVibes.map((vibe, index) => (
                     <button
                       key={vibe.title}
                       type="button"
-                      className={`relative min-w-[118px] rounded-[18px] border px-3 py-4 text-left transition-colors ${index === 0 ? 'border-[#FF4D8D] bg-[#311029] shadow-[0_0_18px_rgba(255,77,141,0.32)]' : 'border-white/10 bg-[#11111F] hover:border-white/20'}`}
+                      className={`relative min-w-29.5 rounded-[18px] border px-3 py-4 text-left transition-colors ${index === 0 ? 'border-[#FF4D8D] bg-[#311029] shadow-[0_0_18px_rgba(255,77,141,0.32)]' : 'border-white/10 bg-[#11111F] hover:border-white/20'}`}
                     >
                       {index === 0 && (
                         <span className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#FF4D8D] text-white shadow-[0_0_14px_rgba(255,77,141,0.6)]">
@@ -312,21 +312,21 @@ const Home = () => {
                   <span className="text-[17px] font-black text-white">Optional Settings</span>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-3">
-                  <button type="button" className="flex min-h-[74px] items-center gap-3 rounded-[16px] border border-white/10 bg-[#11111F] px-3 text-left">
+                  <button type="button" className="flex min-h-18.5 items-center gap-3 rounded-3xl border border-white/10 bg-[#11111F] px-3 text-left">
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FF4D8D]/18 text-[#FF4D8D]"><Icons.Lock /></span>
                     <span className="min-w-0">
                       <span className="block text-[12px] font-black text-[#FF4D8D]">Room Privacy</span>
                       <span className="mt-1 flex items-center gap-1 text-[12px] font-bold text-white">Anyone can join <Icons.ChevronDown /></span>
                     </span>
                   </button>
-                  <button type="button" className="flex min-h-[74px] items-center gap-3 rounded-[16px] border border-white/10 bg-[#11111F] px-3 text-left">
+                  <button type="button" className="flex min-h-18.5 items-center gap-3 rounded-3xl border border-white/10 bg-[#11111F] px-3 text-left">
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#7C3AED]/20 text-[#A855F7]"><Icons.UsersGroup /></span>
                     <span className="min-w-0">
                       <span className="block text-[12px] font-black text-[#FF4D8D]">Age Preference</span>
                       <span className="mt-1 flex items-center gap-1 text-[12px] font-bold text-white">18 - 25 <Icons.ChevronDown /></span>
                     </span>
                   </button>
-                  <div className="flex min-h-[74px] items-center justify-between gap-3 rounded-[16px] border border-white/10 bg-[#11111F] px-3">
+                  <div className="flex min-h-18.5 items-center justify-between gap-3 rounded-3xl border border-white/10 bg-[#11111F] px-3">
                     <div className="flex items-center gap-3">
                       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FF4D8D]/18 text-[#FF4D8D]"><Icons.Gift /></span>
                       <span className="text-[12px] font-black text-[#FF4D8D]">Allow Gifts</span>
@@ -399,9 +399,9 @@ const Home = () => {
               </div>
 
               {/* Top Categories Scroll */}
-              <div className="flex gap-3 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <div className="flex gap-3 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none">
                 {topCategories.map((c) => (
-                  <div key={c.id} className="min-w-[135px] flex-shrink-0 cursor-pointer flex-col rounded-2xl border border-[#232336] bg-[#12131D] p-3 transition-colors hover:bg-[#1A1C29]">
+                  <div key={c.id} className="min-w-33.75 shrink-0 cursor-pointer flex-col rounded-2xl border border-[#232336] bg-[#12131D] p-3 transition-colors hover:bg-[#1A1C29]">
                     <div className={`mb-2 flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 ${c.color}`}>
                       {c.icon}
                     </div>
@@ -429,7 +429,7 @@ const Home = () => {
                   /* Loading Skeletons */
                   <div className="flex flex-col gap-3">
                     {[1, 2].map((n) => (
-                      <div key={n} className="flex h-[110px] w-full animate-pulse flex-col rounded-2xl border border-[#232336] bg-[#12131D] p-4"></div>
+                      <div key={n} className="flex h-27.5 w-full animate-pulse flex-col rounded-2xl border border-[#232336] bg-[#12131D] p-4"></div>
                     ))}
                   </div>
                 ) : rooms && rooms.length > 0 ? (
@@ -447,12 +447,12 @@ const Home = () => {
                               <img
                                 src={room.createdBy?.imageUrl}
                                 alt={room.createdBy?.fullName}
-                                className="h-[52px] w-[52px] rounded-full object-cover border border-[#2A2B3D]"
+                                className="h-13 w-13 rounded-full object-cover border border-[#2A2B3D]"
                                 onError={(e) => {
                                   e.target.src = `https://ui-avatars.com/api/?name=${room.createdBy?.fullName || 'U'}&background=FF4D8D&color=fff`;
                                 }}
                               />
-                              <span className="absolute bottom-9 right-0 h-3 w-3 rounded-full border-[2px] border-[#12131D] bg-[#22C55E]"></span>
+                              <span className="absolute bottom-9 right-0 h-3 w-3 rounded-full border-2 border-[#12131D] bg-[#22C55E]"></span>
                             </div>
 
                             <div className="flex flex-col">
@@ -461,7 +461,7 @@ const Home = () => {
                                 <Icons.Verified />
                                 <span className="text-[11px] font-medium text-slate-400">{room.createdBy?.age} yrs</span>
                               </div>
-                              <div className="mt-[2px] flex items-center gap-1 text-[10px] font-bold tracking-wider text-[#FF4D8D] uppercase">
+                              <div className="mt-0.5 flex items-center gap-1 text-[10px] font-bold tracking-wider text-[#FF4D8D] uppercase">
                                 {room.roomType === 'message' ? <MessageCircleMore className='h-4' /> : <Icons.Mic />} {room.roomType}
                               </div>
                               <span className={`mt-1 w-fit rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${isOccupied ? 'border-yellow-400/25 bg-yellow-400/10 text-yellow-300' : 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300'}`}>
@@ -470,7 +470,7 @@ const Home = () => {
 
                               {/* Audio Wave Visualizer & Listeners */}
                               <div className="flex flex-col items-center justify-center transition-transform hover:scale-105">
-                                <div className="bg-gradient-to-b from-white to-[#FF4D8D] bg-clip-text text-2xl font-black text-transparent drop-shadow-[0_0_15px_rgba(255,77,141,0.8)]">
+                                <div className="bg-linear-to-b from-white to-[#FF4D8D] bg-clip-text text-2xl font-black text-transparent drop-shadow-[0_0_15px_rgba(255,77,141,0.8)]">
                                   {room.totalFollowers || 0}
                                 </div>
                                 <div className="text-xs font-semibold tracking-widest text-[#FF4D8D] drop-shadow-[0_0_8px_rgba(255,77,141,0.6)]">
@@ -485,7 +485,7 @@ const Home = () => {
                             <button
                               onClick={() => handleJoinRoom(room)}
                               disabled={isOccupied}
-                              className={`flex h-[42px] w-[42px] items-center justify-center rounded-full shadow-[0_4px_14px_rgba(255,77,141,0.35)] transition-transform active:scale-95 ${isOccupied ? 'cursor-not-allowed bg-slate-700 opacity-60' : 'bg-linear-to-br from-[#4dffa6] to-[#55e11d] hover:scale-105'}`}
+                              className={`flex h-10.5 w-10.5 items-center justify-center rounded-full shadow-[0_4px_14px_rgba(255,77,141,0.35)] transition-transform active:scale-95 ${isOccupied ? 'cursor-not-allowed bg-slate-700 opacity-60' : 'bg-linear-to-br from-[#4dffa6] to-[#55e11d] hover:scale-105'}`}
                             >
                               <Icons.Phone />
                             </button>
@@ -512,8 +512,8 @@ const Home = () => {
               </div>
 
               {/* Only Girls Banner */}
-              <div className="relative rounded-[16px] bg-linear-to-r from-[#FF4D8D]/40 to-transparent p-[1px] overflow-hidden">
-                <div className="flex items-center gap-3 rounded-[16px] bg-[#120B15] px-4 py-3.5 relative z-10">
+              <div className="relative rounded-3xl bg-linear-to-r from-[#FF4D8D]/40 to-transparent p-px overflow-hidden">
+                <div className="flex items-center gap-3 rounded-3xl bg-[#120B15] px-4 py-3.5 relative z-10">
                   <div className="shrink-0 flex items-center justify-center h-10 w-10">
                     <Icons.HeartShield />
                   </div>
@@ -532,9 +532,9 @@ const Home = () => {
               {/* Popular This Week */}
               <div className="flex flex-col gap-3">
                 <h3 className="text-[15px] font-bold text-white px-1">Popular This Week</h3>
-                <div className="flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <div className="flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none">
                   {popularTagCards.map((tag) => (
-                    <div key={tag.id} className="min-w-[120px] shrink-0 rounded-2xl border border-[#232336] bg-[#12131D] p-3 flex flex-col items-center text-center gap-1.5 transition-colors hover:bg-[#1A1C29]">
+                    <div key={tag.id} className="min-w-30 shrink-0 rounded-2xl border border-[#232336] bg-[#12131D] p-3 flex flex-col items-center text-center gap-1.5 transition-colors hover:bg-[#1A1C29]">
                       <div className="text-[22px] leading-none mb-1 drop-shadow-md">{tag.icon}</div>
                       <h4 className="text-[11px] font-bold text-white leading-tight">{tag.title}</h4>
                       <p className="text-[9px] font-medium text-slate-400">{tag.rooms}</p>
