@@ -136,7 +136,7 @@ const girlVibes = [
 
 const Home = () => {
   const navigate = useNavigate();
-  const { userRole  } = useUserStore();
+  const { userRole } = useUserStore();
   const { isLoading, error, createRoom, joinRoom, rooms } = useRoomStore();
   const [roomType, setRoomType] = useState('message');
   const [selectedLanguages, setSelectedLanguages] = useState([]);
@@ -242,31 +242,7 @@ const Home = () => {
                 })}
               </div>
 
-              <div className="girl-vibe-section mt-6">
-                <h2 className="flex items-center gap-2 text-[17px] font-black text-white">
-                  Pick a Vibe <span className="text-[#FF4D8D]"><Icons.Heart /></span>
-                </h2>
-                <div className="mt-3 flex gap-3 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none">
-                  {girlVibes.map((vibe, index) => (
-                    <button
-                      key={vibe.title}
-                      type="button"
-                      className={`relative min-w-29.5 rounded-[18px] border px-3 py-4 text-left transition-colors ${index === 0 ? 'border-[#FF4D8D] bg-[#311029] shadow-[0_0_18px_rgba(255,77,141,0.32)]' : 'border-white/10 bg-[#11111F] hover:border-white/20'}`}
-                    >
-                      {index === 0 && (
-                        <span className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#FF4D8D] text-white shadow-[0_0_14px_rgba(255,77,141,0.6)]">
-                          <Icons.Check />
-                        </span>
-                      )}
-                      <div className={`flex h-14 items-center justify-center ${index === 0 ? 'text-[#FF4D8D]' : 'text-[#A7A0D8]'}`}>
-                        {vibe.icon}
-                      </div>
-                      <h3 className={`mt-3 text-[13px] font-black ${index === 2 || index === 4 ? 'text-[#FF5DA4]' : 'text-white'}`}>{vibe.title}</h3>
-                      <p className="mt-0.5 text-[11px] font-semibold text-slate-400">{vibe.subtitle}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {/* pick a wive was there  */}
 
               <div className="mt-6">
                 <div className="mb-3 flex items-center justify-between">
@@ -306,6 +282,42 @@ const Home = () => {
                 </div>
               </div>
 
+              <button
+                type="button"
+                onClick={handleCreateRoom}
+                disabled={isLoading || selectedLanguages.length !== 2}
+                className="mt-6 flex w-full items-center justify-center gap-3 rounded-[20px] bg-linear-to-r from-[#7C2DFF] via-[#C026D3] to-[#FF2D87] px-4 py-4 text-[20px] font-black text-white shadow-[0_12px_30px_rgba(255,45,135,0.3)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Icons.Rocket />
+                <span>{isLoading ? 'Creating...' : 'Create Room'}</span>
+              </button>
+
+              <div className="girl-vibe-section mt-6">
+                <h2 className="flex items-center gap-2 text-[17px] font-black text-white">
+                  Pick a Vibe <span className="text-[#FF4D8D]"><Icons.Heart /></span>
+                </h2>
+                <div className="mt-3 flex gap-3 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                  {girlVibes.map((vibe, index) => (
+                    <button
+                      key={vibe.title}
+                      type="button"
+                      className={`relative min-w-[118px] rounded-[18px] border px-3 py-4 text-left transition-colors ${index === 0 ? 'border-[#FF4D8D] bg-[#311029] shadow-[0_0_18px_rgba(255,77,141,0.32)]' : 'border-white/10 bg-[#11111F] hover:border-white/20'}`}
+                    >
+                      {index === 0 && (
+                        <span className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#FF4D8D] text-white shadow-[0_0_14px_rgba(255,77,141,0.6)]">
+                          <Icons.Check />
+                        </span>
+                      )}
+                      <div className={`flex h-14 items-center justify-center ${index === 0 ? 'text-[#FF4D8D]' : 'text-[#A7A0D8]'}`}>
+                        {vibe.icon}
+                      </div>
+                      <h3 className={`mt-3 text-[13px] font-black ${index === 2 || index === 4 ? 'text-[#FF5DA4]' : 'text-white'}`}>{vibe.title}</h3>
+                      <p className="mt-0.5 text-[11px] font-semibold text-slate-400">{vibe.subtitle}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="mt-6">
                 <div className="mb-3 flex items-center gap-2">
                   <span className="text-[#A7A0D8]"><Icons.Gear /></span>
@@ -338,15 +350,6 @@ const Home = () => {
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={handleCreateRoom}
-                disabled={isLoading || selectedLanguages.length !== 2}
-                className="mt-6 flex w-full items-center justify-center gap-3 rounded-[20px] bg-linear-to-r from-[#7C2DFF] via-[#C026D3] to-[#FF2D87] px-4 py-4 text-[20px] font-black text-white shadow-[0_12px_30px_rgba(255,45,135,0.3)] transition-transform active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <Icons.Rocket />
-                <span>{isLoading ? 'Creating...' : 'Create Room'}</span>
-              </button>
               <p className="mt-1 text-center text-[13px] font-semibold text-slate-300">Let the good vibes begin!</p>
 
               <div className="mt-5 grid grid-cols-3 gap-3">
@@ -439,70 +442,71 @@ const Home = () => {
                       const isOccupied = room.status === 'occupied' || Boolean(room.currentBoy);
 
                       return (
-                      <div key={room.roomId || room._id} className={`relative rounded-[20px] border p-4 shadow-sm ${isOccupied ? 'border-yellow-400/25 bg-[#17151A]' : 'border-[#232336] bg-[#12131D]'}`}>
-                        <div className="flex items-start justify-between">
-                          {/* Avatar & Info */}
-                          <div className="flex gap-3.5">
-                            <div className="relative shrink-0">
-                              <img
-                                src={room.createdBy?.imageUrl}
-                                alt={room.createdBy?.fullName}
-                                className="h-13 w-13 rounded-full object-cover border border-[#2A2B3D]"
-                                onError={(e) => {
-                                  e.target.src = `https://ui-avatars.com/api/?name=${room.createdBy?.fullName || 'U'}&background=FF4D8D&color=fff`;
-                                }}
-                              />
-                              <span className="absolute bottom-9 right-0 h-3 w-3 rounded-full border-2 border-[#12131D] bg-[#22C55E]"></span>
+                        <div key={room.roomId || room._id} className={`relative rounded-[20px] border p-4 shadow-sm ${isOccupied ? 'border-yellow-400/25 bg-[#17151A]' : 'border-[#232336] bg-[#12131D]'}`}>
+                          <div className="flex items-start justify-between">
+                            {/* Avatar & Info */}
+                            <div className="flex gap-3.5">
+                              <div className="relative shrink-0">
+                                <img
+                                  src={room.createdBy?.imageUrl}
+                                  alt={room.createdBy?.fullName}
+                                  className="h-[52px] w-[52px] rounded-full object-cover border border-[#2A2B3D]"
+                                  onError={(e) => {
+                                    e.target.src = `https://ui-avatars.com/api/?name=${room.createdBy?.fullName || 'U'}&background=FF4D8D&color=fff`;
+                                  }}
+                                />
+                                <span className="absolute bottom-9 right-0 h-3 w-3 rounded-full border-[2px] border-[#12131D] bg-[#22C55E]"></span>
+                              </div>
+
+                              <div className="flex flex-col">
+                                <div className="flex items-center gap-1.5">
+                                  <h4 className="text-[15px] font-bold text-white">{room.createdBy?.fullName}</h4>
+                                  <Icons.Verified />
+                                  <span className="text-[11px] font-medium text-slate-400">{room.createdBy?.age} yrs</span>
+                                </div>
+                                <div className="mt-[2px] flex items-center gap-1 text-[10px] font-bold tracking-wider text-[#FF4D8D] uppercase">
+                                  {room.roomType === 'message' ? <MessageCircleMore className='h-4' /> : <Icons.Mic />} {room.roomType}
+                                </div>
+                                <span className={`mt-1 w-fit rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${isOccupied ? 'border-yellow-400/25 bg-yellow-400/10 text-yellow-300' : 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300'}`}>
+                                  {isOccupied ? 'Occupied' : 'Available'}
+                                </span>
+
+                                {/* Audio Wave Visualizer & Listeners */}
+                                <div className="flex flex-col items-center justify-center transition-transform hover:scale-105">
+                                  <div className="bg-gradient-to-b from-white to-[#FF4D8D] bg-clip-text text-2xl font-black text-transparent drop-shadow-[0_0_15px_rgba(255,77,141,0.8)]">
+                                    {room.totalFollowers || 0}
+                                  </div>
+                                  <div className="text-xs font-semibold tracking-widest text-[#FF4D8D] drop-shadow-[0_0_8px_rgba(255,77,141,0.6)]">
+                                    Followers
+                                  </div>
+                                </div>
+                              </div>
                             </div>
 
-                            <div className="flex flex-col">
-                              <div className="flex items-center gap-1.5">
-                                <h4 className="text-[15px] font-bold text-white">{room.createdBy?.fullName}</h4>
-                                <Icons.Verified />
-                                <span className="text-[11px] font-medium text-slate-400">{room.createdBy?.age} yrs</span>
-                              </div>
-                              <div className="mt-0.5 flex items-center gap-1 text-[10px] font-bold tracking-wider text-[#FF4D8D] uppercase">
-                                {room.roomType === 'message' ? <MessageCircleMore className='h-4' /> : <Icons.Mic />} {room.roomType}
-                              </div>
-                              <span className={`mt-1 w-fit rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${isOccupied ? 'border-yellow-400/25 bg-yellow-400/10 text-yellow-300' : 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300'}`}>
-                                {isOccupied ? 'Occupied' : 'Available'}
+                            {/* Join Button */}
+                            <div className="flex flex-col items-center justify-center gap-1.5 pt-1">
+                              <button
+                                onClick={() => handleJoinRoom(room)}
+                                disabled={isOccupied}
+                                className={`flex h-[42px] w-[42px] items-center justify-center rounded-full shadow-[0_4px_14px_rgba(255,77,141,0.35)] transition-transform active:scale-95 ${isOccupied ? 'cursor-not-allowed bg-slate-700 opacity-60' : 'bg-linear-to-br from-[#4dffa6] to-[#55e11d] hover:scale-105'}`}
+                              >
+                                <Icons.Phone />
+                              </button>
+                              <span className="text-[11px] font-medium text-slate-200">{isOccupied ? 'Busy' : 'Join'}</span>
+                            </div>
+                          </div>
+
+                          {/* Languages Bottom Section */}
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {room.language?.map((lang) => (
+                              <span key={lang} className="rounded-full border border-white/10 bg-transparent px-3.5 py-1 text-[11px] font-medium text-slate-300">
+                                {lang}
                               </span>
-
-                              {/* Audio Wave Visualizer & Listeners */}
-                              <div className="flex flex-col items-center justify-center transition-transform hover:scale-105">
-                                <div className="bg-linear-to-b from-white to-[#FF4D8D] bg-clip-text text-2xl font-black text-transparent drop-shadow-[0_0_15px_rgba(255,77,141,0.8)]">
-                                  {room.totalFollowers || 0}
-                                </div>
-                                <div className="text-xs font-semibold tracking-widest text-[#FF4D8D] drop-shadow-[0_0_8px_rgba(255,77,141,0.6)]">
-                                  Followers
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Join Button */}
-                          <div className="flex flex-col items-center justify-center gap-1.5 pt-1">
-                            <button
-                              onClick={() => handleJoinRoom(room)}
-                              disabled={isOccupied}
-                              className={`flex h-10.5 w-10.5 items-center justify-center rounded-full shadow-[0_4px_14px_rgba(255,77,141,0.35)] transition-transform active:scale-95 ${isOccupied ? 'cursor-not-allowed bg-slate-700 opacity-60' : 'bg-linear-to-br from-[#4dffa6] to-[#55e11d] hover:scale-105'}`}
-                            >
-                              <Icons.Phone />
-                            </button>
-                            <span className="text-[11px] font-medium text-slate-200">{isOccupied ? 'Busy' : 'Join'}</span>
+                            ))}
                           </div>
                         </div>
-
-                        {/* Languages Bottom Section */}
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {room.language?.map((lang) => (
-                            <span key={lang} className="rounded-full border border-white/10 bg-transparent px-3.5 py-1 text-[11px] font-medium text-slate-300">
-                              {lang}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )})}
+                      )
+                    })}
                   </div>
                 ) : (
                   <div className="rounded-2xl border border-dashed border-[#232336] bg-[#12131D] px-4 py-8 text-center text-[13px] text-slate-400">
