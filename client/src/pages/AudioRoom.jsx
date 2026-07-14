@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Headphones, LoaderCircle, LogOut, Mic, MicOff, PhoneOff, Radio, Trash2, TriangleAlert, Volume2, VolumeX } from 'lucide-react';
+import { 
+  Headphones, LoaderCircle, LogOut, Mic, MicOff, PhoneOff, Radio, Trash2, 
+  TriangleAlert, Volume2, VolumeX, ChevronDown, MoreVertical, Bell, 
+  User, Heart, Users, Star, Crown, ShieldCheck, Lock, Activity
+} from 'lucide-react';
 import useUserStore from '../store/userStore.js';
 import useRoomStore from '../store/roomStore.js';
 import { connectSocket, socket } from '../socket/socket.js';
@@ -41,19 +45,51 @@ export default function AudioRoom() {
   const girlProfileRef = useRef(null);
   const hasPendingRatingRef = useRef(false);
   const suppressCloseRatingRef = useRef(false);
-  const [boyFollowers, setBoyFollowers] = useState(0)
-  const [girlFollowers, setGirlFollowers] = useState(0)
-  const { createReport, isLoading: isReportSubmitting } = useReportStore()
-  const { createRating, checkRating, isLoading: isRatingSubmitting } = useRatingStore()
+  
+  // Stats and Duration States
+  const [boyFollowers, setBoyFollowers] = useState(0);
+  const [girlFollowers, setGirlFollowers] = useState(0);
+  const [boyJoinedAt, setBoyJoinedAt] = useState(null);
+  const [elapsedTime, setElapsedTime] = useState('00:00:00');
+  
+  // Optional extra states for future API support
+  const [girlTopFollower, setGirlTopFollower] = useState(null);
+  const [boyRespectPoints, setBoyRespectPoints] = useState(null);
+  const [boyTopRespecter, setBoyTopRespecter] = useState(null);
+
+  const { createReport, isLoading: isReportSubmitting } = useReportStore();
+  const { createRating, checkRating, isLoading: isRatingSubmitting } = useRatingStore();
 
   const isGirl = userRole === 'girl';
   const partner = isGirl ? boyProfile : girlProfile;
   const partnerName = partner?.fullName || 'Guest';
   const isBoyInside = isGirl ? Boolean(boyProfile) : true;
   const isBoy = useMemo(() => userRole === 'boy', [userRole]);
+  
   useEffect(() => {
+  }, [roomId]);
 
-  }, [roomId])
+  // Timer Effect
+  useEffect(() => {
+    let interval;
+    if (boyJoinedAt && isBoyInside) {
+      interval = setInterval(() => {
+        const joinTime = new Date(boyJoinedAt).getTime();
+        const diffInSeconds = Math.floor((Date.now() - joinTime) / 1000);
+        
+        if (diffInSeconds >= 0) {
+          const hrs = Math.floor(diffInSeconds / 3600).toString().padStart(2, '0');
+          const mins = Math.floor((diffInSeconds % 3600) / 60).toString().padStart(2, '0');
+          const secs = (diffInSeconds % 60).toString().padStart(2, '0');
+          setElapsedTime(`${hrs}:${mins}:${secs}`);
+        }
+      }, 1000);
+    } else {
+      setElapsedTime('00:00:00');
+    }
+    
+    return () => clearInterval(interval);
+  }, [boyJoinedAt, isBoyInside]);
 
   const stopPeer = useCallback(() => {
     peerRef.current?.close();
@@ -285,8 +321,15 @@ export default function AudioRoom() {
         if (!active) return;
         boyProfileRef.current = details.room.currentBoy;
         setBoyProfile(details.room.currentBoy);
-        setBoyFollowers(details.room.boyExtraDetails.followerCount);
-        setGirlFollowers(details.room.girlsExtraDetails.followerCount)
+        setBoyFollowers(details.room.boyExtraDetails?.followerCount || 0);
+        setGirlFollowers(details.room.girlsExtraDetails?.followerCount || 0);
+        setBoyJoinedAt(details.room.currentBoyJoinedAt);
+        
+        // Optional additions for API extensions
+        if (details.room.girlsExtraDetails?.topFollower) setGirlTopFollower(details.room.girlsExtraDetails.topFollower);
+        if (details.room.boyExtraDetails?.respectPoints) setBoyRespectPoints(details.room.boyExtraDetails.respectPoints);
+        if (details.room.boyExtraDetails?.topRespecter) setBoyTopRespecter(details.room.boyExtraDetails.topRespecter);
+
       } catch {
         setError('Could not load the new participant.');
       }
@@ -295,9 +338,13 @@ export default function AudioRoom() {
       if (data.roomId !== roomId) return;
       const leavingBoy = boyProfileRef.current;
       stopPeer();
+      
       if (isGirl) {
         boyProfileRef.current = null;
         setBoyProfile(null);
+        setBoyJoinedAt(null);
+        setBoyFollowers(0);
+        setElapsedTime('00:00:00');
         if (leavingBoy?._id) openRatingPopup(leavingBoy, null);
       } else if (String(data.boyId) === String(user._id)) {
         openRatingPopup(girlProfileRef.current, 'exit');
@@ -345,8 +392,21 @@ export default function AudioRoom() {
         }
         setGirlProfile(details.room.createdBy);
         girlProfileRef.current = details.room.createdBy;
-        setBoyProfile(details.room.currentBoy || null);
-        boyProfileRef.current = details.room.currentBoy || null;
+        
+        if (details.room.currentBoy) {
+          setBoyProfile(details.room.currentBoy);
+          boyProfileRef.current = details.room.currentBoy;
+          setBoyJoinedAt(details.room.currentBoyJoinedAt);
+        }
+        
+        setBoyFollowers(details.room.boyExtraDetails?.followerCount || 0);
+        setGirlFollowers(details.room.girlsExtraDetails?.followerCount || 0);
+        
+        // Optional additions for API extensions
+        if (details.room.girlsExtraDetails?.topFollower) setGirlTopFollower(details.room.girlsExtraDetails.topFollower);
+        if (details.room.boyExtraDetails?.respectPoints) setBoyRespectPoints(details.room.boyExtraDetails.respectPoints);
+        if (details.room.boyExtraDetails?.topRespecter) setBoyTopRespecter(details.room.boyExtraDetails.topRespecter);
+
         await ensureLocalStream();
         if (!active) return;
         connectSocket();
@@ -388,93 +448,276 @@ export default function AudioRoom() {
     setIsMuted(nextMuted);
   };
 
-  const participants = [
-    { ...user, label: 'You', muted: isMuted, self: true },
-    ...(partner ? [{ ...partner, label: partner.fullName, muted: false, self: false }] : []),
-  ];
+  // Resolve Profile Data
+  const girlData = {
+    name: isGirl ? user?.fullName : (girlProfile?.fullName || 'Host'),
+    image: isGirl ? user?.imageUrl : girlProfile?.imageUrl,
+    followers: girlFollowers,
+  };
+
+  const boyData = {
+    name: !isGirl ? user?.fullName : (boyProfile?.fullName || 'Boy'),
+    image: !isGirl ? user?.imageUrl : boyProfile?.imageUrl,
+    followers: boyFollowers,
+  };
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-[#0F172A] font-sans text-white">
+    <div className="flex h-dvh flex-col overflow-hidden bg-[#0a0a14] font-sans text-white">
       <audio ref={remoteAudioRef} autoPlay playsInline />
-      <header className="z-10 flex shrink-0 items-center justify-between border-b border-white/5 bg-[#0F172A]/95 p-4 md:px-6">
-        <div className="flex items-center gap-3">
-          <span className="relative flex h-3 w-3">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FF4D8D] opacity-75" />
-            <span className="relative inline-flex h-3 w-3 rounded-full bg-[#FF4D8D]" />
-          </span>
-          <div>
-            <h1 className="text-lg font-semibold tracking-wide">Audio Room</h1>
-            <p className="text-xs capitalize text-slate-400">{connectionState === 'waiting' && isGirl ? 'Waiting for a boy to join' : connectionState}</p>
+      
+      {/* Header */}
+      <header className="z-20 flex shrink-0 items-center justify-between p-6">
+        {/* Changed to Text without a click action to prevent leaving */}
+        <div className="text-lg font-bold tracking-wide text-white">
+          Audio Room
+        </div>
+
+        {/* Center Pill */}
+        <div className="flex flex-col items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-2 backdrop-blur-md shadow-lg">
+          <div className="flex items-center gap-1.5">
+            <span className={`h-2 w-2 rounded-full ${connectionState === 'connected' ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-yellow-500'}`} />
+            <span className="text-xs text-slate-300 capitalize font-medium">{connectionState}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {partner && (
-            <button
-              type="button"
-              aria-label={`Report ${partnerName}`}
-              onClick={() => setIsReportOpen(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-red-400/20 bg-red-500/10 text-red-300 transition hover:bg-red-500 hover:text-white"
-            >
-              <TriangleAlert size={18} />
-            </button>
-          )}
-        </div>
+
+        {/* Changed to Report Icon that opens the report modal */}
+        <button 
+          onClick={() => partner && setIsReportOpen(true)} 
+          className="p-2 text-slate-400 hover:text-red-400 transition"
+          aria-label="Report User"
+        >
+          <TriangleAlert size={24} />
+        </button>
       </header>
 
-      {error && <div className="mx-4 mt-3 rounded-xl border border-red-400/25 bg-red-500/10 px-4 py-2 text-center text-sm text-red-200">{error}</div>}
-
-      <main className="mx-auto min-h-0 w-full max-w-7xl flex-1 p-4 md:p-6">
-        <div className={`flex h-full w-full gap-4 transition-all duration-300 md:gap-6 ${participants.length === 1 ? 'flex-col' : 'flex-col md:flex-row'}`}>
-          {participants.map((participant) => {
-            // console.log(participant)
-            
-            console.log(girlFollowers)
-            console.log(boyFollowers)
-            const name = participant.fullName || participant.label;
-            const connected = connectionState === 'connected' && !participant.self;
-            return (
-              <section key={participant.self ? 'self' : participant._id} className={`group relative flex flex-1 flex-col items-center justify-center overflow-hidden rounded-3xl border bg-[#1E293B] shadow-xl ${connected ? 'border-[#6C3BFF]/70 ring-2 ring-[#6C3BFF]/30' : 'border-white/5'}`}>
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(108,59,255,0.12),transparent_55%)]" />
-                <div className="relative z-10">
-                  <div className={`h-32 w-32 rounded-full p-1 md:h-40 md:w-40 ${connected ? 'bg-linear-to-tr from-[#6C3BFF] to-[#4DA6FF]' : 'bg-slate-700'}`}>
-                    <img src={participant.imageUrl || fallbackAvatar(name)} alt={name} onError={(event) => { event.currentTarget.src = fallbackAvatar(name); }} className="h-full w-full rounded-full border-4 border-[#1E293B] object-cover" />
-                  </div>
-                  {connected && <div className="pointer-events-none absolute -inset-4 animate-ping rounded-full border-2 border-[#6C3BFF]/25" style={{ animationDuration: '2s' }} />}
-                </div>
-                <div className="absolute bottom-4 left-4 z-10 flex items-center gap-3 rounded-2xl border border-white/5 bg-[#0F172A]/85 px-4 py-2 shadow-lg backdrop-blur-md">
-                  <span className={`rounded-full p-1.5 ${participant.muted ? 'bg-red-500/20 text-red-400' : 'bg-[#6C3BFF]/20 text-[#9f86ff]'}`}>{participant.muted ? <MicOff size={14} /> : <Mic size={14} />}</span>
-                  <span className="text-sm font-medium text-gray-200 md:text-base">{participant.label}</span>
-                </div>
-                <div className="flex flex-col items-center justify-center transition-transform hover:scale-105">
-                  <div className="bg-linear-to-b from-white to-[#FF4D8D] bg-clip-text text-2xl font-black text-transparent drop-shadow-[0_0_15px_rgba(255,77,141,0.8)]">
-                    {participant.userType==='Girl' ?girlFollowers:boyFollowers}
-                  </div>
-                  <div className="text-xs font-semibold tracking-widest text-[#FF4D8D] drop-shadow-[0_0_8px_rgba(255,77,141,0.6)]">
-                    Followers
-                  </div>
-                </div>
-              </section>
-            );
-          })}
-
-          {!isBoyInside && isGirl && (
-            <section className="flex flex-1 flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/3 px-6 text-center">
-              <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[#6C3BFF]/15 text-[#9f86ff]"><Radio size={34} /></div>
-              <h2 className="text-xl font-bold">Your room is live</h2>
-              <p className="mt-2 max-w-sm text-sm leading-6 text-slate-400">You are the host. Stay here while we wait for a boy to join. When he arrives, his profile will appear beside yours and audio will connect automatically.</p>
-            </section>
-          )}
+      {error && (
+        <div className="mx-6 mt-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-center text-sm font-semibold text-red-300 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
+          {error}
         </div>
+      )}
+
+      {/* Main Content (Heart, Avatars, Stats) */}
+      <main className="relative flex flex-1 flex-col items-center justify-center p-4">
+        
+        {/* Background Decorative Stars/Sparkles */}
+        <div className="absolute top-10 flex flex-col items-center justify-center gap-4 opacity-70">
+          <div className="flex gap-12">
+            <Star size={16} className="text-[#8b5cf6] fill-current animate-pulse" />
+            <Star size={24} className="text-[#f59e0b] fill-current animate-pulse delay-75" />
+          </div>
+          <Star size={40} className="text-[#3b82f6] fill-current animate-pulse delay-150" />
+        </div>
+
+        <div className="relative flex w-full max-w-sm flex-col items-center justify-center gap-8 mt-12">
+          
+          {/* Central Heart Graphic & Visualizer */}
+          <div className="relative flex items-center justify-center drop-shadow-[0_0_35px_rgba(255,77,141,0.2)]">
+            <svg width="280" height="280" viewBox="0 0 24 24" fill="none" className="opacity-90">
+              <defs>
+                <linearGradient id="pinkGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#FF4D8D" />
+                  <stop offset="100%" stopColor="#b33bf6" />
+                </linearGradient>
+                <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="#4DA6FF" />
+                  <stop offset="100%" stopColor="#3b82f6" />
+                </linearGradient>
+              </defs>
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#pinkGrad)" clipPath="url(#left-half)" />
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#blueGrad)" clipPath="url(#right-half)" />
+              <clipPath id="left-half">
+                <rect x="0" y="0" width="12" height="24" />
+              </clipPath>
+              <clipPath id="right-half">
+                <rect x="12" y="0" width="12" height="24" />
+              </clipPath>
+            </svg>
+
+            {/* Audio Visualizer Bars inside Heart */}
+            <div className="absolute flex items-center gap-1.5 z-10">
+              {[3, 5, 8, 12, 16, 12, 8, 5, 3].map((height, i) => (
+                <div 
+                  key={i} 
+                  className={`w-1.5 rounded-full ${i < 4 ? 'bg-[#FF4D8D]' : i === 4 ? 'bg-white' : 'bg-[#4DA6FF]'}`}
+                  style={{ 
+                    height: `${height * 3}px`, 
+                    boxShadow: `0 0 10px ${i < 4 ? '#FF4D8D' : i === 4 ? '#fff' : '#4DA6FF'}`,
+                    animation: connectionState === 'connected' ? `pulse 1.${i%3 + 1}s infinite alternate` : 'none' 
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Girl Avatar (Top Left) */}
+          <div className="absolute -top-10 left-0 flex flex-col items-center">
+            <div className="absolute -top-4 flex h-8 w-8 items-center justify-center rounded-full bg-[#FF4D8D] text-white z-10 shadow-[0_0_15px_rgba(255,77,141,0.8)]">
+              <Bell size={16} fill="currentColor" />
+            </div>
+            <div className="h-28 w-28 rounded-full border-4 border-[#FF4D8D] bg-slate-800 shadow-[0_0_25px_rgba(255,77,141,0.6)] p-1">
+              <img src={girlData.image || fallbackAvatar(girlData.name)} alt={girlData.name} className="h-full w-full rounded-full object-cover" />
+            </div>
+            <div className="relative -mt-3 flex items-center gap-1.5 rounded-full bg-[#FF4D8D] px-3 py-1 text-xs font-bold text-white shadow-lg">
+              <Heart size={12} fill="currentColor" />
+              {girlData.followers}
+            </div>
+          </div>
+
+          {/* Boy Avatar (Top Right) */}
+          <div className="absolute -top-10 right-0 flex flex-col items-center">
+            <div className="absolute -top-4 flex h-8 w-8 items-center justify-center rounded-full bg-[#4DA6FF] text-white z-10 shadow-[0_0_15px_rgba(77,166,255,0.8)]">
+              <User size={16} fill="currentColor" />
+            </div>
+            
+            {isBoyInside ? (
+              <div className="h-28 w-28 rounded-full border-4 border-[#4DA6FF] bg-slate-800 shadow-[0_0_25px_rgba(77,166,255,0.6)] p-1">
+                <img src={boyData.image || fallbackAvatar(boyData.name)} alt={boyData.name} className="h-full w-full rounded-full object-cover" />
+              </div>
+            ) : (
+              <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-dashed border-[#4DA6FF]/50 bg-slate-900/50 shadow-[0_0_15px_rgba(77,166,255,0.2)] p-1">
+                <LoaderCircle size={32} className="animate-spin text-[#4DA6FF]/60" />
+              </div>
+            )}
+            
+            <div className="relative -mt-3 flex items-center gap-1.5 rounded-full bg-[#4DA6FF] px-3 py-1 text-xs font-bold text-white shadow-lg">
+              <User size={12} fill="currentColor" />
+              {isBoyInside ? boyData.followers : 'Waiting'}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Side Stats Container */}
+        <div className="absolute top-1/2 w-full flex justify-between px-6 -translate-y-1/2 pointer-events-none">
+          {/* Girl Side Stats */}
+          <div className="flex flex-col gap-6 text-left">
+            <div>
+              <div className="flex items-center gap-1 text-[#FF4D8D]">
+                <Star size={12} fill="currentColor" className="opacity-80" />
+                <span className="text-[10px] font-medium tracking-wider text-slate-400">Followers</span>
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <Users size={20} className="text-[#FF4D8D]" />
+                <span className="text-2xl font-bold text-[#FF4D8D] drop-shadow-[0_0_8px_rgba(255,77,141,0.5)]">{girlData.followers}</span>
+              </div>
+            </div>
+            
+            {/* Conditional Rendering for Top Follower */}
+            {girlTopFollower && (
+              <div>
+                <span className="text-[10px] font-medium tracking-wider text-slate-400">Top Follower</span>
+                <div className="flex items-center gap-1.5 mt-1 text-[#FF4D8D]">
+                  <Crown size={14} fill="currentColor" />
+                  <span className="text-xs font-bold">{girlTopFollower}</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Boy Side Stats */}
+          <div className="flex flex-col gap-6 text-right items-end">
+            <div>
+              <div className="flex items-center justify-end gap-1 text-[#4DA6FF]">
+                <Star size={12} fill="currentColor" className="opacity-80" />
+                <span className="text-[10px] font-medium tracking-wider text-slate-400">Followers</span>
+              </div>
+              <div className="flex items-center justify-end gap-2 mt-1">
+                <Users size={20} className="text-[#4DA6FF]" />
+                <span className="text-2xl font-bold text-[#4DA6FF] drop-shadow-[0_0_8px_rgba(77,166,255,0.5)]">{isBoyInside ? boyData.followers : '-'}</span>
+              </div>
+            </div>
+
+            {/* Conditional Rendering for Respect Points */}
+            {boyRespectPoints && (
+              <div>
+                <span className="text-[10px] font-medium tracking-wider text-slate-400">Respect Points</span>
+                <div className="flex items-center justify-end gap-1.5 mt-1 text-[#4DA6FF]">
+                  <Star size={14} fill="currentColor" />
+                  <span className="text-lg font-bold">{boyRespectPoints}</span>
+                  <span className="text-[10px] text-slate-500">/5</span>
+                </div>
+              </div>
+            )}
+
+            {/* Conditional Rendering for Top Respecter */}
+            {boyTopRespecter && (
+              <div>
+                <span className="text-[10px] font-medium tracking-wider text-slate-400">Top Respecter</span>
+                <div className="flex items-center justify-end gap-1.5 mt-1 text-[#4DA6FF]">
+                  <Crown size={14} fill="currentColor" />
+                  <span className="text-xs font-bold">{boyTopRespecter}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Call Timer and Security Badge */}
+        <div className="mt-8 flex flex-col items-center gap-3">
+          <span className="text-2xl font-light tracking-widest text-white">{elapsedTime}</span>
+          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-1.5">
+            <ShieldCheck size={16} className="text-green-500" />
+            <div className="flex flex-col text-left">
+              <span className="text-[10px] font-semibold text-slate-300 leading-tight">Secure Call</span>
+              <span className="text-[8px] text-slate-500 leading-tight">End-to-End Encrypted</span>
+            </div>
+          </div>
+        </div>
+
       </main>
 
-      <footer className="shrink-0 bg-[#0F172A] p-4 md:p-6">
-        <div className="mx-auto flex max-w-md items-center justify-center gap-5 rounded-3xl border border-white/5 bg-[#1E293B] p-4 shadow-2xl">
-          <button type="button" onClick={toggleMicrophone} aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'} className={`flex h-14 w-14 items-center justify-center rounded-full transition hover:scale-105 ${isMuted ? 'bg-red-500/15 text-red-400' : 'bg-[#6C3BFF] text-white'}`}>{isMuted ? <MicOff size={24} /> : <Mic size={24} />}</button>
-          <button type="button" onClick={() => setIsSpeakerOn((value) => !value)} aria-label={isSpeakerOn ? 'Turn speaker off' : 'Turn speaker on'} className={`flex h-14 w-14 items-center justify-center rounded-full transition hover:scale-105 ${isSpeakerOn ? 'bg-white/10 text-white' : 'bg-white/5 text-slate-500'}`}>{isSpeakerOn ? <Volume2 size={24} /> : <VolumeX size={24} />}</button>
-          <button type="button" onClick={handleExit} disabled={isLeaving} aria-label={isGirl ? 'Destroy room' : 'Leave room'} className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FF4D8D] text-white shadow-lg shadow-[#FF4D8D]/20 transition hover:scale-105 disabled:opacity-50">{isLeaving ? <LoaderCircle className="animate-spin" size={24} /> : isGirl ? <PhoneOff size={24} /> : <PhoneOff size={24} />}</button>
-          <span className="sr-only"><Headphones />Audio controls</span>
+      {/* Footer Controls */}
+      <footer className="shrink-0 w-full px-6 pb-8">
+        
+        {/* Buttons Panel */}
+        <div className="mx-auto flex max-w-md items-center justify-between rounded-[2.5rem] border border-white/5 bg-[#12121E] px-10 py-6 shadow-2xl">
+          
+          {/* Mute Button */}
+          <div className="flex flex-col items-center gap-2 cursor-pointer group" onClick={toggleMicrophone}>
+            <div className={`flex h-16 w-16 items-center justify-center rounded-full border-[1.5px] transition-all duration-300 ${isMuted ? 'border-[#FF4D8D] text-[#FF4D8D] shadow-[0_0_15px_rgba(255,77,141,0.3)]' : 'border-white/10 text-white group-hover:border-white/30'}`}>
+              {isMuted ? <MicOff size={26} /> : <Mic size={26} />}
+            </div>
+            <span className="text-[11px] font-medium text-slate-400 group-hover:text-white transition-colors">Mute</span>
+          </div>
+
+          {/* Speaker Button */}
+          <div className="flex flex-col items-center gap-2 cursor-pointer group" onClick={() => setIsSpeakerOn(!isSpeakerOn)}>
+            <div className={`flex h-16 w-16 items-center justify-center rounded-full border-[1.5px] transition-all duration-300 ${!isSpeakerOn ? 'border-[#4DA6FF] text-[#4DA6FF] shadow-[0_0_15px_rgba(77,166,255,0.3)]' : 'border-white/10 text-white group-hover:border-white/30'}`}>
+              {isSpeakerOn ? <Volume2 size={26} /> : <VolumeX size={26} />}
+            </div>
+            <span className="text-[11px] font-medium text-slate-400 group-hover:text-white transition-colors">Speaker</span>
+          </div>
+
+          {/* End Call Button */}
+          <div className="flex flex-col items-center gap-2 cursor-pointer group" onClick={handleExit}>
+            <button 
+              disabled={isLeaving}
+              className="flex h-16 w-16 items-center justify-center rounded-full border-[1.5px] border-[#FF4D8D] bg-[#FF4D8D]/10 text-[#FF4D8D] transition-all duration-300 shadow-[0_0_20px_rgba(255,77,141,0.3)] group-hover:bg-[#FF4D8D] group-hover:text-white disabled:opacity-50"
+            >
+              {isLeaving ? <LoaderCircle size={26} className="animate-spin" /> : <PhoneOff size={26} />}
+            </button>
+            <span className="text-[11px] font-medium text-slate-400 group-hover:text-white transition-colors">
+              {isGirl ? 'Destroy Room' : 'Leave Room'}
+            </span>
+          </div>
+          
         </div>
+
+        {/* Footer Note */}
+        <div className="mt-6 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
+          <div className="flex gap-1.5 opacity-30">
+            <span className="h-1 w-1 rounded-full bg-current" /><span className="h-1 w-1 rounded-full bg-current" /><span className="h-1 w-1 rounded-full bg-current" /><span className="h-1 w-1 rounded-full bg-current" /><span className="h-1 w-1 rounded-full bg-current" />
+          </div>
+          <Lock size={10} className="mx-2" />
+          Be kind. Be respectful. Be real. <Heart size={10} className="text-[#FF4D8D] inline fill-current ml-1" />
+          <div className="flex gap-1.5 opacity-30 ml-2">
+            <span className="h-1 w-1 rounded-full bg-current" /><span className="h-1 w-1 rounded-full bg-current" /><span className="h-1 w-1 rounded-full bg-current" /><span className="h-1 w-1 rounded-full bg-current" /><span className="h-1 w-1 rounded-full bg-current" />
+          </div>
+        </div>
+
       </footer>
+
+      {/* Popups */}
       <ReportPopup
         isOpen={isReportOpen}
         userName={partnerName}
