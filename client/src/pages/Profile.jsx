@@ -192,8 +192,8 @@ export default function Profile() {
 
           <div className="bg-[#130E29]/60 border border-purple-900/30 rounded-2xl p-3 text-center flex flex-col justify-center items-center">
             <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 mb-1" />
-            <span className="text-sm font-black text-slate-200">{userRate || '4.8'}</span>
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Avg. Rating</span>
+            <span className="text-sm font-black text-slate-200">{isBoy?Number(userRate)*2:userRate || '0'}</span>
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{isBoy?'Respect point':'Avg. Rating'}</span>
           </div>
 
           <div className="bg-[#130E29]/60 border border-purple-900/30 rounded-2xl p-3 text-center flex flex-col justify-center items-center">
