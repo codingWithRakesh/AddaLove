@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { handleError, handleSuccess } from '../components/ErrorMessage';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Verified } from 'lucide-react';
 
 export default function SignupGirls() {
   const navigate = useNavigate();
@@ -9,6 +9,7 @@ export default function SignupGirls() {
   // ===== STEP 1: Email OTP Verification =====
   const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: Registration, 4: Video, 5: Success
   const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('')
   const [otp, setOtp] = useState('');
   const [referenceCode, setReferenceCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -23,6 +24,8 @@ export default function SignupGirls() {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
+    phoneNumber: '',
+    bio:"",
     age: '',
     password: '',
     confirmPassword: '',
@@ -69,32 +72,27 @@ export default function SignupGirls() {
     setErrors({});
     setSuccessMessage('');
 
-    if (!email) {
-      setErrors({ email: 'Email is required' });
+    if (!phoneNumber) {
+      setErrors({ phoneNumber: 'phone number is required' });
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setErrors({ email: 'Invalid email format' });
-      return;
-    }
 
     setLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL2}/api/auth/v1/send-otp`,
+        `${import.meta.env.VITE_BACKEND_URL2}/api/auth/v1/send-sms-otp`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ phoneNumber }),
         }
       );
 
       const data = await response.json();
 
       if (!data.success) {
-        setErrors({ email: data.message || 'Failed to send OTP' });
+        setErrors({ phoneNumber: data.message || 'Failed to send OTP' });
         setLoading(false);
         return;
       }
@@ -102,10 +100,10 @@ export default function SignupGirls() {
       setReferenceCode(data.data.referenceCode);
       setOtpSent(true);
       setTimer(120); // 2-minute timer
-      setSuccessMessage('OTP sent to your email!');
+      setSuccessMessage('OTP sent to your phone numner!');
       setStep(2);
     } catch (error) {
-      setErrors({ email: error.message || 'Network error' });
+      setErrors({ phoneNumber: error.message || 'Network error' });
     } finally {
       setLoading(false);
     }
@@ -147,7 +145,7 @@ export default function SignupGirls() {
       }
 
       setSuccessMessage('OTP verified successfully!');
-      setFormData((prev) => ({ ...prev, email }));
+      setFormData((prev) => ({ ...prev, phoneNumber }));
       setStep(3); // Move to registration form
     } catch (error) {
       setErrors({ otp: error.message || 'Network error' });
@@ -195,7 +193,7 @@ export default function SignupGirls() {
     setErrors({});
     setSuccessMessage('');
 
-    const { fullName, age, password, confirmPassword } = formData;
+    const { fullName, age, password, confirmPassword,email, bio } = formData;
 
     // Validation
     if (!fullName.trim()) {
@@ -232,9 +230,11 @@ export default function SignupGirls() {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append('fullName', fullName);
-      formDataToSend.append('email', email);
+      formDataToSend.append('email', formData.email);
       formDataToSend.append('age', age);
+      formDataToSend.append('bio', bio);
       formDataToSend.append('password', password);
+      formDataToSend.append('phoneNumber',phoneNumber)
       formDataToSend.append('profilePhoto', formData.profilePhoto);
 
       const response = await fetch(
@@ -452,26 +452,27 @@ export default function SignupGirls() {
             <form onSubmit={handleSendOtp} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold mb-3 text-slate-200">
-                  Email Address
+                  Phone number
                 </label>
                 <input
-                  type="email"
-                  id="email"
-                  value={email}
+                  type="number"
+                  name='phoneNumber'
+                  id="phoneNumber"
+                  value={phoneNumber}
                   onChange={(e) => {
-                    setEmail(e.target.value);
-                    setErrors((prev) => ({ ...prev, email: '' }));
+                    setPhoneNumber(e.target.value);
+                    setErrors((prev) => ({ ...prev, phoneNumber: '' }));
                   }}
-                  placeholder="your@email.com"
+                  placeholder="eg. 8625365418"
                   className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 hover:bg-white/5 disabled:opacity-50"
                   disabled={loading}
                 />
-                {errors.email && <p className="text-red-400 text-xs mt-2 font-semibold">{errors.email}</p>}
+                {errors.phoneNumber && <p className="text-red-400 text-xs mt-2 font-semibold">{errors.phoneNumber}</p>}
               </div>
 
               <button
                 type="submit"
-                disabled={loading || !email}
+                disabled={loading || !phoneNumber}
                 className="w-full py-3 px-4 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#FF4D8D]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:from-[#FF4D8D] hover:to-[#6C3BFF]"
               >
                 {loading ? 'Sending OTP...' : 'Send OTP'}
@@ -636,15 +637,44 @@ export default function SignupGirls() {
               {/* Email (Read-only) */}
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold mb-2 text-slate-200">
+                  <div className='flex gap-2'>Phone Number (Verified) <Verified className='h-5 text-blue-600' /></div>
+                </label>
+                <input
+                  type="number"
+                  id="phoneNumber"
+                  name='phoneNumber'
+                  value={phoneNumber}
+                  disabled
+                  readOnly
+                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-500 placeholder-slate-400 focus:outline-none cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-semibold mb-2 text-slate-200">
                   Email
                 </label>
                 <input
                   type="email"
                   id="email"
-                  value={email}
-                  disabled
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-500 placeholder-slate-400 focus:outline-none cursor-not-allowed"
+                  name='email'
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-sm hover:bg-white/5 resize-none"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-2 text-slate-200">
+                  Bio
+                </label>
+                <textarea
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleInputChange}
+                  placeholder="Tell us about yourself"
+                  rows={4}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-sm hover:bg-white/5 resize-none"
+                />
+                {errors.bio && <p className="text-red-400 text-xs mt-1">{errors.bio}</p>}
               </div>
 
               {/* Age */}

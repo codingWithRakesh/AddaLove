@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, Upload, Loader } from 'lucide-react';
+import { Eye, EyeOff, Upload, Loader, Verified } from 'lucide-react';
 import { handleSuccess } from '../components/ErrorMessage';
 import { Link, useNavigate } from 'react-router';
 import shotlogo from "../assets/logo2.png"
@@ -7,6 +7,7 @@ export default function Signup() {
     // Step 1: Email verification
     const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: Registration
     const [email, setEmail] = useState('');
+    const [phoneNumber,setPhoneNumber]=useState('')
     const [otp, setOtp] = useState('');
     const [referenceCode, setReferenceCode] = useState('')
     const [otpSent, setOtpSent] = useState(false);
@@ -19,7 +20,9 @@ export default function Signup() {
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
+        phoneNumber:'',
         age: '',
+        bio:'',
         password: '',
         confirmPassword: '',
         profilePhoto: null,
@@ -39,23 +42,23 @@ export default function Signup() {
 
     // STEP 1: Send OTP
     const handleSendOtp = async () => {
-        if (!email.trim()) {
-            setErrors({ email: 'Please enter your email' });
+        if (!phoneNumber.trim()) {
+            setErrors({ phoneNumber: 'Please enter your phone number' });
             return;
         }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            setErrors({ email: 'Please enter a valid email' });
-            return;
-        }
+        // if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        //     setErrors({ email: 'Please enter a valid email' });
+        //     return;
+        // }
 
         setLoading(true);
         try {
             // API Call
-            const url = `${import.meta.env.VITE_BACKEND_URL2}/api/auth/v1/send-otp`
+            const url = `${import.meta.env.VITE_BACKEND_URL2}/api/auth/v1/send-sms-otp`
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({ phoneNumber }),
             });
 
             const data = await response.json();
@@ -67,10 +70,10 @@ export default function Signup() {
                 setTimer(60);
                 setErrors({});
             } else {
-                setErrors({ email: data.message || 'Failed to send OTP' });
+                setErrors({ phoneNumber: data.message || 'Failed to send OTP' });
             }
         } catch (error) {
-            setErrors({ email: 'Error sending OTP. Try again.' });
+            setErrors({ phoneNumber: 'Error sending OTP. Try again.' });
             console.error(error);
         } finally {
             setLoading(false);
@@ -98,7 +101,7 @@ export default function Signup() {
             console.log(data)
             if (data.success) {
                 setStep(3);
-                setFormData(prev => ({ ...prev, email }));
+                setFormData(prev => ({ ...prev, phoneNumber }));
                 setErrors({});
             } else {
                 setErrors({ otp: data.message || 'Invalid OTP' });
@@ -165,8 +168,10 @@ export default function Signup() {
             const submitData = new FormData();
             submitData.append('fullName', formData.fullName);
             submitData.append('email', formData.email);
+            submitData.append('phoneNumber',formData.phoneNumber)
             submitData.append('age', formData.age);
             submitData.append('password', formData.password);
+            submitData.append('bio',formData.bio)
             submitData.append('profilePhoto', formData.profilePhoto);
 
             // API Call
@@ -226,19 +231,20 @@ export default function Signup() {
                         <div className="space-y-6 animate-fadeIn">
                             <div>
                                 <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                    Email Address
+                                   Phone number
                                 </label>
                                 <input
-                                    type="email"
-                                    value={email}
+                                    type="number"
+                                    name='phoneNumber'
+                                    value={phoneNumber}
                                     onChange={(e) => {
-                                        setEmail(e.target.value);
-                                        if (errors.email) setErrors({});
+                                        setPhoneNumber(e.target.value);
+                                        if (errors.phoneNumber) setErrors({});
                                     }}
-                                    placeholder="your@email.com"
+                                    placeholder="eg. 8665237845"
                                     className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 hover:bg-white/5"
                                 />
-                                {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                                {errors.phoneNumber && <p className="text-red-400 text-xs mt-1">{errors.phoneNumber}</p>}
                             </div>
 
                             <button
@@ -360,17 +366,44 @@ export default function Signup() {
                             {/* Email (Read-only) */}
                             <div>
                                 <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                    Email (Verified)
+                                   <div className='flex gap-2'>Phone Number (Verified) <Verified className='h-5 text-blue-600'/></div> 
                                 </label>
                                 <input
-                                    type="email"
-                                    value={formData.email}
+                                    type="number"
+                                    value={formData.phoneNumber}
                                     readOnly
                                     className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-xl text-slate-300 cursor-not-allowed opacity-70 text-sm"
                                 />
                             </div>
+                            <div>
+                                <label className="block text-sm font-semibold mb-2 text-slate-200">
+                                    Email Address
+                                </label>
+                                <input
+                                    type="email"
+                                    name='email'
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    placeholder='Enter email'
+                                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-sm hover:bg-white/5"
+                                />
+                            </div>
 
                             {/* Age */}
+                            <div>
+                                <label className="block text-sm font-semibold mb-2 text-slate-200">
+                                    Bio
+                                </label>
+                                <textarea
+                                    name="bio"
+                                    value={formData.bio}
+                                    onChange={handleInputChange}
+                                    placeholder="Tell us about yourself"
+                                    rows={4}
+                                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-sm hover:bg-white/5 resize-none"
+                                />
+                                {errors.bio && <p className="text-red-400 text-xs mt-1">{errors.bio}</p>}
+                            </div>
                             <div>
                                 <label className="block text-sm font-semibold mb-2 text-slate-200">
                                     Age
