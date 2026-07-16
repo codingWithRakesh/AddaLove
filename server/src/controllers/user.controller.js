@@ -15,13 +15,17 @@ import mongoose from 'mongoose';
 import { userRateCalculate } from '../utils/calculateUserRateAVG.js';
 import axios from 'axios'
 const sendOtp = asyncHandler(async (req, res) => {
-    const { email } = req.body;
+    const { email, purpose } = req.body;
     if (!email) {
         throw new ApiError(400, 'Email not found')
     }
     const IsFristUser = await User.findOne({ email: email });
-    if (IsFristUser) {
+    const IsFristGirl = await Girls.findOne({ email: email });
+    if (purpose !== 'forget-password' && (IsFristUser || IsFristGirl)) {
         throw new ApiError(400, 'Alreday Have a account with this email');
+    }
+    if (purpose === 'forget-password' && !IsFristUser && !IsFristGirl) {
+        throw new ApiError(404, 'Invalid user email');
     }
     const otp = Math.floor((Math.random() * 1000000) + 1);
     const referenceCode = generateReferenceCode();
@@ -157,7 +161,7 @@ const login = asyncHandler(async (req, res) => {
 
 const girlRegister = asyncHandler(async (req, res) => {
     const { fullName, email, age, password, bio, phoneNumber } = req.body;
-    if (!fullName || !email || !age || !password) {
+    if (!fullName || !phoneNumber || !age || !password) {
         throw new ApiError(400, 'All details are not found');
     }
     let uploadResult;
@@ -238,7 +242,7 @@ const girlsLogin = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'All details are not found');
     }
 
-    const userdata = await Girls.findOne({phoneNumber}).lean();;
+    const userdata = await Girls.findOne({ phoneNumber }).lean();;
     if (!userdata) {
         throw new ApiError(400, "Invalid credential");
     }
@@ -415,6 +419,50 @@ const logOut = asyncHandler(async (req, res) => {
     res.clearCookie("authToken", options);
     return res.status(200).json(new ApiResponse(200, null, 'Logout done'))
 })
+
+const findUserDataForForgetPassword = asyncHandler(async (req, res) => {
+    const { phoneNumber } = req.body;
+    if (!phoneNumber) {
+        throw new ApiError(400, 'Phone number is required.')
+    }
+    const findTheUserDataBoy = await User.findOne({ phoneNumber }).lean();
+    const findTheUserDataGirl = await Girls.findOne({ phoneNumber }).lean();
+    if (!findTheUserDataBoy && !findTheUserDataGirl) {
+        throw new ApiError(404, 'User not found')
+    }
+    if (findTheUserDataBoy) {
+        return res.status(200).json(new ApiResponse(200, findTheUserDataBoy.email, 'Email retrive'))
+    }
+    if (findTheUserDataGirl) {
+        return res.status(200).json(new ApiResponse(200, findTheUserDataGirl.email, 'Email retrive'))
+    }
+
+})
+const forgetPassword = asyncHandler(async (req, res) => {
+
+    const { newPassword, email } = req.body;
+    if (!newPassword || !email) {
+        throw new ApiError(400, 'All data not found')
+    }
+    const userDataBoy = await User.findOne({ email });
+    const userDataGirl = await Girls.findOne({ email });
+    if (!userDataBoy && !userDataGirl) {
+        throw new ApiError(404, 'Invalid user email')
+    }
+    const slat = await bcrypt.genSalt(12);
+    const haspass = await bcrypt.hash(newPassword, slat);
+    if (userDataBoy) {
+
+        await User.findByIdAndUpdate(userDataBoy._id, { $set: { password: haspass } }, { new: true })
+        return res.status(200).json(new ApiResponse(200,null,'Password changed Successfully'))
+    }
+    if(userDataGirl){
+        await Girls.findByIdAndUpdate(userDataGirl._id,{$set:{ password: haspass}}, { new: true })
+        return res.status(200).json(new ApiResponse(200,null,'Password changed Successfully'))
+    }
+
+})
+
 export {
     sendOtp,
     otpVerify,
@@ -426,5 +474,7 @@ export {
     girlsLogin,
     currentUser,
     logOut,
-    messageOtpSend
+    messageOtpSend,
+    findUserDataForForgetPassword,
+    forgetPassword
 };

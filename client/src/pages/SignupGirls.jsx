@@ -73,10 +73,22 @@ export default function SignupGirls() {
     setErrors({});
     setSuccessMessage('');
 
-    if (!phoneNumber) {
-      setErrors({ phoneNumber: 'phone number is required' });
-      return;
-    }
+    const cleanedPhone = phoneNumber.trim();
+
+  // Validation
+  if (!cleanedPhone) {
+    setErrors({ phoneNumber: 'Phone number is required.' });
+    return;
+  }
+
+  const phoneRegex = /^[6-9]\d{9}$/;
+
+  if (!phoneRegex.test(cleanedPhone)) {
+    setErrors({
+      phoneNumber: 'Please enter a valid 10-digit Indian mobile number.',
+    });
+    return;
+  }
 
     setLoading(true);
     try {
@@ -85,7 +97,7 @@ export default function SignupGirls() {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phoneNumber }),
+          body: JSON.stringify({ phoneNumber:cleanedPhone }),
         }
       );
 

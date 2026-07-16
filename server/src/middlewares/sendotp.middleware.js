@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import util from 'util'
+
 const sendemail = async (sendtoemail, otp) => {
     const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -8,12 +9,13 @@ const sendemail = async (sendtoemail, otp) => {
             pass: process.env.PASSWORD    // App password (not your real password)
         }
     });
+
     const otpEmailTemplateHTML = (otp) => `
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>AddaLove OTP Verification</title>
+<title>AddaLove Password Reset</title>
 
 <style>
 body{
@@ -103,6 +105,7 @@ body{
 .info{
     font-size:14px;
     color:#94A3B8;
+    margin-top: 20px;
 }
 
 .highlight{
@@ -135,19 +138,19 @@ body{
 <div class="container">
 
     <div class="header">
-        💜 AddaLove
+        🔒 AddaLove
     </div>
 
     <div class="content">
 
-        <h2>Email Verification</h2>
+        <h2>Password Reset</h2>
 
         <p>
-            Welcome to <span class="highlight">AddaLove</span> ❤️
+            Hello from <span class="highlight">AddaLove</span>!
         </p>
 
         <p>
-            Use the following OTP to verify your email address and continue your journey with AddaLove.
+            We received a request to reset the password for your account. Please use the following OTP to securely change your password.
         </p>
 
         <div class="otp-box">
@@ -155,7 +158,8 @@ body{
         </div>
 
         <p class="info">
-            This OTP is valid for the next <b>10 minutes</b>.<br>
+            This OTP is valid for the next <b>10 minutes</b>.<br><br>
+            <i>If you did not request a password reset, please ignore this email or contact support immediately.</i><br>
             Never share this code with anyone.
         </p>
 
@@ -170,12 +174,14 @@ body{
 </body>
 </html>
 `;
+
     const mailOptions = {
         from: process.env.EMAIL,
         to: sendtoemail,
-        subject: "💜 AddaLove Email Verification OTP",
+        subject: "🔒 AddaLove Password Reset OTP",
         html: otpEmailTemplateHTML(otp),
     };
+
     // Convert sendMail to return a promise
     const sendMailAsync = util.promisify(transporter.sendMail.bind(transporter));
 
@@ -188,4 +194,5 @@ body{
         throw error;   // Throw error for proper handling
     }
 }
+
 export default sendemail;

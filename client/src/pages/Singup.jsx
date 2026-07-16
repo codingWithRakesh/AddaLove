@@ -7,7 +7,7 @@ export default function Signup() {
     // Step 1: Email verification
     const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: Registration
     const [email, setEmail] = useState('');
-    const [phoneNumber,setPhoneNumber]=useState('')
+    const [phoneNumber, setPhoneNumber] = useState('')
     const [otp, setOtp] = useState('');
     const [referenceCode, setReferenceCode] = useState('')
     const [otpSent, setOtpSent] = useState(false);
@@ -20,9 +20,9 @@ export default function Signup() {
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
-        phoneNumber:'',
+        phoneNumber: '',
         age: '',
-        bio:'',
+        bio: '',
         password: '',
         confirmPassword: '',
         profilePhoto: null,
@@ -42,14 +42,23 @@ export default function Signup() {
 
     // STEP 1: Send OTP
     const handleSendOtp = async () => {
-        if (!phoneNumber.trim()) {
-            setErrors({ phoneNumber: 'Please enter your phone number' });
+        const cleanedPhone = phoneNumber.trim();
+
+        // Validation
+        if (!cleanedPhone) {
+            setErrors({ phoneNumber: 'Phone number is required.' });
             return;
         }
-        // if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        //     setErrors({ email: 'Please enter a valid email' });
-        //     return;
-        // }
+
+        const phoneRegex = /^[6-9]\d{9}$/;
+
+        if (!phoneRegex.test(cleanedPhone)) {
+            setErrors({
+                phoneNumber: 'Please enter a valid 10-digit Indian mobile number.',
+            });
+            return;
+        }
+
 
         setLoading(true);
         try {
@@ -58,7 +67,7 @@ export default function Signup() {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phoneNumber }),
+                body: JSON.stringify({ phoneNumber:cleanedPhone }),
             });
 
             const data = await response.json();
@@ -67,7 +76,7 @@ export default function Signup() {
                 setReferenceCode(data.data.referenceCode)
                 setStep(2);
                 setOtpSent(true);
-                setTimer(60);
+                setTimer(120);
                 setErrors({});
             } else {
                 setErrors({ phoneNumber: data.message || 'Failed to send OTP' });
@@ -168,10 +177,10 @@ export default function Signup() {
             const submitData = new FormData();
             submitData.append('fullName', formData.fullName);
             submitData.append('email', formData.email);
-            submitData.append('phoneNumber',formData.phoneNumber)
+            submitData.append('phoneNumber', formData.phoneNumber)
             submitData.append('age', formData.age);
             submitData.append('password', formData.password);
-            submitData.append('bio',formData.bio)
+            submitData.append('bio', formData.bio)
             submitData.append('profilePhoto', formData.profilePhoto);
 
             // API Call
@@ -231,7 +240,7 @@ export default function Signup() {
                         <div className="space-y-6 animate-fadeIn">
                             <div>
                                 <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                   Phone number
+                                    Phone number
                                 </label>
                                 <input
                                     type="number"
@@ -263,23 +272,23 @@ export default function Signup() {
                             </button>
 
                             <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/20"></div>
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="px-2 bg-linear-to-br from-[#0F172A] via-[#1a1f3a] to-[#0F172A]">
-                    Already have an account?
-                  </span>
-                </div>
-              </div>
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-white/20"></div>
+                                </div>
+                                <div className="relative flex justify-center text-xs">
+                                    <span className="px-2 bg-linear-to-br from-[#0F172A] via-[#1a1f3a] to-[#0F172A]">
+                                        Already have an account?
+                                    </span>
+                                </div>
+                            </div>
 
-              {/* Sign Up Link */}
-              <Link
-                to="/login"
-                className="block w-full py-3 border border-white/20 text-white font-bold rounded-xl text-center hover:bg-white/5 hover:border-[#FF4D8D] transition-all duration-300 transform hover:scale-105"
-              >
-                Login
-              </Link>
+                            {/* Sign Up Link */}
+                            <Link
+                                to="/login"
+                                className="block w-full py-3 border border-white/20 text-white font-bold rounded-xl text-center hover:bg-white/5 hover:border-[#FF4D8D] transition-all duration-300 transform hover:scale-105"
+                            >
+                                Login
+                            </Link>
                         </div>
                     )}
 
@@ -366,7 +375,7 @@ export default function Signup() {
                             {/* Email (Read-only) */}
                             <div>
                                 <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                   <div className='flex gap-2'>Phone Number (Verified) <Verified className='h-5 text-blue-600'/></div> 
+                                    <div className='flex gap-2'>Phone Number (Verified) <Verified className='h-5 text-blue-600' /></div>
                                 </label>
                                 <input
                                     type="number"

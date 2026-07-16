@@ -24,6 +24,7 @@ import Earning from './pages/Earning.jsx'
 import WithdrawMoney from './pages/WithdrawMoney.jsx'
 import AudioRoom from './pages/AudioRoom.jsx'
 import SendOtp from './pages/SendOtp.jsx'
+import ForgetPassword from './pages/ForgetPassword.jsx'
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,11 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <AuthenticatedUserRoute><Login /></AuthenticatedUserRoute>
+
+      },
+      {
+        path: "/forget-password",
+        element: <AuthenticatedUserRoute><ForgetPassword /></AuthenticatedUserRoute>
 
       },
       {

@@ -76,7 +76,9 @@ export default function Login() {
     };
 
     const handleForgotPassword = () => {
-        // window.location.href = '/forgot-password';
+        console.log('hii')
+        naviget('/forget-password')
+
     };
 
     return (
@@ -166,7 +168,7 @@ export default function Login() {
                                     <button
                                         type="button"
                                         onClick={handleForgotPassword}
-                                        className="text-xs text-[#FF4D8D] hover:text-[#6C3BFF] transition-colors font-semibold"
+                                        className="text-xs z-50 text-[#FF4D8D]  hover:text-[#6C3BFF] transition-colors font-semibold"
                                     >
                                         Forgot?
                                     </button>
