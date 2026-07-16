@@ -157,7 +157,7 @@ const login = asyncHandler(async (req, res) => {
 
 const girlRegister = asyncHandler(async (req, res) => {
     const { fullName, email, age, password, bio, phoneNumber } = req.body;
-    if (!fullName || !email || !age || !password) {
+    if (!fullName || !phoneNumber || !age || !password) {
         throw new ApiError(400, 'All details are not found');
     }
     let uploadResult;
