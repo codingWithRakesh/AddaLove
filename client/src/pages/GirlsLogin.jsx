@@ -66,6 +66,7 @@ export default function GirlsLogin() {
     // Handle Forgot Password
     const handleForgotPassword = () => {
         // Navigate to forgot password page or open modal
+        navigate('/forget-password')
     };
 
     return (
