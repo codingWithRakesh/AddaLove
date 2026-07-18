@@ -23,6 +23,7 @@ import roomRoute from "./routes/room.route.js";
 import FollowersRoute from "./routes/follower.route.js";
 import reportRouter from "./routes/report.route.js";
 import ratingRouter from "./routes/rating.route.js";
+import leaderbordRouter from "./routes/leaderbord.route.js";
 
 app.use('/api/auth/v1',AuthRoute)
 app.use('/api/rooms/v1',roomRoute);
@@ -30,6 +31,7 @@ app.use('/api/wallet/v1',WalletRoute);
 app.use('/api/follower/v1', FollowersRoute)
 app.use('/api/report/v1', reportRouter);
 app.use('/api/rating/v1', ratingRouter);
+app.use('/api/leaderboard/v1', leaderbordRouter);
 
 app.use(errorHandler)
 

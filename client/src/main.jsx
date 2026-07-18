@@ -25,6 +25,7 @@ import WithdrawMoney from './pages/WithdrawMoney.jsx'
 import AudioRoom from './pages/AudioRoom.jsx'
 import SendOtp from './pages/SendOtp.jsx'
 import ForgetPassword from './pages/ForgetPassword.jsx'
+import Leaderboard from './pages/Leaderboard.jsx'
 
 const router = createBrowserRouter([
   {
@@ -90,6 +91,10 @@ const router = createBrowserRouter([
       {
         path: "/withdraw",
         element: <ProtectRoute><WithdrawMoney /></ProtectRoute>
+      },
+      {
+        path: "/leaderboard",
+        element: <ProtectRoute><Leaderboard /></ProtectRoute>
       },
       {
         path: "/messageRoom/:roomId",
