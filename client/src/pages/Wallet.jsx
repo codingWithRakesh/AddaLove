@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { handleError, handleSuccess } from '../components/ErrorMessage';
-import { History, Shield, Zap, Percent, Home, MessageSquare, Mic, CreditCard, User, ChevronRight } from 'lucide-react';
+import { 
+    History, 
+    Shield, 
+    Zap, 
+    Percent, 
+    ChevronRight, 
+    X,
+    Globe,
+    ChevronDown,
+    Sparkles,
+    Coins,
+    Crown
+} from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useUserData } from '../context/UserdataContext';
 import useUserStore from '../store/userStore';
@@ -132,7 +144,7 @@ export default function AddaLoveRecharge() {
                 email: `${orderdata.useremail}`,
             },
             theme: {
-                color: '#e84393',
+                color: '#FF2994', // Updated to match new brand color
             },
         };
         try {
@@ -149,249 +161,235 @@ export default function AddaLoveRecharge() {
     };
 
     return (
-        <div className="min-h-screen bg-[#07050a] text-white font-sans selection:bg-pink-500 selection:text-white pb-32">
-            <div className="max-w-md mx-auto p-4">
+        <div className="min-h-screen bg-[#0A0014] text-slate-100 flex flex-col items-center py-6 px-4 font-sans relative overflow-x-hidden pb-32">
+            
+            {/* Ambient Background Glow */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden flex justify-center items-center">
+                <div className="absolute top-[10%] w-[500px] h-[500px] bg-[#FF2994] rounded-full mix-blend-screen filter blur-[120px] opacity-10 animate-pulse"></div>
+                <div className="absolute bottom-[-10%] w-[400px] h-[400px] bg-[#8B2BFF] rounded-full mix-blend-screen filter blur-[150px] opacity-15 animate-pulse" style={{ animationDelay: '2s' }}></div>
+            </div>
 
-                {/* Header */}
-                <header className="flex items-center justify-between mb-5 mt-5">
-                    <div className="flex items-center gap-2">
-                        {/* Custom App Logo Icon */}
-                        <div className="w-8 h-8 rounded-full bg-linear-to-tr from-pink-500 to-purple-600 flex items-center justify-center shadow-lg shadow-pink-500/20">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white">
-                                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-                            </svg>
-                        </div>
-                        <h1 className="text-xl font-bold tracking-wide flex items-center">
-                            <span className="text-pink-500">Adda</span>
-                            <span className="text-pink-400 font-semibold ml-0.5">Love</span>
+            <div className="relative w-full max-w-md mx-auto z-10">
+                
+                {/* Header Section */}
+                <div className="w-full flex justify-between items-center mb-6 px-2">
+                    <div className="flex flex-col">
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            Adda<span className="text-[#FF2994]">Love</span>
                         </h1>
+                        <p className="text-[10px] text-slate-300 mt-0.5">Top-up your <span className="text-[#FF2994]">Wallet</span></p>
                     </div>
-
-                    <div className="flex items-center gap-2.5">
-                        <div className="flex items-center gap-1.5 bg-[#171226] border border-[#2d2244] px-3 py-1 rounded-full">
-                            <div className="w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center text-[10px] font-black text-amber-950">₹</div>
-                            <span className="text-white font-bold text-xs tracking-wide">{balance ? balance : (useralldata?.walletBlance || "0")}</span>
-                        </div>
-
-                        <button className="w-8 h-8 rounded-full bg-[#171226] border border-[#2d2244] flex items-center justify-center text-gray-300 relative">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-                            </svg>
-                            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-pink-500 rounded-full"></span>
-                        </button>
+                    
+                    {/* Compact Balance Badge */}
+                    <div className="flex items-center gap-2 bg-[#1C1035] border border-[#8B2BFF]/30 px-3 py-1.5 rounded-full shadow-[0_0_10px_rgba(139,43,255,0.2)]">
+                        <Coins className="w-4 h-4 text-amber-400" />
+                        <span className="text-white font-bold text-sm tracking-wide">
+                            {balance ? balance : (useralldata?.walletBlance || "0")}
+                        </span>
                     </div>
-                </header>
+                </div>
 
-                {/* Balance Card Section */}
-                <div className="bg-linear-to-br from-[#1b102e] via-[#0f091c] to-[#07050a] border border-[#2c1d45] rounded-2xl p-5 mb-6 relative overflow-hidden shadow-2xl">
-                    <div className="grid grid-cols-12 items-center gap-2">
-                        <div className="col-span-7">
-                            <div className="text-[10px] tracking-widest text-gray-400 font-bold uppercase mb-1">
-                                YOUR BALANCE
-                            </div>
-                            <div className="flex items-center gap-1.5 mb-0.5">
-                                <span className="text-3.5xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-pink-500 to-purple-400 tracking-tight">
-                                    {balance ? balance : (useralldata?.walletBlance || "8680")}
-                                </span>
-                                <div className="flex items-center gap-1 text-[#eab308] font-bold text-sm mt-2">
-                                    <div className="w-4 h-4 rounded-full bg-amber-400 flex items-center justify-center text-[11px] font-black text-amber-950">₹</div>
-                                    <span>coins</span>
+                {/* Hero Character Image */}
+                <div className="relative w-full flex justify-center mb-6 animate-fadeIn">
+                    <img 
+                        src="https://ik.imagekit.io/ufopzzlbh/addlovemodel.jpeg" 
+                        alt="AddaLove Mascot" 
+                        className="w-48 h-auto drop-shadow-[0_0_25px_rgba(255,41,148,0.4)]"
+                    />
+                </div>
+
+                {/* Main Glassmorphism Card */}
+                <div className="w-full bg-[#150A2A]/90 backdrop-blur-xl border border-white/5 rounded-[32px] p-5 shadow-2xl animate-fadeIn">
+                    
+                    {/* Balance Display Banner */}
+                    <div className="bg-gradient-to-br from-[#2A0845] via-[#1C053A] to-[#0A0014] border border-[#FF2994]/30 rounded-2xl p-5 mb-5 relative overflow-hidden shadow-[0_0_20px_rgba(255,41,148,0.15)]">
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#FF2994] rounded-full mix-blend-screen filter blur-[40px] opacity-30"></div>
+                        
+                        <div className="relative z-10 flex items-center justify-between">
+                            <div>
+                                <div className="text-[10px] tracking-widest text-slate-400 font-bold uppercase mb-1">
+                                    Current Balance
+                                </div>
+                                <div className="flex items-end gap-2">
+                                    <span className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] tracking-tight">
+                                        {balance ? balance : (useralldata?.walletBlance || "0")}
+                                    </span>
+                                    <span className="text-amber-400 font-bold text-sm mb-1.5 flex items-center gap-1">
+                                        <Coins className="w-3.5 h-3.5" /> coins
+                                    </span>
                                 </div>
                             </div>
-                            <div className="text-gray-500 text-xs font-medium mb-5">
-                                ≈ ₹0.99 value
-                            </div>
-                        </div>
-
-                        {/* Floating Wallet Illustration Area */}
-                        <div className="col-span-5 relative flex justify-center items-center">
-                            <div className="absolute w-24 h-24 bg-purple-500/20 rounded-full blur-xl -z-10 animate-pulse"></div>
-                            <div className="relative p-3 bg-linear-to-b from-[#2e1d4d] to-[#160d29] rounded-xl border border-[#442c73] shadow-xl rotate-12 transform hover:rotate-0 transition-transform duration-300">
-                                <div className="absolute -top-2 -right-2 bg-amber-400 text-amber-950 p-0.5 rounded-full text-[9px] font-black shadow-md">👑</div>
-                                <div className="w-12 h-8 bg-purple-600/40 rounded-md flex items-center justify-center">
-                                    <div className="w-3 h-3 rounded-full bg-pink-500 opacity-80"></div>
-                                </div>
-                            </div>
-                            {/* Decorative mini ambient coins floating */}
-                            <span className="absolute text-[10px] top-0 left-4 animate-bounce">🪙</span>
-                            <span className="absolute text-xs bottom-1 right-2 animate-pulse">🪙</span>
                         </div>
                     </div>
 
-                    {/* Transaction History Button Wrapper */}
+                    {/* Transaction History Button */}
                     <button 
                         onClick={handleclick} 
-                        className="w-full flex items-center justify-between bg-black/40 border border-[#bfa34c]/30 hover:border-[#bfa34c]/60 text-[#ffd56b] transition-all px-4 py-2.5 rounded-xl text-xs font-semibold"
+                        className="w-full mb-6 flex items-center justify-between bg-[#1C1035] border border-white/5 hover:border-[#8B2BFF]/50 text-slate-200 transition-all px-4 py-3 rounded-xl text-sm font-medium group"
                     >
                         <div className="flex items-center gap-2">
-                            <History className="w-4 h-4 text-[#ffd56b]" />
-                            <span>Your transaction history</span>
+                            <History className="w-4 h-4 text-[#8B2BFF] group-hover:text-[#A75CFF] transition-colors" />
+                            <span>Transaction History</span>
                         </div>
-                        <ChevronRight className="w-4 h-4 text-[#ffd56b]/70" />
+                        <div className="w-6 h-6 rounded-full bg-[#2A1545] flex items-center justify-center group-hover:bg-[#8B2BFF]/20 transition-colors">
+                            <ChevronRight className="w-3.5 h-3.5 text-[#8B2BFF]" />
+                        </div>
                     </button>
-                </div>
 
-                {/* Recharge Section Title */}
-                <div className="mb-4">
-                    <div className="flex items-center gap-2 mb-0.5">
-                        <Zap className="w-5 h-5 text-pink-500 fill-pink-500" />
-                        <h2 className="text-lg font-bold tracking-wide text-white">Recharge Coins</h2>
+                    {/* Recharge Section Title */}
+                    <div className="mb-4 flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-[#FF2994] fill-[#FF2994]" />
+                        <h2 className="text-lg font-bold tracking-wide text-white">Select a Package</h2>
                     </div>
-                    <p className="text-xs text-gray-400 ml-7">Choose a pack that suits you</p>
-                </div>
 
-                {/* Grid of Coin Packages - Matched to exact 4-column layout */}
-                <div className="grid grid-cols-4 gap-2.5 mb-8">
-                    {coinPackages.map((pkg, index) => {
-                        const isSelected = selectedPkg?.price === pkg.price;
+                    {/* Grid of Coin Packages */}
+                    <div className="grid grid-cols-3 gap-2.5 mb-6">
+                        {coinPackages.map((pkg, index) => {
+                            const isSelected = selectedPkg?.price === pkg.price;
 
-                        return (
-                            <div
-                                key={index}
-                                onClick={() => {
-                                    setSelectedPkg(pkg);
-                                    setIsModalOpen(true);
-                                }}
-                                className={`relative bg-[#110d1a] rounded-xl p-2.5 pt-4 flex flex-col items-center justify-between border transition-all cursor-pointer ${
-                                    isSelected
-                                        ? 'border-pink-500 bg-[#22132d] shadow-[0_0_15px_rgba(236,72,153,0.25)]'
-                                        : pkg.popular
-                                            ? 'border-pink-500 bg-[#170e21]'
-                                            : 'border-[#221836] hover:border-gray-700'
-                                }`}
-                            >
-                                {/* Elite Badges matching image spec precisely */}
-                                {pkg.popular && (
-                                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 bg-linear-to-r from-pink-500 to-purple-600 text-white text-[7px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap shadow-md">
-                                        Most Popular
+                            return (
+                                <div
+                                    key={index}
+                                    onClick={() => {
+                                        setSelectedPkg(pkg);
+                                        setIsModalOpen(true);
+                                    }}
+                                    className={`relative rounded-xl p-3 flex flex-col items-center justify-between border-2 transition-all cursor-pointer ${
+                                        isSelected
+                                            ? 'border-[#FF2994] bg-[#2A0845] shadow-[0_0_15px_rgba(255,41,148,0.3)] transform scale-105 z-10'
+                                            : pkg.popular
+                                                ? 'border-[#8B2BFF]/50 bg-[#1C1035] hover:border-[#8B2BFF]'
+                                                : 'border-white/5 bg-[#1A0B2E] hover:border-white/20'
+                                    }`}
+                                >
+                                    {/* Elite Badges */}
+                                    {pkg.popular && (
+                                        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] text-white text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap shadow-md flex items-center gap-0.5">
+                                            <Crown className="w-2 h-2" /> Popular
+                                        </div>
+                                    )}
+
+                                    {/* Coin Amount */}
+                                    <div className="flex flex-col items-center gap-1 mb-2 mt-2">
+                                        <Coins className={`w-6 h-6 ${pkg.popular || isSelected ? 'text-amber-400' : 'text-amber-400/70'}`} />
+                                        <span className="text-amber-400 font-extrabold text-[15px] tracking-tight">
+                                            {pkg.coins.toLocaleString()}
+                                        </span>
                                     </div>
-                                )}
 
-                                {/* Card Coin Content */}
-                                <div className="flex items-center gap-1 mb-1">
-                                    <div className="w-3.5 h-3.5 rounded-full bg-amber-400 flex items-center justify-center text-[9px] font-black text-amber-950 shadow-xs">₹</div>
-                                    <span className="text-[#facc15] font-extrabold text-[13px] tracking-tight">
-                                        {pkg.coins.toLocaleString()}
-                                    </span>
-                                </div>
+                                    {/* Sub-Labels / Bonus */}
+                                    <div className="min-h-[16px] flex items-center justify-center mb-2 w-full">
+                                        {pkg.tag ? (
+                                            <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider w-full text-center ${
+                                                pkg.tagType === 'basic' ? 'bg-white/5 text-slate-400' :
+                                                pkg.tagType === 'popular' ? 'bg-[#8B2BFF]/20 text-[#A75CFF]' :
+                                                pkg.tagType === 'best' ? 'bg-amber-500/20 text-amber-400' :
+                                                'text-[#FF2994] bg-[#FF2994]/20'
+                                            }`}>
+                                                {pkg.tag}
+                                            </span>
+                                        ) : pkg.bonus ? (
+                                            <span className="text-green-400 font-bold text-[9px] tracking-tight bg-green-500/10 px-1.5 py-0.5 rounded w-full text-center">
+                                                {pkg.bonus}
+                                            </span>
+                                        ) : null}
+                                    </div>
 
-                                {/* Custom Sub-Labels Content */}
-                                <div className="min-h-4 flex items-center justify-center mb-3">
-                                    {pkg.tag ? (
-                                        <span className={`text-[7px] font-extrabold px-1.5 py-0.5 rounded-sm tracking-wide uppercase ${
-                                            pkg.tagType === 'basic' ? 'bg-[#25222e] text-gray-300 border border-gray-600/30' :
-                                            pkg.tagType === 'popular' ? 'bg-[#2f183b] text-pink-400 border border-pink-500/20' :
-                                            pkg.tagType === 'best' ? 'bg-[#2c2720] text-amber-400 border border-amber-500/20' :
-                                            'text-pink-400 font-bold'
-                                        }`}>
-                                            {pkg.tag}
-                                        </span>
-                                    ) : pkg.bonus ? (
-                                        <span className="text-[#22c55e] font-extrabold text-[8px] tracking-tight">
-                                            {pkg.bonus}
-                                        </span>
-                                    ) : null}
-                                </div>
-
-                                {/* Price block layout element */}
-                                <div className="w-full pt-1.5 border-t border-gray-800/60 text-center">
-                                    <span className="text-white font-extrabold text-[13px]">
+                                    {/* Price Button Element */}
+                                    <div className={`w-full py-1.5 rounded-lg text-center font-bold text-[13px] transition-colors ${
+                                        isSelected ? 'bg-[#FF2994] text-white' : 'bg-white/5 text-slate-200 group-hover:bg-white/10'
+                                    }`}>
                                         ₹{pkg.price.toLocaleString()}
-                                    </span>
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                            );
+                        })}
+                    </div>
 
-                {/* Trust/Feature Badges Footnote matching image style precisely */}
-                <div className="bg-[#0b0912] border border-[#1a1426] rounded-xl p-3 grid grid-cols-3 gap-1 text-center divide-x divide-gray-900 mb-4">
-                    <div className="flex flex-col items-center justify-center px-1">
-                        <Shield className="w-4 h-4 text-purple-400 mb-1" />
-                        <span className="text-[9px] font-bold text-white block">100% Secure</span>
-                        <span className="text-[7px] text-gray-500">Safe & trusted payments</span>
+                    {/* Trust/Feature Badges */}
+                    <div className="bg-[#1C1035] border border-white/5 rounded-xl p-3 grid grid-cols-3 gap-2 text-center divide-x divide-white/10">
+                        <div className="flex flex-col items-center justify-center px-1">
+                            <Shield className="w-4 h-4 text-[#8B2BFF] mb-1" />
+                            <span className="text-[9px] font-bold text-slate-200 block">100% Secure</span>
+                        </div>
+                        <div className="flex flex-col items-center justify-center px-1">
+                            <Zap className="w-4 h-4 text-[#FF2994] mb-1" />
+                            <span className="text-[9px] font-bold text-slate-200 block">Instant Add</span>
+                        </div>
+                        <div className="flex flex-col items-center justify-center px-1">
+                            <Percent className="w-4 h-4 text-[#8B2BFF] mb-1" />
+                            <span className="text-[9px] font-bold text-slate-200 block">Best Value</span>
+                        </div>
                     </div>
-                    <div className="flex flex-col items-center justify-center px-1">
-                        <Zap className="w-4 h-4 text-purple-400 mb-1" />
-                        <span className="text-[9px] font-bold text-white block">Instant Delivery</span>
-                        <span className="text-[7px] text-gray-500">Coins added instantly</span>
-                    </div>
-                    <div className="flex flex-col items-center justify-center px-1">
-                        <Percent className="w-4 h-4 text-purple-400 mb-1" />
-                        <span className="text-[9px] font-bold text-white block">Best Offers</span>
-                        <span className="text-[7px] text-gray-500">Extra coins in every pack</span>
-                    </div>
-                </div>
-
-                {/* Payment Gateway Trust Tagline */}
-                <div className="flex items-center justify-center gap-1.5 text-gray-500 text-[10px] mb-6">
-                    <span>🔒 Securing trusted payment partners</span>
                 </div>
             </div>
 
-
             {/* Payment Confirmation Overlay Modal Drawer */}
             {isModalOpen && selectedPkg && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-                    <div className="bg-[#120e1c] border border-[#2c1d45] rounded-t-2xl sm:rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl relative animate-fade-in-up">
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+                    <div className="bg-[#150A2A] border border-white/10 rounded-3xl w-full max-w-sm overflow-hidden shadow-[0_0_40px_rgba(139,43,255,0.15)] relative">
                         
-                        {/* Interactive Drag Pill / Close Accent line */}
-                        <div className="w-12 h-1 bg-gray-700 rounded-full mx-auto my-3 sm:hidden" onClick={() => !isProcessing && setIsModalOpen(false)}></div>
+                        {/* Interactive Drag Pill */}
+                        <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mt-4 sm:hidden"></div>
 
                         <button
                             onClick={() => !isProcessing && setIsModalOpen(false)}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-10"
+                            className="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors z-10 bg-white/5 rounded-full p-1"
                             disabled={isProcessing}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                            <X className="w-5 h-5" />
                         </button>
 
-                        <div className="p-5">
-                            <h3 className="text-base font-bold mb-4 text-center text-white tracking-wide">Confirm Recharge</h3>
+                        <div className="p-6 pt-8">
+                            <h3 className="text-xl font-bold mb-6 text-center text-white flex items-center justify-center gap-2">
+                                <Sparkles className="w-5 h-5 text-[#FF2994]" /> 
+                                Confirm Package
+                            </h3>
 
-                            <div className="bg-[#0a0710] rounded-xl p-4 border border-[#221836] mb-5">
-                                <div className="flex justify-between items-center mb-3">
-                                    <span className="text-xs text-gray-400">Selected Coins Package</span>
-                                    <div className="flex items-center gap-1">
-                                        <div className="w-3.5 h-3.5 rounded-full bg-amber-400 flex items-center justify-center text-[9px] font-black text-amber-950">₹</div>
-                                        <span className="text-sm font-bold text-amber-400">{selectedPkg.coins.toLocaleString()}</span>
+                            <div className="bg-[#1C1035] rounded-2xl p-5 border border-white/5 mb-6">
+                                <div className="flex justify-between items-center mb-4">
+                                    <span className="text-sm text-slate-400 font-medium">Coins Package</span>
+                                    <div className="flex items-center gap-1.5 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
+                                        <Coins className="w-4 h-4 text-amber-400" />
+                                        <span className="text-base font-bold text-amber-400">{selectedPkg.coins.toLocaleString()}</span>
                                     </div>
                                 </div>
 
                                 {selectedPkg.bonus && (
-                                    <div className="flex justify-between items-center mb-3">
-                                        <span className="text-xs text-gray-400">Bonus Allocation</span>
-                                        <span className="text-xs font-bold text-green-500">{selectedPkg.bonus}</span>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="text-sm text-slate-400 font-medium">Bonus Allocation</span>
+                                        <span className="text-sm font-bold text-green-400 bg-green-500/10 px-2 py-0.5 rounded">{selectedPkg.bonus}</span>
                                     </div>
                                 )}
 
-                                <div className="h-px w-full bg-gray-900 my-3"></div>
+                                <div className="h-px w-full bg-white/10 my-4"></div>
 
                                 <div className="flex justify-between items-center">
-                                    <span className="text-xs text-gray-300 font-medium">Payable Amount</span>
-                                    <span className="text-xl font-black text-white tracking-tight">₹{selectedPkg.price.toLocaleString()}</span>
+                                    <span className="text-sm text-slate-300 font-medium">Total Amount</span>
+                                    <span className="text-2xl font-black text-white tracking-tight">₹{selectedPkg.price.toLocaleString()}</span>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-center gap-1.5 mb-5 text-gray-400 text-[11px]">
-                                <Shield className="w-3.5 h-3.5 text-blue-500" />
-                                Secured checkout powered by <span className="font-bold text-white tracking-wide">Razorpay</span>
+                            <div className="flex items-center justify-center gap-2 mb-6 text-slate-400 text-xs">
+                                <Shield className="w-4 h-4 text-green-400" />
+                                Secured checkout via <span className="font-bold text-white tracking-wide">Razorpay</span>
                             </div>
 
                             <button
                                 onClick={handlePayment}
                                 disabled={isProcessing}
-                                className="w-full bg-linear-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 disabled:from-purple-950 disabled:to-purple-900 text-white font-bold py-3.5 rounded-xl transition-all flex justify-center items-center shadow-lg shadow-pink-500/20 text-sm"
+                                className="w-full bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] text-white font-bold py-4 rounded-full transition-all flex justify-center items-center shadow-[0_0_20px_rgba(255,41,148,0.4)] hover:shadow-[0_0_25px_rgba(139,43,255,0.5)] disabled:opacity-70 disabled:cursor-not-allowed text-sm"
                             >
                                 {isProcessing ? (
-                                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Processing Payment...
+                                    </>
                                 ) : (
-                                    `Pay Now • ₹${selectedPkg.price.toLocaleString()}`
+                                    `Proceed to Pay ₹${selectedPkg.price.toLocaleString()}`
                                 )}
                             </button>
                         </div>
@@ -400,17 +398,15 @@ export default function AddaLoveRecharge() {
             )}
 
             {/* Animation injection styling */}
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(15px); }
+            <style>{`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-                .animate-fade-in-up {
-                    animation: fadeInUp 0.25s ease-out forwards;
+                .animate-fadeIn {
+                    animation: fadeIn 0.3s ease-out forwards;
                 }
-                `
-            }} />
+            `}</style>
         </div>
     );
 }

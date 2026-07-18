@@ -206,9 +206,12 @@ const Home = () => {
         {isGirl && (
           <div className="flex-1 overflow-y-auto px-4 pt-24 pb-28 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none">
             <div className="girl-create-ui rounded-3xl border border-white/10 bg-[#090915] px-4 py-5 shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
-              <div className="relative overflow-hidden rounded-[18px] border border-[#FF4D8D]/15 bg-[#0F0D1C] px-4 py-5">
-                <div className="absolute right-3 top-2 h-24 w-24 rounded-full bg-[#FF4D8D]/20 blur-2xl"></div>
-                <div className="absolute right-16 bottom-0 h-20 w-20 rounded-full bg-[#6C3BFF]/20 blur-2xl"></div>
+              
+              {/* Girl Hero Banner */}
+              <div className="relative overflow-hidden rounded-[18px] border border-[#FF4D8D]/15 bg-[#0F0D1C] px-4 py-5 flex items-center justify-between">
+                <div className="absolute right-3 top-2 h-24 w-24 rounded-full bg-[#FF4D8D]/20"></div>
+                <div className="absolute right-16 bottom-0 h-20 w-20 rounded-full bg-[#6C3BFF]/20"></div>
+                
                 <div className="relative z-10 max-w-[58%]">
                   <h1 className="text-[30px] font-black leading-tight tracking-normal text-white">
                     Create a <span className="text-[#FF4D8D]">Room</span>
@@ -217,8 +220,14 @@ const Home = () => {
                     Choose your vibe, select 2 languages and let the fun begin!
                   </p>
                 </div>
-                <div className="absolute right-5 top-1/2 flex h-24 w-24 -translate-y-1/2 items-center justify-center rounded-[28px] bg-linear-to-br from-[#FF4D8D] to-[#7C2DFF] text-white shadow-[0_0_28px_rgba(255,77,141,0.45)]">
-                  <Icons.Message />
+                
+                {/* Embedded Mascot for Girl UI */}
+                <div className="relative z-10 flex h-[85px] w-[85px] shrink-0 items-center justify-center">
+                  <img 
+                    src="https://ik.imagekit.io/ufopzzlbh/addlovemodel.jpeg" 
+                    alt="Mascot" 
+                    className="h-full w-full rounded-full border-2 border-[#FF4D8D]/30 object-cover shadow-[0_0_20px_rgba(255,77,141,0.4)]" 
+                  />
                 </div>
               </div>
 
@@ -241,8 +250,6 @@ const Home = () => {
                   );
                 })}
               </div>
-
-              {/* pick a wive was there  */}
 
               <div className="mt-6">
                 <div className="mb-3 flex items-center justify-between">
@@ -373,16 +380,17 @@ const Home = () => {
           </div>
         )}
 
-        {/* BOY UI - Redesigned to match provided image exactly */}
+        {/* BOY UI */}
         {isBoy && (
           <div className="flex-1 overflow-y-auto px-4 pt-4 pb-24 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none">
             <div className="flex flex-col gap-6">
 
-              {/* Hero Banner */}
-              <div className="relative w-full rounded-2xl border mt-18 border-[#FF4D8D]/20 bg-linear-to-br from-[#2D1433] via-[#141021] to-[#0D111A] p-5 overflow-hidden shadow-lg">
-                {/* Decorative glows */}
-                <div className="absolute top-0 right-0 -mr-10 -mt-10 h-32 w-32 rounded-full bg-[#FF4D8D] opacity-20 blur-2xl"></div>
-                <div className="absolute bottom-0 right-10 h-24 w-24 rounded-full bg-[#6C3BFF] opacity-20 blur-2xl"></div>
+              {/* Boy Hero Banner */}
+              <div className="relative w-full rounded-2xl border mt-18 border-[#FF4D8D]/20 bg-linear-to-br from-[#2D1433] via-[#141021] to-[#0D111A] p-5 overflow-hidden shadow-lg flex items-center justify-between">
+                
+                {/* Static Background Glows */}
+                <div className="absolute top-0 right-0 -mr-10 -mt-10 h-32 w-32 rounded-full bg-[#FF4D8D] opacity-20"></div>
+                <div className="absolute bottom-0 right-10 h-24 w-24 rounded-full bg-[#6C3BFF] opacity-20"></div>
 
                 <div className="relative z-10 w-2/3">
                   <h2 className="text-[26px] font-black leading-tight tracking-wide">
@@ -395,9 +403,14 @@ const Home = () => {
                     Explore Rooms →
                   </button>
                 </div>
-                {/* 3D Mic Proxy Image/Icon */}
-                <div className="absolute -right-2.5 top-1/2 -translate-y-1/2 text-[90px] drop-shadow-[0_0_15px_rgba(255,77,141,0.4)] pointer-events-none select-none">
-                  🎙️
+                
+                {/* Embedded Mascot for Boy UI */}
+                <div className="relative z-10 flex h-24 w-24 shrink-0 items-center justify-center">
+                  <img 
+                    src="https://ik.imagekit.io/ufopzzlbh/addlovemodel.jpeg" 
+                    alt="Mascot" 
+                    className="h-[85px] w-[85px] rounded-full border-2 border-[#6C3BFF]/30 object-cover shadow-[0_0_20px_rgba(108,59,255,0.4)]" 
+                  />
                 </div>
               </div>
 
@@ -432,7 +445,7 @@ const Home = () => {
                   /* Loading Skeletons */
                   <div className="flex flex-col gap-3">
                     {[1, 2].map((n) => (
-                      <div key={n} className="flex h-27.5 w-full animate-pulse flex-col rounded-2xl border border-[#232336] bg-[#12131D] p-4"></div>
+                      <div key={n} className="flex h-27.5 w-full flex-col rounded-2xl border border-[#232336] bg-[#12131D] p-4 opacity-50"></div>
                     ))}
                   </div>
                 ) : rooms && rooms.length > 0 ? (

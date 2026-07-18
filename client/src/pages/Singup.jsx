@@ -1,11 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, Upload, Loader, Verified } from 'lucide-react';
+import { 
+    Eye, 
+    EyeOff, 
+    Upload, 
+    Loader, 
+    Verified, 
+    Smartphone, 
+    Globe, 
+    ChevronDown, 
+    Sparkles, 
+    ArrowRight,
+    User,
+    Mail,
+    FileText,
+    Calendar,
+    Lock,
+    Camera
+} from 'lucide-react';
 import { handleSuccess } from '../components/ErrorMessage';
 import { Link, useNavigate } from 'react-router';
-import shotlogo from "../assets/logo2.png"
+import shotlogo from "../assets/logo2.png";
+
 export default function Signup() {
-    // Step 1: Email verification
-    const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: Registration
+    // Step 1: Email verification (Phone in logic)
+    const [step, setStep] = useState(1); // 1: Email/Phone, 2: OTP, 3: Registration
     const [email, setEmail] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('')
     const [otp, setOtp] = useState('');
@@ -16,6 +34,7 @@ export default function Signup() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [timer, setTimer] = useState(0);
     const naviget = useNavigate()
+    
     // Step 3: Registration form
     const [formData, setFormData] = useState({
         fullName: '',
@@ -58,7 +77,6 @@ export default function Signup() {
             });
             return;
         }
-
 
         setLoading(true);
         try {
@@ -195,8 +213,6 @@ export default function Signup() {
                 // Handle successful registration
                 handleSuccess('Registration successful!');
                 naviget('/login')
-                // Redirect to login or dashboard
-                // window.location.href = '/login';
             } else {
                 setErrors({ submit: data.message || 'Registration failed' });
             }
@@ -209,85 +225,111 @@ export default function Signup() {
     };
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-[#0F172A] via-[#1a1f3a] to-[#0F172A] text-slate-100 flex items-center justify-center px-4 py-8">
-            {/* Animated background blur elements */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-20 left-10 w-72 h-72 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-                <div className="absolute bottom-20 right-10 w-72 h-72 bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="min-h-screen bg-[#0A0014] text-slate-100 flex flex-col items-center py-6 px-4 font-sans relative overflow-x-hidden">
+            
+            {/* Ambient Background Glow */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden flex justify-center items-center">
+                <div className="absolute top-[10%] w-[500px] h-[500px] bg-[#FF2994] rounded-full mix-blend-screen filter blur-[120px] opacity-10 animate-pulse"></div>
+                <div className="absolute bottom-[-10%] w-[400px] h-[400px] bg-[#8B2BFF] rounded-full mix-blend-screen filter blur-[150px] opacity-15 animate-pulse" style={{ animationDelay: '2s' }}></div>
             </div>
 
-            {/* Main Container */}
-            <div className="relative w-full max-w-md">
-                {/* Glassmorphism Card */}
-                <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl">
-                    {/* Header */}
-                    <div className="text-center mb-8">
-                        <div className="inline-block mb-4 p-3 bg-linear-to-r from-[rgb(28,1,11)] to-[#170352] rounded-full">
-                            <img className='h-10' src={shotlogo} alt="" />
-                        </div>
-                        <h1 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] bg-clip-text text-transparent mb-2">
-                            AddaLove
+            <div className="relative w-full max-w-md flex flex-col items-center z-10">
+                
+                {/* Header Section */}
+                <div className="w-full flex justify-between items-center mb-4 px-2">
+                    <div className="flex flex-col">
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            Adda<span className="text-[#FF2994]">Love</span>
                         </h1>
-                        <p className="text-slate-300 text-sm">
-                            {step === 1 && 'Enter your email to get started'}
-                            {step === 2 && 'Enter the OTP sent to your email'}
-                            {step === 3 && 'Complete your profile'}
+                        <p className="text-[10px] text-slate-300 mt-0.5">Connect. Talk. <span className="text-[#FF2994]">Love.</span></p>
+                    </div>
+                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs text-white hover:bg-white/10 transition">
+                        <Globe className="w-3.5 h-3.5" />
+                        English
+                        <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                </div>
+
+                {/* Hero Character Image (Only show on Step 1 & 2 to save space on form) */}
+                {step < 3 && (
+                    <div className="relative w-full flex justify-center mb-6">
+                        <img 
+                            src="https://ik.imagekit.io/ufopzzlbh/addlovemodel.jpeg" 
+                            alt="AddaLove Mascot" 
+                            className="w-48 h-auto drop-shadow-[0_0_25px_rgba(255,41,148,0.4)] transition-all duration-500"
+                        />
+                    </div>
+                )}
+
+                {/* Main Card */}
+                <div className="w-full bg-[#150A2A]/90 backdrop-blur-xl border border-white/5 rounded-[32px] p-6 shadow-2xl">
+                    
+                    <div className="text-center mb-6">
+                        <h2 className="text-2xl font-bold mb-1">
+                            {step === 1 && "Create an Account"}
+                            {step === 2 && "Verify OTP"}
+                            {step === 3 && "Complete Profile"}
+                        </h2>
+                        <p className="text-slate-400 text-sm">
+                            {step === 1 && 'Enter your phone number to get started'}
+                            {step === 2 && 'Enter the 6-digit code sent to your phone'}
+                            {step === 3 && 'Tell us a bit more about yourself'}
                         </p>
                     </div>
 
-                    {/* STEP 1: Email Entry */}
+                    {/* STEP 1: Phone Entry */}
                     {step === 1 && (
-                        <div className="space-y-6 animate-fadeIn">
+                        <div className="space-y-4 animate-fadeIn">
                             <div>
-                                <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                    Phone number
-                                </label>
-                                <input
-                                    type="number"
-                                    name='phoneNumber'
-                                    value={phoneNumber}
-                                    onChange={(e) => {
-                                        setPhoneNumber(e.target.value);
-                                        if (errors.phoneNumber) setErrors({});
-                                    }}
-                                    placeholder="eg. 8665237845"
-                                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 hover:bg-white/5"
-                                />
-                                {errors.phoneNumber && <p className="text-red-400 text-xs mt-1">{errors.phoneNumber}</p>}
+                                <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                                    <Smartphone className="w-5 h-5 text-[#FF2994] shrink-0" />
+                                    <input
+                                        type="number"
+                                        name='phoneNumber'
+                                        value={phoneNumber}
+                                        onChange={(e) => {
+                                            setPhoneNumber(e.target.value);
+                                            if (errors.phoneNumber) setErrors({});
+                                        }}
+                                        placeholder="Phone Number"
+                                        className="w-full bg-transparent text-white placeholder-slate-500 ml-3 outline-none text-sm"
+                                    />
+                                    <div className="flex items-center text-slate-400 text-sm border-l border-white/10 pl-3 ml-2 shrink-0">
+                                        +91 <ChevronDown className="w-4 h-4 ml-1" />
+                                    </div>
+                                </div>
+                                {errors.phoneNumber && <p className="text-red-400 text-xs mt-1.5 px-2">{errors.phoneNumber}</p>}
                             </div>
 
                             <button
                                 onClick={handleSendOtp}
                                 disabled={loading}
-                                className="w-full py-3 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#FF4D8D]/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full mt-4 py-4 bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] text-white font-bold rounded-full hover:shadow-[0_0_20px_rgba(255,41,148,0.4)] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
                             >
                                 {loading ? (
                                     <>
                                         <Loader className="w-4 h-4 animate-spin" />
-                                        Sending...
+                                        Sending OTP...
                                     </>
                                 ) : (
-                                    'Send OTP'
+                                    <>
+                                        <Sparkles className="w-4 h-4" />
+                                        Send OTP
+                                    </>
                                 )}
                             </button>
 
-                            <div className="relative my-6">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-white/20"></div>
-                                </div>
-                                <div className="relative flex justify-center text-xs">
-                                    <span className="px-2 bg-linear-to-br from-[#0F172A] via-[#1a1f3a] to-[#0F172A]">
-                                        Already have an account?
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Sign Up Link */}
-                            <Link
+                            {/* Login Link Card */}
+                            <Link 
                                 to="/login"
-                                className="block w-full py-3 border border-white/20 text-white font-bold rounded-xl text-center hover:bg-white/5 hover:border-[#FF4D8D] transition-all duration-300 transform hover:scale-105"
+                                className="mt-6 flex items-center justify-between w-full bg-[#1A0B2E] border border-white/5 hover:border-[#8B2BFF]/30 rounded-2xl p-4 transition-colors group cursor-pointer"
                             >
-                                Login
+                                <span className="text-sm text-slate-300">
+                                    Already have an account? <span className="text-[#8B2BFF] font-medium group-hover:text-[#A75CFF] transition-colors">Login</span>
+                                </span>
+                                <div className="w-7 h-7 rounded-full bg-[#2A1545] flex items-center justify-center group-hover:bg-[#8B2BFF]/20 transition-colors">
+                                    <ArrowRight className="w-4 h-4 text-[#8B2BFF]" />
+                                </div>
                             </Link>
                         </div>
                     )}
@@ -296,27 +338,26 @@ export default function Signup() {
                     {step === 2 && (
                         <div className="space-y-6 animate-fadeIn">
                             <div>
-                                <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                    Enter OTP
-                                </label>
-                                <input
-                                    type="text"
-                                    value={otp}
-                                    onChange={(e) => {
-                                        setOtp(e.target.value.replace(/\D/g, '').slice(0, 6));
-                                        if (errors.otp) setErrors({});
-                                    }}
-                                    placeholder="000000"
-                                    maxLength="6"
-                                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-center text-2xl tracking-widest font-bold hover:bg-white/5"
-                                />
-                                {errors.otp && <p className="text-red-400 text-xs mt-1">{errors.otp}</p>}
+                                <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-4 focus-within:border-[#FF2994]/50 transition-colors">
+                                    <input
+                                        type="text"
+                                        value={otp}
+                                        onChange={(e) => {
+                                            setOtp(e.target.value.replace(/\D/g, '').slice(0, 6));
+                                            if (errors.otp) setErrors({});
+                                        }}
+                                        placeholder="••••••"
+                                        maxLength="6"
+                                        className="w-full bg-transparent text-white placeholder-slate-600 text-center text-3xl tracking-[0.5em] font-bold outline-none"
+                                    />
+                                </div>
+                                {errors.otp && <p className="text-red-400 text-xs mt-1.5 px-2 text-center">{errors.otp}</p>}
                             </div>
 
                             <button
                                 onClick={handleSubmitOtp}
                                 disabled={loading || otp.length !== 6}
-                                className="w-full py-3 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#FF4D8D]/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full py-4 bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] text-white font-bold rounded-full hover:shadow-[0_0_20px_rgba(255,41,148,0.4)] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
                             >
                                 {loading ? (
                                     <>
@@ -324,27 +365,30 @@ export default function Signup() {
                                         Verifying...
                                     </>
                                 ) : (
-                                    'Verify OTP'
+                                    <>
+                                        <Verified className="w-4 h-4" />
+                                        Verify OTP
+                                    </>
                                 )}
                             </button>
 
-                            <div className="text-center flex justify-between items-center">
+                            <div className="text-center flex justify-between items-center px-2">
                                 <button
                                     onClick={() => {
                                         setStep(1);
                                         setOtp('');
                                         setErrors({});
                                     }}
-                                    className="text-xs text-slate-400 hover:text-[#FF4D8D] transition-colors"
+                                    className="text-xs text-slate-400 hover:text-white transition-colors font-medium"
                                 >
-                                    Back
+                                    Change Number
                                 </button>
                                 {timer > 0 ? (
-                                    <span className="text-xs text-slate-400">Resend in {timer}s</span>
+                                    <span className="text-xs text-slate-400 bg-white/5 px-3 py-1 rounded-full">Resend in {timer}s</span>
                                 ) : (
                                     <button
                                         onClick={handleSendOtp}
-                                        className="text-xs text-[#FF4D8D] hover:text-[#6C3BFF] transition-colors"
+                                        className="text-xs text-[#FF2994] hover:text-[#FF66AD] transition-colors font-medium"
                                     >
                                         Resend OTP
                                     </button>
@@ -355,87 +399,11 @@ export default function Signup() {
 
                     {/* STEP 3: Registration Form */}
                     {step === 3 && (
-                        <form onSubmit={handleRegisterSubmit} className="space-y-4 animate-fadeIn">
-                            {/* Full Name */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                    Full Name
-                                </label>
-                                <input
-                                    type="text"
-                                    name="fullName"
-                                    value={formData.fullName}
-                                    onChange={handleInputChange}
-                                    placeholder="John Doe"
-                                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-sm hover:bg-white/5"
-                                />
-                                {errors.fullName && <p className="text-red-400 text-xs mt-1">{errors.fullName}</p>}
-                            </div>
-
-                            {/* Email (Read-only) */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                    <div className='flex gap-2'>Phone Number (Verified) <Verified className='h-5 text-blue-600' /></div>
-                                </label>
-                                <input
-                                    type="number"
-                                    value={formData.phoneNumber}
-                                    readOnly
-                                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-xl text-slate-300 cursor-not-allowed opacity-70 text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                    Email Address
-                                </label>
-                                <input
-                                    type="email"
-                                    name='email'
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    placeholder='Enter email'
-                                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-sm hover:bg-white/5"
-                                />
-                            </div>
-
-                            {/* Age */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                    Bio
-                                </label>
-                                <textarea
-                                    name="bio"
-                                    value={formData.bio}
-                                    onChange={handleInputChange}
-                                    placeholder="Tell us about yourself"
-                                    rows={4}
-                                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-sm hover:bg-white/5 resize-none"
-                                />
-                                {errors.bio && <p className="text-red-400 text-xs mt-1">{errors.bio}</p>}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                    Age
-                                </label>
-                                <input
-                                    type="number"
-                                    name="age"
-                                    value={formData.age}
-                                    onChange={handleInputChange}
-                                    placeholder="18"
-                                    min="18"
-                                    max="120"
-                                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-sm hover:bg-white/5"
-                                />
-                                {errors.age && <p className="text-red-400 text-xs mt-1">{errors.age}</p>}
-                            </div>
-
-                            {/* Profile Photo Upload */}
-                            <div>
-                                <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                    Profile Photo
-                                </label>
-                                <div className="relative">
+                        <form onSubmit={handleRegisterSubmit} className="space-y-3.5 animate-fadeIn">
+                            
+                            {/* Profile Photo Upload inside Step 3 */}
+                            <div className="flex flex-col items-center mb-4">
+                                <div className="relative group">
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -445,84 +413,151 @@ export default function Signup() {
                                     />
                                     <label
                                         htmlFor="photoInput"
-                                        className="flex flex-col items-center justify-center w-full px-4 py-3 bg-white/5 border-2 border-dashed border-white/20 rounded-xl cursor-pointer hover:border-[#FF4D8D] hover:bg-white/10 transition-all duration-300 gap-2"
+                                        className={`flex flex-col items-center justify-center w-24 h-24 rounded-full cursor-pointer transition-all duration-300 overflow-hidden border-2 ${formData.profilePhotoPreview ? 'border-[#FF2994]' : 'border-dashed border-white/20 bg-[#1C1035] hover:border-[#FF2994]/50 hover:bg-[#251545]'}`}
                                     >
                                         {formData.profilePhotoPreview ? (
-                                            <div className="relative">
+                                            <>
                                                 <img
                                                     src={formData.profilePhotoPreview}
                                                     alt="Preview"
-                                                    className="w-20 h-20 rounded-lg object-cover"
+                                                    className="w-full h-full object-cover"
                                                 />
-                                                <div className="absolute inset-0 bg-black/30 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                                    <Upload className="w-6 h-6 text-white" />
+                                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Camera className="w-6 h-6 text-white" />
                                                 </div>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <Upload className="w-6 h-6 text-slate-400" />
-                                                <span className="text-xs text-slate-400">Click to upload photo</span>
                                             </>
+                                        ) : (
+                                            <div className="flex flex-col items-center text-slate-400">
+                                                <Camera className="w-6 h-6 mb-1 text-slate-400 group-hover:text-[#FF2994] transition-colors" />
+                                                <span className="text-[9px] font-medium uppercase tracking-wider group-hover:text-[#FF2994] transition-colors">Upload</span>
+                                            </div>
                                         )}
                                     </label>
                                 </div>
-                                {errors.profilePhoto && <p className="text-red-400 text-xs mt-1">{errors.profilePhoto}</p>}
+                                {errors.profilePhoto && <p className="text-red-400 text-xs mt-1.5">{errors.profilePhoto}</p>}
                             </div>
 
-                            {/* Password */}
+                            {/* Full Name */}
                             <div>
-                                <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                    Password
-                                </label>
-                                <div className="relative">
+                                <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                                    <User className="w-5 h-5 text-slate-400 shrink-0" />
                                     <input
-                                        type={showPassword ? 'text' : 'password'}
-                                        name="password"
-                                        value={formData.password}
+                                        type="text"
+                                        name="fullName"
+                                        value={formData.fullName}
                                         onChange={handleInputChange}
-                                        placeholder="••••••••"
-                                        className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-sm pr-10 hover:bg-white/5"
+                                        placeholder="Full Name"
+                                        className="w-full bg-transparent text-white placeholder-slate-500 ml-3 outline-none text-sm"
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-[#FF4D8D] transition-colors"
-                                    >
-                                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    </button>
                                 </div>
-                                {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+                                {errors.fullName && <p className="text-red-400 text-xs mt-1 px-2">{errors.fullName}</p>}
                             </div>
 
-                            {/* Confirm Password */}
+                            {/* Phone (Read-only) */}
                             <div>
-                                <label className="block text-sm font-semibold mb-2 text-slate-200">
-                                    Confirm Password
-                                </label>
-                                <div className="relative">
+                                <div className="flex items-center bg-[#150A2A] border border-white/5 rounded-2xl px-4 py-3.5 opacity-80">
+                                    <Verified className="w-5 h-5 text-green-400 shrink-0" />
                                     <input
-                                        type={showConfirmPassword ? 'text' : 'password'}
-                                        name="confirmPassword"
-                                        value={formData.confirmPassword}
-                                        onChange={handleInputChange}
-                                        placeholder="••••••••"
-                                        className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-sm pr-10 hover:bg-white/5"
+                                        type="number"
+                                        value={formData.phoneNumber}
+                                        readOnly
+                                        className="w-full bg-transparent text-slate-300 ml-3 outline-none text-sm cursor-not-allowed"
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-[#FF4D8D] transition-colors"
-                                    >
-                                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    </button>
                                 </div>
-                                {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>}
+                            </div>
+
+                            {/* Email */}
+                            <div>
+                                <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                                    <Mail className="w-5 h-5 text-slate-400 shrink-0" />
+                                    <input
+                                        type="email"
+                                        name='email'
+                                        value={formData.email}
+                                        onChange={handleInputChange}
+                                        placeholder='Email Address (Optional)'
+                                        className="w-full bg-transparent text-white placeholder-slate-500 ml-3 outline-none text-sm"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Age */}
+                            <div>
+                                <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                                    <Calendar className="w-5 h-5 text-slate-400 shrink-0" />
+                                    <input
+                                        type="number"
+                                        name="age"
+                                        value={formData.age}
+                                        onChange={handleInputChange}
+                                        placeholder="Age (Min 18)"
+                                        min="18"
+                                        max="120"
+                                        className="w-full bg-transparent text-white placeholder-slate-500 ml-3 outline-none text-sm"
+                                    />
+                                </div>
+                                {errors.age && <p className="text-red-400 text-xs mt-1 px-2">{errors.age}</p>}
+                            </div>
+
+                            {/* Bio */}
+                            <div>
+                                <div className="flex items-start bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                                    <FileText className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                                    <textarea
+                                        name="bio"
+                                        value={formData.bio}
+                                        onChange={handleInputChange}
+                                        placeholder="Write a short bio..."
+                                        rows={2}
+                                        className="w-full bg-transparent text-white placeholder-slate-500 ml-3 outline-none text-sm resize-none"
+                                    />
+                                </div>
+                                {errors.bio && <p className="text-red-400 text-xs mt-1 px-2">{errors.bio}</p>}
+                            </div>
+
+                            {/* Passwords */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                                        <Lock className="w-4 h-4 text-slate-400 shrink-0" />
+                                        <input
+                                            type={showPassword ? 'text' : 'password'}
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleInputChange}
+                                            placeholder="Password"
+                                            className="w-full bg-transparent text-white placeholder-slate-500 ml-2 outline-none text-sm"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="text-slate-500 hover:text-white transition-colors shrink-0"
+                                        >
+                                            {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                                        </button>
+                                    </div>
+                                    {errors.password && <p className="text-red-400 text-[10px] mt-1 px-1">{errors.password}</p>}
+                                </div>
+                                <div>
+                                    <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                                        <Lock className="w-4 h-4 text-slate-400 shrink-0" />
+                                        <input
+                                            type={showConfirmPassword ? 'text' : 'password'}
+                                            name="confirmPassword"
+                                            value={formData.confirmPassword}
+                                            onChange={handleInputChange}
+                                            placeholder="Confirm"
+                                            className="w-full bg-transparent text-white placeholder-slate-500 ml-2 outline-none text-sm"
+                                        />
+                                    </div>
+                                    {errors.confirmPassword && <p className="text-red-400 text-[10px] mt-1 px-1">{errors.confirmPassword}</p>}
+                                </div>
                             </div>
 
                             {/* Error Message */}
                             {errors.submit && (
-                                <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
-                                    <p className="text-red-300 text-xs">{errors.submit}</p>
+                                <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-center">
+                                    <p className="text-red-400 text-xs">{errors.submit}</p>
                                 </div>
                             )}
 
@@ -530,7 +565,7 @@ export default function Signup() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-3 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#FF4D8D]/50 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
+                                className="w-full mt-4 py-4 bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] text-white font-bold rounded-full hover:shadow-[0_0_20px_rgba(255,41,148,0.4)] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
                             >
                                 {loading ? (
                                     <>
@@ -538,7 +573,10 @@ export default function Signup() {
                                         Creating Account...
                                     </>
                                 ) : (
-                                    'Create Account'
+                                    <>
+                                        <User className="w-4 h-4" />
+                                        Create Account
+                                    </>
                                 )}
                             </button>
 
@@ -550,6 +588,7 @@ export default function Signup() {
                                         fullName: '',
                                         email: '',
                                         age: '',
+                                        bio: '',
                                         password: '',
                                         confirmPassword: '',
                                         profilePhoto: null,
@@ -557,44 +596,50 @@ export default function Signup() {
                                     });
                                     setErrors({});
                                 }}
-                                className="w-full py-2 text-slate-300 hover:text-[#FF4D8D] transition-colors text-sm font-semibold"
+                                className="w-full py-2 mt-2 text-slate-400 hover:text-white transition-colors text-xs font-medium"
                             >
-                                Back
+                                Back to OTP
                             </button>
                         </form>
                     )}
                 </div>
 
                 {/* Progress Indicator */}
-                <div className="flex gap-2 justify-center mt-8">
+                <div className="flex gap-2 justify-center mt-6 z-10">
                     {[1, 2, 3].map(i => (
                         <div
                             key={i}
-                            className={`h-1 rounded-full transition-all duration-300 ${i <= step
-                                ? 'bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] w-8'
-                                : 'bg-white/20 w-6'
-                                }`}
+                            className={`h-1.5 rounded-full transition-all duration-500 ${
+                                i === step
+                                    ? 'bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] w-8 shadow-[0_0_10px_rgba(255,41,148,0.5)]'
+                                    : i < step 
+                                        ? 'bg-[#8B2BFF]/50 w-4'
+                                        : 'bg-white/10 w-4'
+                            }`}
                         />
                     ))}
                 </div>
             </div>
 
-            {/* Add animation for fadeIn */}
+            {/* Animation & Resets */}
             <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fadeIn {
+                    animation: fadeIn 0.4s ease-out forwards;
+                }
+                /* Hide number input spinners */
+                input[type='number']::-webkit-inner-spin-button,
+                input[type='number']::-webkit-outer-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
+                }
+                input[type='number'] {
+                    -moz-appearance: textfield;
+                }
+            `}</style>
         </div>
     );
 }

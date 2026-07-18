@@ -1,13 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { handleError, handleSuccess } from '../components/ErrorMessage';
-import { Eye, EyeOff, Verified } from 'lucide-react';
+import { 
+  Eye, 
+  EyeOff, 
+  Verified,
+  Smartphone,
+  Globe,
+  ChevronDown,
+  Sparkles,
+  ArrowRight,
+  User,
+  Mail,
+  FileText,
+  Calendar,
+  Lock,
+  Camera,
+  Video,
+  CheckCircle2,
+  Copy,
+  AlertCircle,
+  Loader
+} from 'lucide-react';
+import shotlogo from "../assets/logo2.png";
 
 export default function SignupGirls() {
   const navigate = useNavigate();
 
-  // ===== STEP 1: Email OTP Verification =====
-  const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: Registration, 4: Video, 5: Success
+  // ===== STEP 1: Email OTP Verification (Phone in logic) =====
+  const [step, setStep] = useState(1); // 1: Email/Phone, 2: OTP, 3: Registration, 4: Video, 5: Success
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('')
   const [otp, setOtp] = useState('');
@@ -69,26 +90,26 @@ export default function SignupGirls() {
 
   // ==================== STEP 1: SEND OTP ====================
   const handleSendOtp = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setErrors({});
     setSuccessMessage('');
 
     const cleanedPhone = phoneNumber.trim();
 
-  // Validation
-  if (!cleanedPhone) {
-    setErrors({ phoneNumber: 'Phone number is required.' });
-    return;
-  }
+    // Validation
+    if (!cleanedPhone) {
+      setErrors({ phoneNumber: 'Phone number is required.' });
+      return;
+    }
 
-  const phoneRegex = /^[6-9]\d{9}$/;
+    const phoneRegex = /^[6-9]\d{9}$/;
 
-  if (!phoneRegex.test(cleanedPhone)) {
-    setErrors({
-      phoneNumber: 'Please enter a valid 10-digit Indian mobile number.',
-    });
-    return;
-  }
+    if (!phoneRegex.test(cleanedPhone)) {
+      setErrors({
+        phoneNumber: 'Please enter a valid 10-digit Indian mobile number.',
+      });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -97,7 +118,7 @@ export default function SignupGirls() {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phoneNumber:cleanedPhone }),
+          body: JSON.stringify({ phoneNumber: cleanedPhone }),
         }
       );
 
@@ -112,7 +133,7 @@ export default function SignupGirls() {
       setReferenceCode(data.data.referenceCode);
       setOtpSent(true);
       setTimer(120); // 2-minute timer
-      setSuccessMessage('OTP sent to your phone numner!');
+      setSuccessMessage('OTP sent to your phone number!');
       setStep(2);
     } catch (error) {
       setErrors({ phoneNumber: error.message || 'Network error' });
@@ -123,7 +144,7 @@ export default function SignupGirls() {
 
   // ==================== STEP 2: VERIFY OTP ====================
   const handleSubmitOtp = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setErrors({});
     setSuccessMessage('');
 
@@ -194,6 +215,7 @@ export default function SignupGirls() {
           profilePhoto: file,
           profilePhotoPreview: reader.result,
         }));
+        setErrors((prev) => ({ ...prev, profilePhoto: '' }));
       };
       reader.readAsDataURL(file);
     }
@@ -445,610 +467,657 @@ export default function SignupGirls() {
     navigate('/check-application', { state: { applicationId } });
   };
 
-  // ==================== RENDER STEP 1: EMAIL VERIFICATION ====================
-  if (step === 1) {
-    return (
-      <div className="min-h-screen bg-linear-to-br from-[#0F172A] via-[#1a1f3a] to-[#0F172A] text-slate-100 flex items-center justify-center px-4 py-8">
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-72 h-72 bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
+  // ==================== SHARED LAYOUT RENDER ====================
+  return (
+    <div className="min-h-screen bg-[#0A0014] text-slate-100 flex flex-col items-center py-6 px-4 font-sans relative overflow-x-hidden">
+      
+      {/* Ambient Background Glow */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden flex justify-center items-center">
+        <div className="absolute top-[10%] w-[500px] h-[500px] bg-[#FF2994] rounded-full mix-blend-screen filter blur-[120px] opacity-10 animate-pulse"></div>
+        <div className="absolute bottom-[-10%] w-[400px] h-[400px] bg-[#8B2BFF] rounded-full mix-blend-screen filter blur-[150px] opacity-15 animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
+
+      <div className="relative w-full max-w-md flex flex-col items-center z-10">
+        
+        {/* Header Section */}
+        <div className="w-full flex justify-between items-center mb-4 px-2">
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-bold tracking-tight">
+              Adda<span className="text-[#FF2994]">Love</span>
+            </h1>
+            <p className="text-[10px] text-slate-300 mt-0.5">Girls Community <span className="text-[#FF2994]">Signup</span></p>
+          </div>
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs text-white hover:bg-white/10 transition">
+            <Globe className="w-3.5 h-3.5" />
+            English
+            <ChevronDown className="w-3.5 h-3.5" />
+          </button>
         </div>
 
-        <div className="relative w-full max-w-md">
-          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl hover:shadow-2xl hover:border-white/30 transition-all duration-300">
-            <h1 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] bg-clip-text text-transparent mb-2 text-center">
-              Girl's Signup
-            </h1>
-            <p className="text-slate-400 text-sm text-center mb-8 font-semibold tracking-wide">
-              Step 1: Email Verification
-            </p>
+        {/* Hero Character Image (Hidden on form & video steps to save vertical space) */}
+        {step < 3 && (
+          <div className="relative w-full flex justify-center mb-6">
+            <img 
+              src="https://ik.imagekit.io/ufopzzlbh/addlovemodel.jpeg" 
+              alt="AddaLove Mascot" 
+              className="w-48 h-auto drop-shadow-[0_0_25px_rgba(255,41,148,0.4)] transition-all duration-500"
+            />
+          </div>
+        )}
 
-            {errors.general && handleError(errors.general)}
-            {successMessage && (
-              <div className="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-xl text-green-300 text-sm font-semibold">
-                {successMessage}
-              </div>
-            )}
+        {/* Main Glassmorphism Card */}
+        <div className="w-full bg-[#150A2A]/90 backdrop-blur-xl border border-white/5 rounded-[32px] p-6 shadow-2xl">
+          
+          {/* Main Messaging Logic for Step Header */}
+          {step !== 5 && (
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold mb-1">
+                {step === 1 && "Create an Account"}
+                {step === 2 && "Verify OTP"}
+                {step === 3 && "Complete Profile"}
+                {step === 4 && "Verification Video"}
+              </h2>
+              <p className="text-slate-400 text-sm">
+                {step === 1 && 'Enter your phone number to get started'}
+                {step === 2 && 'Enter the 6-digit code sent to your phone'}
+                {step === 3 && 'Tell us a bit more about yourself'}
+                {step === 4 && 'Record a 10s video to verify your identity'}
+              </p>
+            </div>
+          )}
 
-            <form onSubmit={handleSendOtp} className="space-y-6">
+          {/* Global Error/Success Render inside card */}
+          {errors.general && (
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-center">
+              <p className="text-red-400 text-xs flex items-center justify-center gap-1"><AlertCircle className="w-3 h-3"/>{errors.general}</p>
+            </div>
+          )}
+          {successMessage && step !== 5 && (
+            <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-xl text-center">
+              <p className="text-green-400 text-xs flex items-center justify-center gap-1"><CheckCircle2 className="w-3 h-3"/>{successMessage}</p>
+            </div>
+          )}
+
+          {/* ==================== STEP 1 ==================== */}
+          {step === 1 && (
+            <div className="space-y-4 animate-fadeIn">
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold mb-3 text-slate-200">
-                  Phone number
-                </label>
-                <input
-                  type="number"
-                  name='phoneNumber'
-                  id="phoneNumber"
-                  value={phoneNumber}
-                  onChange={(e) => {
-                    setPhoneNumber(e.target.value);
-                    setErrors((prev) => ({ ...prev, phoneNumber: '' }));
-                  }}
-                  placeholder="eg. 8625365418"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 hover:bg-white/5 disabled:opacity-50"
-                  disabled={loading}
-                />
-                {errors.phoneNumber && <p className="text-red-400 text-xs mt-2 font-semibold">{errors.phoneNumber}</p>}
+                <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                  <Smartphone className="w-5 h-5 text-[#FF2994] shrink-0" />
+                  <input
+                    type="number"
+                    name='phoneNumber'
+                    value={phoneNumber}
+                    onChange={(e) => {
+                      setPhoneNumber(e.target.value);
+                      if (errors.phoneNumber) setErrors({});
+                    }}
+                    placeholder="Phone Number"
+                    className="w-full bg-transparent text-white placeholder-slate-500 ml-3 outline-none text-sm disabled:opacity-50"
+                    disabled={loading}
+                  />
+                  <div className="flex items-center text-slate-400 text-sm border-l border-white/10 pl-3 ml-2 shrink-0">
+                    +91 <ChevronDown className="w-4 h-4 ml-1" />
+                  </div>
+                </div>
+                {errors.phoneNumber && <p className="text-red-400 text-xs mt-1.5 px-2">{errors.phoneNumber}</p>}
               </div>
 
               <button
-                type="submit"
+                onClick={handleSendOtp}
                 disabled={loading || !phoneNumber}
-                className="w-full py-3 px-4 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#FF4D8D]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:from-[#FF4D8D] hover:to-[#6C3BFF]"
+                className="w-full mt-4 py-4 bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] text-white font-bold rounded-full hover:shadow-[0_0_20px_rgba(255,41,148,0.4)] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
               >
-                {loading ? 'Sending OTP...' : 'Send OTP'}
+                {loading ? (
+                  <>
+                    <Loader className="w-4 h-4 animate-spin" />
+                    Sending OTP...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    Send OTP
+                  </>
+                )}
               </button>
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/20"></div>
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="px-2 bg-linear-to-br from-[#0F172A] via-[#1a1f3a] to-[#0F172A]">
-                    Already have an account?
-                  </span>
-                </div>
-              </div>
 
-              <Link
+              <Link 
                 to="/girlslogin"
-                className="block w-full py-3 border border-white/20 text-white font-bold rounded-xl text-center hover:bg-white/5 hover:border-[#FF4D8D] transition-all duration-300 transform hover:scale-105"
+                className="mt-6 flex items-center justify-between w-full bg-[#1A0B2E] border border-white/5 hover:border-[#FF2994]/30 rounded-2xl p-4 transition-colors group cursor-pointer"
               >
-                Login
+                <span className="text-sm text-slate-300">
+                  Already have an account? <span className="text-[#FF2994] font-medium group-hover:text-[#FF66AD] transition-colors">Login</span>
+                </span>
+                <div className="w-7 h-7 rounded-full bg-[#2A1545] flex items-center justify-center group-hover:bg-[#FF2994]/20 transition-colors">
+                  <ArrowRight className="w-4 h-4 text-[#FF2994]" />
+                </div>
               </Link>
-            </form>
-          </div>
-        </div>
-      </div>
-    );
-  }
+            </div>
+          )}
 
-  // ==================== RENDER STEP 2: OTP VERIFICATION ====================
-  if (step === 2) {
-    return (
-      <div className="min-h-screen bg-linear-to-br from-[#0F172A] via-[#1a1f3a] to-[#0F172A] text-slate-100 flex items-center justify-center px-4 py-8">
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-72 h-72 bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        </div>
-
-        <div className="relative w-full max-w-md">
-          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl hover:shadow-2xl hover:border-white/30 transition-all duration-300">
-            <h1 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] bg-clip-text text-transparent mb-2 text-center">
-              Verify OTP
-            </h1>
-            <p className="text-slate-400 text-sm text-center mb-8 font-semibold tracking-wide">
-              Step 2: Enter 6-Digit Code
-            </p>
-
-            {errors.general && handleError(errors.general)}
-            {successMessage && (
-              <div className="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-xl text-green-300 text-sm font-semibold">
-                {successMessage}
-              </div>
-            )}
-
-            <p className="text-slate-300 text-sm text-center mb-6 font-medium">
-              We've sent an OTP to <span className="text-[#FF4D8D] font-bold">{email}</span>
-            </p>
-
-            <form onSubmit={handleSubmitOtp} className="space-y-6">
+          {/* ==================== STEP 2 ==================== */}
+          {step === 2 && (
+            <div className="space-y-6 animate-fadeIn">
               <div>
-                <label htmlFor="otp" className="block text-sm font-semibold mb-3 text-slate-200">
-                  Enter OTP
-                </label>
-                <input
-                  type="text"
-                  id="otp"
-                  value={otp}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                    setOtp(value);
-                    setErrors((prev) => ({ ...prev, otp: '' }));
-                  }}
-                  placeholder="000000"
-                  maxLength="6"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 hover:bg-white/5 text-center text-2xl tracking-widest font-bold disabled:opacity-50"
-                  disabled={loading}
-                />
-                {errors.otp && <p className="text-red-400 text-xs mt-2 font-semibold">{errors.otp}</p>}
+                <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-4 focus-within:border-[#FF2994]/50 transition-colors">
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => {
+                      setOtp(e.target.value.replace(/\D/g, '').slice(0, 6));
+                      if (errors.otp) setErrors({});
+                    }}
+                    placeholder="••••••"
+                    maxLength="6"
+                    className="w-full bg-transparent text-white placeholder-slate-600 text-center text-3xl tracking-[0.5em] font-bold outline-none disabled:opacity-50"
+                    disabled={loading}
+                  />
+                </div>
+                {errors.otp && <p className="text-red-400 text-xs mt-1.5 px-2 text-center">{errors.otp}</p>}
               </div>
-
-              {otpSent && timer > 0 && (
-                <p className="text-center text-slate-300 text-sm font-semibold">
-                  Resend OTP in <span className="text-[#FF4D8D]">{timer}s</span>
-                </p>
-              )}
 
               <button
-                type="submit"
+                onClick={handleSubmitOtp}
                 disabled={loading || otp.length !== 6}
-                className="w-full py-3 px-4 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#FF4D8D]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                className="w-full py-4 bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] text-white font-bold rounded-full hover:shadow-[0_0_20px_rgba(255,41,148,0.4)] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
               >
-                {loading ? 'Verifying...' : 'Verify OTP'}
+                {loading ? (
+                  <>
+                    <Loader className="w-4 h-4 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  <>
+                    <Verified className="w-4 h-4" />
+                    Verify OTP
+                  </>
+                )}
               </button>
 
-              {timer === 0 && (
+              <div className="text-center flex justify-between items-center px-2">
                 <button
-                  type="button"
-                  onClick={handleSendOtp}
-                  className="w-full py-3 px-4 bg-white/5 border border-white/20 text-slate-200 font-bold rounded-xl hover:bg-white/10 hover:border-white/30 transition-all duration-300"
+                  onClick={() => {
+                    setStep(1);
+                    setOtp('');
+                    setErrors({});
+                  }}
+                  className="text-xs text-slate-400 hover:text-white transition-colors font-medium"
                 >
-                  Resend OTP
+                  Change Number
                 </button>
-              )}
-            </form>
-
-            <button
-              onClick={() => setStep(1)}
-              className="w-full mt-6 py-3 px-4 text-slate-300 font-semibold hover:text-slate-100 transition-colors duration-300"
-            >
-              ← Back
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ==================== RENDER STEP 3: REGISTRATION FORM ====================
-  if (step === 3) {
-    return (
-      <div className="min-h-screen bg-linear-to-br from-[#0F172A] via-[#1a1f3a] to-[#0F172A] text-slate-100 flex items-center justify-center px-4 py-8">
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-72 h-72 bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        </div>
-
-        <div className="relative w-full max-w-md">
-          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl hover:shadow-2xl hover:border-white/30 transition-all duration-300">
-            <h1 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] bg-clip-text text-transparent mb-2 text-center">
-              Complete Profile
-            </h1>
-            <p className="text-slate-400 text-sm text-center mb-8 font-semibold tracking-wide">
-              Step 3: Your Information
-            </p>
-
-            {errors.general && handleError(errors.general)}
-            {successMessage && (
-              <div className="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-xl text-green-300 text-sm font-semibold">
-                {successMessage}
+                {timer > 0 ? (
+                  <span className="text-xs text-slate-400 bg-white/5 px-3 py-1 rounded-full">Resend in {timer}s</span>
+                ) : (
+                  <button
+                    onClick={handleSendOtp}
+                    className="text-xs text-[#FF2994] hover:text-[#FF66AD] transition-colors font-medium"
+                  >
+                    Resend OTP
+                  </button>
+                )}
               </div>
-            )}
+            </div>
+          )}
 
-            <form onSubmit={handleRegisterSubmit} className="space-y-5">
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-semibold mb-2 text-slate-200">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  placeholder="Enter your full name"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 hover:bg-white/5 disabled:opacity-50"
-                  disabled={loading}
-                />
-                {errors.fullName && <p className="text-red-400 text-xs mt-1 font-semibold">{errors.fullName}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-semibold mb-2 text-slate-200">
-                  <div className='flex gap-2'>Phone Number (Verified) <Verified className='h-5 text-blue-600' /></div>
-                </label>
-                <input
-                  type="number"
-                  id="phoneNumber"
-                  name='phoneNumber'
-                  value={phoneNumber}
-                  disabled
-                  readOnly
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-500 placeholder-slate-400 focus:outline-none cursor-not-allowed"
-                />
-              </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-semibold mb-2 text-slate-200">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name='email'
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-sm hover:bg-white/5 resize-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2 text-slate-200">
-                  Bio
-                </label>
-                <textarea
-                  name="bio"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                  placeholder="Tell us about yourself"
-                  rows={4}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 text-sm hover:bg-white/5 resize-none"
-                />
-                {errors.bio && <p className="text-red-400 text-xs mt-1">{errors.bio}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="age" className="block text-sm font-semibold mb-2 text-slate-200">
-                  Age
-                </label>
-                <input
-                  type="number"
-                  id="age"
-                  name="age"
-                  value={formData.age}
-                  onChange={handleInputChange}
-                  placeholder="Enter your age"
-                  min="18"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 hover:bg-white/5 disabled:opacity-50"
-                  disabled={loading}
-                />
-                {errors.age && <p className="text-red-400 text-xs mt-1 font-semibold">{errors.age}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="profilePhoto" className="block text-sm font-semibold mb-2 text-slate-200">
-                  Profile Photo
-                </label>
-                <div className="space-y-3">
+          {/* ==================== STEP 3 ==================== */}
+          {step === 3 && (
+            <form onSubmit={handleRegisterSubmit} className="space-y-3.5 animate-fadeIn">
+              
+              {/* Profile Photo Upload inside Step 3 */}
+              <div className="flex flex-col items-center mb-4">
+                <div className="relative group">
                   <input
                     type="file"
-                    id="profilePhoto"
                     accept="image/*"
                     onChange={handlePhotoUpload}
-                    className="w-full px-4 py-3 bg-white/5 border-2 border-dashed border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] transition-all duration-300 hover:border-white/30 cursor-pointer disabled:opacity-50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#FF4D8D]/20 file:text-[#FF4D8D] hover:file:bg-[#FF4D8D]/30"
+                    className="hidden"
+                    id="profilePhoto"
                     disabled={loading}
                   />
-                  {formData.profilePhotoPreview && (
-                    <div className="relative w-32 h-32 mx-auto rounded-xl overflow-hidden border-2 border-[#FF4D8D]/30">
-                      <img src={formData.profilePhotoPreview} alt="Preview" className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                </div>
-                {errors.profilePhoto && <p className="text-red-400 text-xs mt-1 font-semibold">{errors.profilePhoto}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-semibold mb-2 text-slate-200">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    placeholder="Min 8 characters"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 hover:bg-white/5 pr-10 disabled:opacity-50"
-                    disabled={loading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-[#FF4D8D] transition-colors"
+                  <label
+                    htmlFor="profilePhoto"
+                    className={`flex flex-col items-center justify-center w-24 h-24 rounded-full cursor-pointer transition-all duration-300 overflow-hidden border-2 ${formData.profilePhotoPreview ? 'border-[#FF2994]' : 'border-dashed border-white/20 bg-[#1C1035] hover:border-[#FF2994]/50 hover:bg-[#251545]'}`}
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
+                    {formData.profilePhotoPreview ? (
+                      <>
+                        <img
+                          src={formData.profilePhotoPreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Camera className="w-6 h-6 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center text-slate-400">
+                        <Camera className="w-6 h-6 mb-1 text-slate-400 group-hover:text-[#FF2994] transition-colors" />
+                        <span className="text-[9px] font-medium uppercase tracking-wider group-hover:text-[#FF2994] transition-colors">Upload</span>
+                      </div>
+                    )}
+                  </label>
                 </div>
-                {errors.password && <p className="text-red-400 text-xs mt-1 font-semibold">{errors.password}</p>}
+                {errors.profilePhoto && <p className="text-red-400 text-xs mt-1.5">{errors.profilePhoto}</p>}
               </div>
 
+              {/* Full Name */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-semibold mb-2 text-slate-200">
-                  Confirm Password
-                </label>
-                <div className="relative">
+                <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                  <User className="w-5 h-5 text-slate-400 shrink-0" />
                   <input
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
                     onChange={handleInputChange}
-                    placeholder="Confirm your password"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#FF4D8D] focus:bg-white/10 transition-all duration-300 hover:bg-white/5 pr-10 disabled:opacity-50"
+                    placeholder="Full Name"
+                    className="w-full bg-transparent text-white placeholder-slate-500 ml-3 outline-none text-sm disabled:opacity-50"
                     disabled={loading}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-[#FF4D8D] transition-colors"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
                 </div>
-                {errors.confirmPassword && <p className="text-red-400 text-xs mt-1 font-semibold">{errors.confirmPassword}</p>}
+                {errors.fullName && <p className="text-red-400 text-xs mt-1 px-2">{errors.fullName}</p>}
               </div>
 
+              {/* Phone (Read-only) */}
+              <div>
+                <div className="flex items-center bg-[#150A2A] border border-white/5 rounded-2xl px-4 py-3.5 opacity-80">
+                  <Verified className="w-5 h-5 text-green-400 shrink-0" />
+                  <input
+                    type="number"
+                    value={phoneNumber}
+                    readOnly
+                    className="w-full bg-transparent text-slate-300 ml-3 outline-none text-sm cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div>
+                <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                  <Mail className="w-5 h-5 text-slate-400 shrink-0" />
+                  <input
+                    type="email"
+                    name='email'
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder='Email Address (Optional)'
+                    className="w-full bg-transparent text-white placeholder-slate-500 ml-3 outline-none text-sm disabled:opacity-50"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              {/* Age */}
+              <div>
+                <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                  <Calendar className="w-5 h-5 text-slate-400 shrink-0" />
+                  <input
+                    type="number"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleInputChange}
+                    placeholder="Age (Min 18)"
+                    min="18"
+                    max="120"
+                    className="w-full bg-transparent text-white placeholder-slate-500 ml-3 outline-none text-sm disabled:opacity-50"
+                    disabled={loading}
+                  />
+                </div>
+                {errors.age && <p className="text-red-400 text-xs mt-1 px-2">{errors.age}</p>}
+              </div>
+
+              {/* Bio */}
+              <div>
+                <div className="flex items-start bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                  <FileText className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                  <textarea
+                    name="bio"
+                    value={formData.bio}
+                    onChange={handleInputChange}
+                    placeholder="Write a short bio..."
+                    rows={2}
+                    className="w-full bg-transparent text-white placeholder-slate-500 ml-3 outline-none text-sm resize-none disabled:opacity-50"
+                    disabled={loading}
+                  />
+                </div>
+                {errors.bio && <p className="text-red-400 text-xs mt-1 px-2">{errors.bio}</p>}
+              </div>
+
+              {/* Passwords */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                    <Lock className="w-4 h-4 text-slate-400 shrink-0" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      placeholder="Password"
+                      className="w-full bg-transparent text-white placeholder-slate-500 ml-2 outline-none text-sm disabled:opacity-50"
+                      disabled={loading}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-slate-500 hover:text-white transition-colors shrink-0"
+                    >
+                      {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                  {errors.password && <p className="text-red-400 text-[10px] mt-1 px-1">{errors.password}</p>}
+                </div>
+                <div>
+                  <div className="flex items-center bg-[#1C1035] border border-white/5 rounded-2xl px-4 py-3.5 focus-within:border-[#FF2994]/50 transition-colors">
+                    <Lock className="w-4 h-4 text-slate-400 shrink-0" />
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      placeholder="Confirm"
+                      className="w-full bg-transparent text-white placeholder-slate-500 ml-2 outline-none text-sm disabled:opacity-50"
+                      disabled={loading}
+                    />
+                  </div>
+                  {errors.confirmPassword && <p className="text-red-400 text-[10px] mt-1 px-1">{errors.confirmPassword}</p>}
+                </div>
+              </div>
+
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 px-4 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#FF4D8D]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                className="w-full mt-4 py-4 bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] text-white font-bold rounded-full hover:shadow-[0_0_20px_rgba(255,41,148,0.4)] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
               >
-                {loading ? 'Registering...' : 'Continue to Video Upload'}
+                {loading ? (
+                  <>
+                    <Loader className="w-4 h-4 animate-spin" />
+                    Registering...
+                  </>
+                ) : (
+                  <>
+                    Continue to Video Verification
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="w-full py-2 mt-2 text-slate-400 hover:text-white transition-colors text-xs font-medium"
+                disabled={loading}
+              >
+                Back to OTP
               </button>
             </form>
+          )}
 
-            <button
-              onClick={() => setStep(2)}
-              className="w-full mt-6 py-3 px-4 text-slate-300 font-semibold hover:text-slate-100 transition-colors duration-300"
-            >
-              ← Back
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ==================== RENDER STEP 4: VIDEO RECORDING & UPLOAD PROGRESS ====================
-  if (step === 4) {
-    return (
-      <div className="min-h-screen bg-linear-to-br from-[#0F172A] via-[#1a1f3a] to-[#0F172A] text-slate-100 flex items-center justify-center px-4 py-8">
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-72 h-72 bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        </div>
-
-        <div className="relative w-full max-w-md">
-          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl hover:shadow-2xl hover:border-white/30 transition-all duration-300 max-h-[90vh] overflow-y-auto">
-            <h1 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] bg-clip-text text-transparent mb-2 text-center">
-              Verification Video
-            </h1>
-            <p className="text-slate-400 text-sm text-center mb-6 font-semibold tracking-wide">
-              Step 4: Record Your Video
-            </p>
-
-            {errors.general && handleError(errors.general)}
-            {errors.video && handleError(errors.video)}
-            {successMessage && (
-              <div className="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-xl text-green-300 text-sm font-semibold">
-                {successMessage}
+          {/* ==================== STEP 4 ==================== */}
+          {step === 4 && (
+            <div className="animate-fadeIn">
+              
+              {/* Instructions */}
+              <div className="mb-5 p-4 bg-[#1C1035] border border-white/5 rounded-2xl">
+                <h3 className="font-bold mb-2 text-slate-200 flex items-center gap-2 text-sm"><Video className="w-4 h-4 text-[#FF2994]" /> Verification Rules:</h3>
+                <ul className="space-y-1.5 text-xs text-slate-400 ml-6 list-disc">
+                  <li>Record a 10-second video</li>
+                  <li>Ensure your face is clearly visible</li>
+                  <li>Have good lighting and clear audio</li>
+                </ul>
               </div>
-            )}
 
-            {/* Instructions */}
-            <div className="mb-6 p-4 bg-white/5 border border-white/10 rounded-xl">
-              <h3 className="font-bold mb-3 text-slate-200">📹 Instructions:</h3>
-              <ul className="space-y-2 text-xs text-slate-300">
-                <li>✓ Record a 10-second video for verification</li>
-                <li>✓ Make sure your face is clearly visible</li>
-                <li>✓ The video helps us verify you are real</li>
-                <li>✓ Ensure good lighting and clear audio</li>
-              </ul>
-            </div>
-
-            {/* Video Preview / Recording Area */}
-            <div className="mb-6 rounded-2xl overflow-hidden border-2 border-white/20 hover:border-[#FF4D8D]/50 transition-all duration-300 bg-black">
-              {cameraActive ? (
-                <div className="relative aspect-video bg-black">
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="w-full h-full object-cover"
-                  />
-                  {isRecording && (
-                    <div className="absolute top-4 right-4 flex items-center gap-2 bg-red-500/80 px-4 py-2 rounded-full">
-                      <span className="inline-block w-2 h-2 bg-white rounded-full animate-pulse"></span>
-                      <span className="text-white text-sm font-bold">{recordingTime}s</span>
-                    </div>
-                  )}
-                </div>
-              ) : recordedVideoBlob ? (
-                <div className="space-y-3 p-4">
-                  <video
-                    src={URL.createObjectURL(recordedVideoBlob)}
-                    controls
-                    className="w-full h-auto rounded-lg"
-                  />
-                  <p className="text-green-400 text-sm font-bold text-center">
-                    ✓ Video recorded ({recordingTime}s)
-                  </p>
-                </div>
-              ) : (
-                <div className="aspect-video flex items-center justify-center text-slate-400">
-                  <p className="text-center">📷 Camera feed will appear here</p>
-                </div>
-              )}
-            </div>
-
-            {/* Recording Controls */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-              {!cameraActive ? (
-                <button
-                  className="col-span-1 md:col-span-2 py-3 px-4 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#FF4D8D]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
-                  onClick={handleStartCamera}
-                  disabled={loading}
-                >
-                  📷 Open Camera
-                </button>
-              ) : (
-                <>
-                  {!isRecording ? (
-                    <button
-                      className="py-3 px-4 bg-red-500/80 text-white font-bold rounded-xl hover:bg-red-600 hover:shadow-lg hover:shadow-red-500/50 transition-all duration-300"
-                      onClick={handleStartRecording}
-                      disabled={loading}
-                    >
-                      🔴 Start Record
-                    </button>
-                  ) : (
-                    <button
-                      className="py-3 px-4 bg-orange-500/80 text-white font-bold rounded-xl hover:bg-orange-600 hover:shadow-lg hover:shadow-orange-500/50 transition-all duration-300"
-                      onClick={handleStopRecording}
-                    >
-                      ⏹ Stop Record
-                    </button>
-                  )}
-
-                  <button
-                    className="py-3 px-4 bg-white/5 border border-white/20 text-slate-200 font-bold rounded-xl hover:bg-white/10 hover:border-white/30 disabled:opacity-50 transition-all duration-300"
-                    onClick={handleStopCamera}
-                    disabled={isRecording}
-                  >
-                    ❌ Close Camera
-                  </button>
-                </>
-              )}
-            </div>
-
-            {/* Submit & Upload Progress UI Layer */}
-            {recordedVideoBlob && (
-              <form onSubmit={handleSubmitVideo} className="space-y-4">
-                {loading && (
-                  <div className="w-full space-y-2 bg-white/5 p-4 rounded-xl border border-white/10">
-                    <div className="flex justify-between text-xs font-semibold text-slate-300">
-                      <span>Uploading verification file...</span>
-                      <span className="text-[#FF4D8D] font-bold">{uploadProgress}%</span>
-                    </div>
-                    <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                      <div 
-                        className="bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] h-full transition-all duration-150 ease-out"
-                        style={{ width: `${uploadProgress}%` }}
-                      ></div>
-                    </div>
+              {/* Video Preview / Recording Area */}
+              <div className="mb-5 rounded-2xl overflow-hidden border border-white/10 hover:border-[#FF2994]/50 transition-all duration-300 bg-[#1C1035] shadow-inner">
+                {errors.video && (
+                  <div className="p-2 bg-red-500/10 text-center border-b border-red-500/30">
+                    <p className="text-red-400 text-xs">{errors.video}</p>
                   </div>
                 )}
                 
-                <button
-                  type="submit"
-                  disabled={loading || recordingTime < 10}
-                  className="w-full py-3 px-4 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#FF4D8D]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
-                >
-                  {loading ? `Uploading Video (${uploadProgress}%)` : '📤 Upload & Submit'}
-                </button>
-              </form>
-            )}
+                {cameraActive ? (
+                  <div className="relative aspect-[4/3] bg-black">
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="w-full h-full object-cover scale-x-[-1]"
+                    />
+                    {isRecording && (
+                      <div className="absolute top-4 right-4 flex items-center gap-2 bg-red-500/90 px-3 py-1.5 rounded-full shadow-lg backdrop-blur-md border border-red-400/50">
+                        <span className="inline-block w-2 h-2 bg-white rounded-full animate-pulse"></span>
+                        <span className="text-white text-xs font-bold tracking-widest">00:0{recordingTime}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : recordedVideoBlob ? (
+                  <div className="p-3 bg-black">
+                    <video
+                      src={URL.createObjectURL(recordedVideoBlob)}
+                      controls
+                      className="w-full h-auto aspect-[4/3] rounded-xl object-cover"
+                    />
+                    <div className="mt-3 flex items-center justify-center gap-1 text-green-400 text-xs font-bold bg-green-500/10 py-2 rounded-lg border border-green-500/20">
+                      <CheckCircle2 className="w-4 h-4" /> Video recorded successfully ({recordingTime}s)
+                    </div>
+                  </div>
+                ) : (
+                  <div className="aspect-[4/3] flex flex-col items-center justify-center text-slate-500 gap-3">
+                    <Camera className="w-10 h-10 opacity-50" />
+                    <p className="text-xs font-medium uppercase tracking-widest">Camera Feed</p>
+                  </div>
+                )}
+              </div>
 
-            <button
-              onClick={() => setStep(3)}
-              disabled={loading}
-              className="w-full mt-6 py-3 px-4 text-slate-300 font-semibold hover:text-slate-100 transition-colors duration-300 disabled:opacity-50"
-            >
-              ← Back
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+              {/* Recording Controls */}
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                {!cameraActive ? (
+                  <button
+                    className="col-span-2 py-3.5 px-4 bg-[#1C1035] border border-white/10 text-white font-bold rounded-2xl hover:border-[#FF2994]/50 hover:bg-[#251545] disabled:opacity-50 transition-all duration-300 flex items-center justify-center gap-2 text-sm"
+                    onClick={handleStartCamera}
+                    disabled={loading}
+                  >
+                    <Camera className="w-4 h-4 text-[#FF2994]" />
+                    Open Camera
+                  </button>
+                ) : (
+                  <>
+                    {!isRecording ? (
+                      <button
+                        className="col-span-2 py-3.5 px-4 bg-red-500/90 text-white font-bold rounded-2xl hover:bg-red-600 hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] transition-all duration-300 flex items-center justify-center gap-2 text-sm"
+                        onClick={handleStartRecording}
+                        disabled={loading}
+                      >
+                        <span className="w-3 h-3 bg-white rounded-full"></span>
+                        Start Recording
+                      </button>
+                    ) : (
+                      <button
+                        className="col-span-2 py-3.5 px-4 bg-orange-500/90 text-white font-bold rounded-2xl hover:bg-orange-600 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-300 flex items-center justify-center gap-2 text-sm"
+                        onClick={handleStopRecording}
+                      >
+                        <span className="w-3 h-3 bg-white rounded-sm"></span>
+                        Stop Recording
+                      </button>
+                    )}
 
-  // ==================== RENDER STEP 5: SUCCESS SCREEN ====================
-  if (step === 5) {
-    return (
-      <div className="min-h-screen bg-linear-to-br from-[#0F172A] via-[#1a1f3a] to-[#0F172A] text-slate-100 flex items-center justify-center px-4 py-8">
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-72 h-72 bg-linear-to-r from-[#6C3BFF] to-[#FF4D8D] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        </div>
+                    <button
+                      className="col-span-2 py-3 px-4 bg-transparent border border-white/10 text-slate-400 font-medium rounded-2xl hover:bg-white/5 hover:text-white disabled:opacity-50 transition-all duration-300 text-xs"
+                      onClick={handleStopCamera}
+                      disabled={isRecording}
+                    >
+                      Cancel & Close Camera
+                    </button>
+                  </>
+                )}
+              </div>
 
-        <div className="relative w-full max-w-md">
-          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl hover:shadow-2xl hover:border-white/30 transition-all duration-300 max-h-[90vh] overflow-y-auto">
-            <div className="text-6xl text-center mb-6 animate-bounce">✅</div>
+              {/* Submit & Upload Progress UI Layer */}
+              {recordedVideoBlob && (
+                <form onSubmit={handleSubmitVideo} className="space-y-4">
+                  {loading && (
+                    <div className="w-full space-y-2 bg-[#1C1035] p-4 rounded-2xl border border-white/5">
+                      <div className="flex justify-between text-xs font-semibold text-slate-300">
+                        <span>Uploading verification file...</span>
+                        <span className="text-[#FF2994] font-bold">{uploadProgress}%</span>
+                      </div>
+                      <div className="w-full bg-black h-2 rounded-full overflow-hidden border border-white/5">
+                        <div 
+                          className="bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] h-full transition-all duration-150 ease-out"
+                          style={{ width: `${uploadProgress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <button
+                    type="submit"
+                    disabled={loading || recordingTime < 10}
+                    className="w-full py-4 px-4 bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] text-white font-bold rounded-full hover:shadow-[0_0_20px_rgba(255,41,148,0.4)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2 text-sm"
+                  >
+                    {loading ? `Uploading Video (${uploadProgress}%)` : (
+                      <>
+                        Submit Verification Video <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+          )}
 
-            <h1 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] bg-clip-text text-transparent mb-3 text-center">
-              Application Submitted!
-            </h1>
+          {/* ==================== STEP 5 ==================== */}
+          {step === 5 && (
+            <div className="animate-fadeIn py-4">
+              <div className="w-20 h-20 mx-auto bg-green-500/20 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(34,197,94,0.3)] animate-pulse">
+                <CheckCircle2 className="w-10 h-10 text-green-400" />
+              </div>
 
-            <div className="space-y-6">
-              <p className="text-center text-slate-300 font-medium">
-                Your application has been successfully received.
+              <h1 className="text-2xl font-bold text-white mb-2 text-center">
+                Application Submitted!
+              </h1>
+              <p className="text-center text-slate-400 text-sm mb-6">
+                Your verification video is under review.
               </p>
 
-              <div className="bg-linear-to-r from-[#FF4D8D]/20 to-[#6C3BFF]/20 border border-[#FF4D8D]/30 rounded-2xl p-6 text-center">
-                <p className="text-xs font-bold text-slate-300 mb-3 tracking-widest uppercase">
+              <div className="bg-[#1C1035] border border-white/5 rounded-2xl p-5 mb-6 text-center shadow-inner">
+                <p className="text-[10px] font-bold text-slate-400 mb-2 tracking-widest uppercase">
                   Your Application ID
                 </p>
-                <div className="flex items-center justify-center gap-3 bg-white/5 rounded-xl p-4 border border-white/10">
-                  <span className="text-xl md:text-2xl font-bold font-mono text-[#FF4D8D] break-all">
+                <div className="flex items-center justify-between gap-3 bg-black/50 rounded-xl p-3 border border-white/5">
+                  <span className="text-sm font-bold font-mono text-[#FF2994] truncate">
                     {applicationId}
                   </span>
                   <button
                     onClick={handleCopyApplicationId}
-                    className="shrink-0 w-10 h-10 rounded-lg bg-[#FF4D8D]/20 border border-[#FF4D8D]/50 flex items-center justify-center text-[#FF4D8D] hover:bg-[#FF4D8D]/30 hover:border-[#FF4D8D] transition-all duration-300 hover:shadow-lg hover:shadow-[#FF4D8D]/50"
+                    className="shrink-0 w-8 h-8 rounded-lg bg-[#251545] border border-white/5 flex items-center justify-center text-slate-300 hover:bg-[#FF2994]/20 hover:text-[#FF2994] hover:border-[#FF2994]/50 transition-all duration-300"
                     title="Copy to clipboard"
                   >
-                    📋
+                    <Copy className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
-                <h3 className="font-bold text-slate-200 flex items-center gap-2">
-                  ⏳ What Happens Next?
+              <div className="bg-[#1C1035] border border-white/5 rounded-2xl p-5 space-y-4 mb-6">
+                <h3 className="text-sm font-bold text-slate-200 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-[#8B2BFF]" /> What Happens Next?
                 </h3>
-                <ol className="space-y-2 text-sm text-slate-300">
+                <ul className="space-y-3 text-xs text-slate-400">
                   <li className="flex gap-3">
-                    <span className="font-bold text-[#FF4D8D]">1.</span>
-                    <span>Our admin team will review your verification video</span>
+                    <span className="w-5 h-5 rounded-full bg-[#251545] text-white flex items-center justify-center shrink-0 font-bold text-[10px]">1</span>
+                    <span>Admin review of your video & profile.</span>
                   </li>
                   <li className="flex gap-3">
-                    <span className="font-bold text-[#FF4D8D]">2.</span>
-                    <span>We will verify that you are a real person</span>
+                    <span className="w-5 h-5 rounded-full bg-[#251545] text-white flex items-center justify-center shrink-0 font-bold text-[10px]">2</span>
+                    <span>Identity and age verification check.</span>
                   </li>
                   <li className="flex gap-3">
-                    <span className="font-bold text-[#FF4D8D]">3.</span>
-                    <span>Once approved, you'll receive a confirmation email</span>
+                    <span className="w-5 h-5 rounded-full bg-[#251545] text-white flex items-center justify-center shrink-0 font-bold text-[10px]">3</span>
+                    <span>Approval email sent to your inbox.</span>
                   </li>
-                  <li className="flex gap-3">
-                    <span className="font-bold text-[#FF4D8D]">4.</span>
-                    <span>You can then start using our platform</span>
-                  </li>
-                </ol>
+                </ul>
               </div>
 
-              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 text-yellow-200 text-xs font-semibold">
-                📧 Please check your email (including spam folder) for our confirmation.
-              </div>
-
-              <div className="space-y-3 pt-4">
+              <div className="space-y-3">
                 <button
                   onClick={handleCheckApplication}
-                  className="w-full py-3 px-4 bg-linear-to-r from-[#FF4D8D] to-[#6C3BFF] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#FF4D8D]/50 transition-all duration-300"
+                  className="w-full py-3.5 px-4 bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] text-white font-bold rounded-full hover:shadow-[0_0_20px_rgba(255,41,148,0.4)] transition-all duration-300 text-sm"
                 >
-                  🔍 Check Application Status
+                  Check Application Status
                 </button>
 
                 <button
                   onClick={() => navigate('/login')}
-                  className="w-full py-3 px-4 bg-white/5 border border-white/20 text-slate-200 font-bold rounded-xl hover:bg-white/10 hover:border-white/30 transition-all duration-300"
+                  className="w-full py-3.5 px-4 bg-transparent border border-white/10 text-slate-300 font-bold rounded-full hover:bg-white/5 transition-all duration-300 text-sm"
                 >
-                  🔐 Go to Login
+                  Return to Login
                 </button>
               </div>
             </div>
-          </div>
+          )}
+
         </div>
+
+        {/* Progress Indicator (Global for Steps 1-4) */}
+        {step < 5 && (
+          <div className="flex gap-2 justify-center mt-6 z-10">
+            {[1, 2, 3, 4].map(i => (
+              <div
+                key={i}
+                className={`h-1.5 rounded-full transition-all duration-500 ${
+                  i === step
+                    ? 'bg-gradient-to-r from-[#FF2994] to-[#8B2BFF] w-8 shadow-[0_0_10px_rgba(255,41,148,0.5)]'
+                    : i < step 
+                      ? 'bg-[#8B2BFF]/50 w-4'
+                      : 'bg-white/10 w-4'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
-    );
-  }
+
+      {/* Animation & Inputs Reset */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.4s ease-out forwards;
+        }
+        /* Hide number input spinners */
+        input[type='number']::-webkit-inner-spin-button,
+        input[type='number']::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type='number'] {
+          -moz-appearance: textfield;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// Inline component for the Clock icon (since it wasn't in the original imports)
+function Clock(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
 }
