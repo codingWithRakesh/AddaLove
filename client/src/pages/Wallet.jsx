@@ -18,7 +18,7 @@ import { useUserData } from '../context/UserdataContext';
 import useUserStore from '../store/userStore';
 import loadRazorpay from '../utils/RazorpayLoder';
 import removeRazorpay from '../utils/RazorpayRemove';
-
+import Recharge from "../assets/Recharge.png"
 const coinPackages = [
     { coins: 25, price: 9, bonus: null, tag: 'BASIC', tagType: 'basic' },
     { coins: 95, price: 29, bonus: null, tag: 'BASIC', tagType: 'basic' },
@@ -192,7 +192,7 @@ export default function AddaLoveRecharge() {
                 {/* Hero Character Image */}
                 <div className="relative w-full flex justify-center mb-6 animate-fadeIn">
                     <img 
-                        src="https://ik.imagekit.io/ufopzzlbh/addlovemodel.jpeg" 
+                        src={Recharge}
                         alt="AddaLove Mascot" 
                         className="w-48 h-auto drop-shadow-[0_0_25px_rgba(255,41,148,0.4)]"
                     />

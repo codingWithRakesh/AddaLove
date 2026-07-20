@@ -486,7 +486,7 @@ const Home = () => {
 
                                 {/* Audio Wave Visualizer & Listeners */}
                                 <div className="flex flex-col items-center justify-center transition-transform hover:scale-105">
-                                  <div className="bg-gradient-to-b from-white to-[#FF4D8D] bg-clip-text text-2xl font-black text-transparent drop-shadow-[0_0_15px_rgba(255,77,141,0.8)]">
+                                  <div className="bg-linear-to-b from-white to-[#FF4D8D] bg-clip-text text-2xl font-black text-transparent drop-shadow-[0_0_15px_rgba(255,77,141,0.8)]">
                                     {room.totalFollowers || 0}
                                   </div>
                                   <div className="text-xs font-semibold tracking-widest text-[#FF4D8D] drop-shadow-[0_0_8px_rgba(255,77,141,0.6)]">
@@ -508,8 +508,6 @@ const Home = () => {
                               <span className="text-[11px] font-medium text-slate-200">{isOccupied ? 'Busy' : 'Join'}</span>
                             </div>
                           </div>
-
-                          {/* Languages Bottom Section */}
                           <div className="mt-4 flex flex-wrap gap-2">
                             {room.language?.map((lang) => (
                               <span key={lang} className="rounded-full border border-white/10 bg-transparent px-3.5 py-1 text-[11px] font-medium text-slate-300">

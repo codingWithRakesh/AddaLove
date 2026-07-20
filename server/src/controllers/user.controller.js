@@ -14,6 +14,7 @@ import Girls from '../models/girls.model.js';
 import mongoose from 'mongoose';
 import { userRateCalculate } from '../utils/calculateUserRateAVG.js';
 import axios from 'axios'
+import { respactPointCalculate } from '../utils/respactPointCalculate.js';
 const sendOtp = asyncHandler(async (req, res) => {
     const { email, purpose } = req.body;
     if (!email) {
@@ -327,12 +328,72 @@ const currentUser = asyncHandler(async (req, res) => {
                 }
             }
         ]);
-        const userRateAVG = await userRateCalculate(req.user._id);
+        const leaderboard = await User.aggregate([
+            { $match: { userType: 'Boy' } },
+            {
+                $lookup: {
+                    from: 'ratings',
+                    let: { userId: '$_id' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ['$ratedUser', '$$userId'] },
+                                        { $eq: ['$ratedUserModel', 'User'] }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: null,
+                                totalRatingSum: { $sum: '$rating' },
+                                ratingCount: { $sum: 1 }
+                            }
+                        }
+                    ],
+                    as: 'ratingData'
+                }
+            },
+            {
+                $addFields: {
+                    ratingCount: { $ifNull: [{ $arrayElemAt: ['$ratingData.ratingCount', 0] }, 0] },
+                    totalRatingSum: { $ifNull: [{ $arrayElemAt: ['$ratingData.totalRatingSum', 0] }, 0] }
+                }
+            },
+            {
+                $addFields: {
+                    ratingScore: { $multiply: ['$totalRatingSum', 2] }
+                }
+            },
+            { $sort: { ratingScore: -1 } },
+            { $limit: 100},
+            {
+                $project: {
+                    _id: 1,
+                    fullName: 1,
+                    imageUrl: 1,
+                    gender: '$userType',
+                    ratingCount: 1,
+                    ratingScore: 1
+                }
+            }
+        ]);
+
+        let userRank = 0;
+        for (let i in leaderboard) {
+            if (leaderboard[i]._id.toString() == req.user._id.toString()) {
+                console.log("Hello");
+                userRank = Number(i) + 1;
+            }
+        }
+        const userRateAVG = await respactPointCalculate(req.user._id);
         const userInfo = user[0];
         return res.status(200).json(
             new ApiResponse(
                 200,
-                { userInfo, userRateAVG },
+                { userInfo, userRateAVG, userRank },
                 "Current user details retrieved successfully"
             )
         );
@@ -396,13 +457,101 @@ const currentUser = asyncHandler(async (req, res) => {
                 }
             }
         ]);
+        const leaderboard = await Girls.aggregate([
+            { $match: { applicationStatus: 'accepted' } },
+            {
+                $lookup: {
+                    from: 'followers',
+                    let: { girlId: '$_id' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ['$following', '$$girlId'] },
+                                        { $eq: ['$followingModel', 'Girls'] }
+                                    ]
+                                }
+                            }
+                        },
+                        { $count: 'count' }
+                    ],
+                    as: 'followerData'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'ratings',
+                    let: { girlId: '$_id' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ['$ratedUser', '$$girlId'] },
+                                        { $eq: ['$ratedUserModel', 'Girls'] }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            $group: {
+                                _id: null,
+                                totalRatingSum: { $sum: '$rating' },
+                                ratingCount: { $sum: 1 }
+                            }
+                        }
+                    ],
+                    as: 'ratingData'
+                }
+            },
+            {
+                $addFields: {
+                    followersCount: { $ifNull: [{ $arrayElemAt: ['$followerData.count', 0] }, 0] },
+                    ratingCount: { $ifNull: [{ $arrayElemAt: ['$ratingData.ratingCount', 0] }, 0] },
+                    totalRatingSum: { $ifNull: [{ $arrayElemAt: ['$ratingData.totalRatingSum', 0] }, 0] }
+                }
+            },
+            {
+                $addFields: {
+                    averageRating: {
+                        $cond: [
+                            { $eq: ['$ratingCount', 0] },
+                            0,
+                            { $divide: ['$totalRatingSum', '$ratingCount'] }
+                        ]
+                    },
+                    leaderboardScore: { $add: ['$followersCount', '$totalRatingSum'] }
+                }
+            },
+            { $sort: { leaderboardScore: -1 } },
+            {
+                $project: {
+                    _id: 1,
+                    fullName: 1,
+                    imageUrl: 1,
+                    userBio: 1,
+                    gender: '$userType',
+                    followersCount: 1,
+                    ratingCount: 1,
+                    averageRating: { $round: ['$averageRating', 1] }
+                }
+            }
+        ]);
 
+        let userRank = 0;
+        for (let i in leaderboard) {
+            if (leaderboard[i]._id.toString() == req.user._id.toString()) {
+                console.log("Hello");
+                userRank = Number(i) + 1;
+            }
+        }
         const userRateAVG = await userRateCalculate(req.user._id);
         const userInfo = user[0];
         return res.status(200).json(
             new ApiResponse(
                 200,
-                { userInfo, userRateAVG },
+                { userInfo, userRateAVG ,userRank },
                 "Current user details retrieved successfully"
             )
         );
@@ -454,11 +603,11 @@ const forgetPassword = asyncHandler(async (req, res) => {
     if (userDataBoy) {
 
         await User.findByIdAndUpdate(userDataBoy._id, { $set: { password: haspass } }, { new: true })
-        return res.status(200).json(new ApiResponse(200,null,'Password changed Successfully'))
+        return res.status(200).json(new ApiResponse(200, null, 'Password changed Successfully'))
     }
-    if(userDataGirl){
-        await Girls.findByIdAndUpdate(userDataGirl._id,{$set:{ password: haspass}}, { new: true })
-        return res.status(200).json(new ApiResponse(200,null,'Password changed Successfully'))
+    if (userDataGirl) {
+        await Girls.findByIdAndUpdate(userDataGirl._id, { $set: { password: haspass } }, { new: true })
+        return res.status(200).json(new ApiResponse(200, null, 'Password changed Successfully'))
     }
 
 })

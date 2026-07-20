@@ -15,8 +15,9 @@ const userRateCalculate=async(userId)=>{
     sum=sum+allRate[i].rating;
    }
    avg=sum/allRate.length;
+
    
-   return avg;
+   return avg.toFixed(2);
 } 
 
 export {userRateCalculate};

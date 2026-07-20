@@ -4,6 +4,7 @@ import axios from "axios";
 const useUserStore = create((set) => ({
     user: null,
     userRate: null,
+    userRank:null,
     onlineUsers: [],
     setOnlineUsers: (users) => set({ onlineUsers: users }),
     removeOnlineUser: (userId) => {
@@ -28,8 +29,8 @@ const useUserStore = create((set) => ({
 
             if (response.status === 200) {
                 
-                set({ user: response.data.data.userInfo,userRate: response.data.data.userRateAVG ,isAuthenticated: true, userRole: response.data.data.userInfo.userType.toLowerCase(), isLoading: false });
-                console.log("from store", response.data.data);
+                set({ user: response.data.data.userInfo,userRate: response.data.data.userRateAVG ,userRank: response.data.data.userRank,isAuthenticated: true, userRole: response.data.data.userInfo.userType.toLowerCase(), isLoading: false });
+                // console.log("from store", response.data.data);
             } else {
                 set({ user: null, isAuthenticated: false, userRole: null });
             }

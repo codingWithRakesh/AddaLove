@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import useUserStore from '../store/userStore';
-import { LogOut, Bell, ChevronLeft, CheckCircle2, Star, Trophy, Users, UserCheck, Wallet } from 'lucide-react';
+import { LogOut, Bell, ChevronLeft, CheckCircle2, Star, Trophy, Users, UserCheck, Wallet, Verified } from 'lucide-react';
 import { handleError } from '../components/ErrorMessage';
-
+import respact from "../assets/respectpointlogo.png"
 export default function Profile() {
-  const { user: useralldata, userRole, userRate } = useUserStore();
+  const { user: useralldata, userRole, userRate , userRank} = useUserStore();
   const naviget = useNavigate();
 
   // State for Modal and Form
@@ -21,11 +21,11 @@ export default function Profile() {
   const isBoy = useMemo(() => userRole === 'boy', [userRole]);
   const isGirl = useMemo(() => userRole === 'girl', [userRole]);
 
-  useEffect(() => {
-    console.log("User Data:", useralldata);
-    console.log("User Rate:", userRate);
-    console.log(isBoy, '....... girl--->>', isGirl)
-  }, [useralldata, userRate]);
+  // useEffect(() => {
+  //   console.log("User Data:", useralldata);
+  //   console.log("User Rate:", userRate);
+  //   console.log(isBoy, '....... girl--->>', isGirl)
+  // }, [useralldata, userRate]);
 
   // Open modal and pre-fill data
   const handleOpenModal = () => {
@@ -124,7 +124,7 @@ export default function Profile() {
           <div className="flex items-start gap-4">
             {/* Crown Avatar Badge Container */}
             <div className="relative">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-lg drop-shadow-[0_2px_5px_rgba(236,72,153,0.5)] z-20">👑</div>
+              {userRank===1?<div className="absolute -top-4 left-1/2 -translate-x-1/2 text-lg drop-shadow-[0_2px_5px_rgba(236,72,153,0.5)] z-20">👑</div>:''}
               <div className="relative p-1 rounded-full bg-linear-to-tr from-[#8B5CF6] via-[#EC4899] to-[#F472B6] shadow-[0_0_20px_rgba(236,72,153,0.25)]">
                 <img
                   src={useralldata.imageUrl}
@@ -133,15 +133,15 @@ export default function Profile() {
                 />
               </div>
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-linear-to-r from-[#EC4899] to-[#8B5CF6] text-[9px] font-black tracking-wider uppercase whitespace-nowrap shadow-md shadow-pink-500/20 border border-white/10">
-                {isGirl ? 'Top Girl' : 'Top Boy'}
-              </div>
+                {isGirl ? userRank===1? 'Top Girl':`Rank ${userRank===0?'100+':userRank}` : userRank==1? 'Top Boy':`Rank ${userRank===0?'100+':userRank}`}
+              </div>:
             </div>
 
             {/* Profile Info Text Blocks */}
             <div className="space-y-1.5 mt-2">
               <div className="flex items-center gap-1.5">
                 <h1 className="text-xl font-bold tracking-tight text-white drop-shadow-sm">{useralldata.fullName}</h1>
-                <CheckCircle2 className="w-4 h-4 text-blue-400 fill-blue-400" />
+                <Verified className="w-4 h-4 text-blue-400" />
               </div>
 
               <div className="inline-block bg-purple-950/40 border border-purple-500/20 px-2.5 py-0.5 rounded-full text-[10px] font-semibold text-pink-300">
@@ -191,14 +191,14 @@ export default function Profile() {
           </div>
 
           <div className="bg-[#130E29]/60 border border-purple-900/30 rounded-2xl p-3 text-center flex flex-col justify-center items-center">
-            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 mb-1" />
+            {isBoy?<img src={respact} alt="Repact point logo" className='h-7' />:<Star className="w-4 h-4 text-yellow-500 fill-yellow-500 mb-1" />}
             <span className="text-sm font-black text-slate-200">{isBoy?Number(userRate)*2:userRate || '0'}</span>
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{isBoy?'Respect point':'Avg. Rating'}</span>
           </div>
 
           <div className="bg-[#130E29]/60 border border-purple-900/30 rounded-2xl p-3 text-center flex flex-col justify-center items-center">
             <Trophy className="w-4 h-4 text-orange-400 mb-1" />
-            <span className="text-sm font-black text-slate-200">Rank 3</span>
+            <span className="text-sm font-black text-slate-200">Rank {userRank===0?'100+':userRank}</span>
             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Leaderboard</span>
           </div>
         </section>
